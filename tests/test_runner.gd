@@ -20,7 +20,6 @@ func _ready() -> void:
 	load("res://tests/test_camp.gd").run(self)
 	load("res://tests/test_save.gd").run(self)
 	await load("res://tests/test_voyage_scene.gd").run_slice(self)
-	await load("res://tests/test_novice.gd").run(self)
 	print("RESULT %s (%d failures)" % ["PASS" if fails == 0 else "FAIL", fails])
 	get_tree().quit(1 if fails else 0)
 

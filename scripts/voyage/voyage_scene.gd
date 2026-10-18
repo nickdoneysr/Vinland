@@ -7,6 +7,7 @@ extends Node2D
 
 const RING_SCENE := preload("res://scenes/star_ring.tscn")
 const LINE_SCENE := preload("res://scenes/hand_line.tscn")
+const BAIL_SCENE := preload("res://scenes/storm_bail.tscn")
 const SELECTORS := ["pace", "ration", "animal_ration"]
 const SEL_NAMES := {"pace": "Pace", "ration": "Rations", "animal_ration": "Animals"}
 const SEL_VALUES := {"pace": ["crack", "easy", "heave"], "ration": ["full", "half", "bare"], "animal_ration": ["full", "half", "none"]}
@@ -75,6 +76,8 @@ func _handle_events(evs: Array) -> void:
 			"thirst": _card("The water is gone", "Without drink the crew sickens fast.")
 			"sick": _card("Sickness", "%d more of the crew are sick and cannot stand a watch." % e.count)
 			"death": _card("A death aboard", "%d lost. They are given to the sea with what words we have." % e.count)
+			"bail_held": _card("The storm passes", "You kept her afloat through the night. No fix, but the hull is whole.")
+			"overboard": _card("Man overboard", "A wave took one of the crew over the side. %s" % ("They were lost in the dark." if e.lost else "We got a line to them and hauled them back."))
 			"animal_died": _card("An animal died", "With no fodder, a %s died. Starve the bull, lose the trade good." % ("head of cattle" if e.kind == "cattle" else "sheep"))
 			"drift":
 				pass
@@ -99,9 +102,7 @@ func _end(won: bool, reason: String = "") -> void:
 func _night() -> void:
 	var sky := v.ring_preset()
 	if sky == "":
-		_card("Night  ·  no sky", "Storm cloud from rim to rim. No fix tonight; the ship walks where the wind takes her.")
-		v.watch += 0
-		_sail_one()
+		_open_bail()
 		return
 	mode = "ring"
 	ring = RING_SCENE.instantiate()
@@ -110,6 +111,25 @@ func _night() -> void:
 	ring.new_night(sky)
 	ring.finished.connect(func(r): _handle_events(v.take_fix(r.result)))
 	ring.closed.connect(_close_ring)
+
+func _open_bail() -> void:
+	mode = "ring"
+	var b := BAIL_SCENE.instantiate()
+	b.embedded = true
+	add_child(b)
+	b.start()
+	ring = b                      # reuse the child slot; the tests drive it like any mini-game
+	b.closed.connect(_close_bail)
+
+func _close_bail() -> void:
+	var r: Dictionary = ring.result
+	ring.queue_free()
+	ring = null
+	mode = "sail"
+	v.take_fix(RingFix.Result.NONE)          # no sky, no fix
+	_handle_events(v.apply_bail(bool(r.get("held", false))))
+	if mode == "sail":
+		_sail_one()
 
 func _close_ring() -> void:
 	ring.queue_free()

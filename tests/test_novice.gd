@@ -12,13 +12,14 @@ static func run(t) -> void:
 			table["ring_%s_%s" % [diff, dev]] = await _ring(t, tree, diff, kb)
 			table["line_%s_%s" % [diff, dev]] = await _line(t, tree, diff, kb)
 			table["joint_%s_%s" % [diff, dev]] = await _joint(t, tree, diff, kb)
-	for game in ["ring", "line", "joint"]:
+			table["bail_%s_%s" % [diff, dev]] = await _bail(t, tree, diff, kb)
+	for game in ["ring", "line", "joint", "bail"]:
 		var row := "INFO  novice %-6s" % game
 		for diff in ["forgiving", "standard", "hard"]:
 			for dev in ["keyboard", "pad"]:
 				row += "  %s/%s %3d%%" % [diff.substr(0, 4), dev.substr(0, 3), roundi(table["%s_%s_%s" % [game, diff, dev]] * 100)]
 		print(row)
-	for game in ["ring", "line", "joint"]:
+	for game in ["ring", "line", "joint", "bail"]:
 		for diff in TARGET:
 			for dev in ["keyboard", "pad"]:
 				var v: float = table["%s_%s_%s" % [game, diff, dev]]
@@ -81,6 +82,26 @@ static func _joint(t, tree: SceneTree, diff: String, kb: bool) -> float:
 			sc._process(1.0 / 60.0)
 			g += 1
 		if sc.result.get("seated", false):
+			ok += 1
+		sc.queue_free()
+	await tree.process_frame
+	return float(ok) / n
+
+static func _bail(t, tree: SceneTree, diff: String, kb: bool) -> float:
+	var ok := 0; var n := 24
+	for s in n:
+		var sc: Node = load("res://scenes/storm_bail.tscn").instantiate()
+		sc.embedded = true
+		t.add_child(sc)
+		sc.difficulty = diff
+		sc.start(2100 + s)
+		var nov := Novice.new(2100 + s + (0 if kb else 50), kb)
+		sc.bot_input = nov.bail
+		var g := 0
+		while sc.result.is_empty() and g < 60 * 60:
+			sc._process(1.0 / 60.0)
+			g += 1
+		if sc.result.get("held", false):
 			ok += 1
 		sc.queue_free()
 	await tree.process_frame

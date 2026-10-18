@@ -52,6 +52,7 @@ var sail_strain := 0.0
 var weather := "fair"
 var deck: Array = []
 var fix_today := -1          # RingFix.Result or -1 when no fix was taken
+var storm_bailed := false    # the storm bail was held tonight: no strakes spring for the rest of the day
 var fished_today := false
 var day_nm := 0.0
 var starving_days := 0
@@ -150,6 +151,7 @@ func start_day() -> Dictionary:
 	weather = deck.pop_back()
 	fix_today = -1
 	fished_today = false
+	storm_bailed = false
 	day_nm = 0.0
 	return {"type": "weather", "card": weather, "info": wx[weather]}
 
@@ -193,7 +195,7 @@ func sail_watch() -> Array:
 			sail_torn = true
 			sail_strain = 0.0
 			ev.append({"type": "sail_torn"})
-	if weather == "storm":
+	if weather == "storm" and not storm_bailed:
 		var chance := n("sprung_strake_chance_per_storm_watch_hove_to", 0.02) if pace == "heave" else n("sprung_strake_chance_per_storm_watch_running", 0.12)
 		if rng.randf() < chance:
 			hull += 1
@@ -244,6 +246,31 @@ func fish(quality: float = -1.0, caught_pd: float = -1.0, hooks_lost: int = 0) -
 	watch += 1
 	if watch >= WATCHES_PER_DAY:
 		ev.append_array(end_day())
+	return ev
+
+## The storm bail (MG10). Held: the hull is safe for the rest of the day. Swamped: something is lost.
+func apply_bail(held: bool) -> Array:
+	var ev: Array = []
+	if held:
+		storm_bailed = true
+		ev.append({"type": "bail_held"})
+		return ev
+	var roll := rng.randf()
+	if roll < 0.5:
+		hull += 1
+		ev.append({"type": "strake", "hull": hull})
+		if hull >= 3:
+			_lose("The hull opened in the storm, with no camp behind her.", ev)
+	elif roll < 0.8 and drink >= 1.0:
+		drink -= 1.0
+		ev.append({"type": "cask_breach"})
+	else:
+		if rng.randf() < 0.5 and people > 1:
+			people -= 1
+			dead += 1
+			ev.append({"type": "overboard", "lost": true})
+		else:
+			ev.append({"type": "overboard", "lost": false})
 	return ev
 
 ## The night fix from the star ring. Only one per day counts.
@@ -399,7 +426,7 @@ func write_log(path: String) -> void:
 const SAVE_FIELDS := ["day", "day_of_year", "watch", "leg_i", "leg_left", "sailed_nm", "drift_nm_total", "state", "loss_reason",
 	"people", "dead", "cattle", "sheep", "fodderless_days", "food", "fresh_fish", "drink", "fodder", "trade", "hooks", "timber",
 	"ration", "animal_ration", "pace", "morale", "hull", "sail_torn", "sail_strain", "weather", "deck", "fix_today", "fished_today",
-	"day_nm", "starving_days", "animals_lost", "fixes"]
+	"day_nm", "starving_days", "animals_lost", "fixes", "storm_bailed"]
 
 func to_dict() -> Dictionary:
 	var d := {"sick": Array(sick), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}

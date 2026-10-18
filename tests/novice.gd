@@ -115,3 +115,25 @@ func joint(n: Node) -> Array:
 				memo.pulling = true
 				rt = memo.aim
 	return [ls, rs, rt]
+
+# ------------------------------------------------------------------ storm bail
+## Rhythm is predicted, not reacted to: presses land near the beat with some spread; finding the leak is seen late.
+func bail(n: Node) -> Array:
+	var dt := 1.0 / 60.0
+	var r: StormBail = n.rules
+	var o := see(dt, {"phase": r.phase, "look": r.look, "leak": r.leak_spot, "wait": r.check_wait})
+	if o.phase == StormBail.Phase.CHECK:
+		var d: int = int(o.leak) - int(o.look)
+		return [float(signi(d)), d == 0 and o.wait <= 0.0 and rng.randf() < 0.1, false]
+	if not memo.has("offset"):
+		memo.offset = rng.randf_range(-0.05, 0.05)       # each player's habit: a little early or late
+	var c: float = float(n._cfg.beat_seconds)
+	if not memo.has("next_press"):
+		memo.k = 1
+		memo.next_press = c + memo.offset + rng.randf_range(-0.09, 0.09)
+	var press := false
+	if r.t >= memo.next_press:
+		press = true
+		memo.k += 1
+		memo.next_press = memo.k * c + memo.offset + rng.randf_range(-0.09, 0.09)
+	return [0.0, false, press]

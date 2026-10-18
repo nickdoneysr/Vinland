@@ -137,6 +137,11 @@
     "brace_strength": 0.7,
     "brace_held_decay": 0.25,
     "peg_speed": 18.0
+   },
+   "storm_bail": {
+    "window_seconds": 0.22,
+    "wave_water": 0.06,
+    "leak_rate": 0.015
    }
   },
   "standard": {
@@ -174,6 +179,11 @@
     "brace_strength": 0.8,
     "brace_held_decay": 0.5,
     "peg_speed": 24.0
+   },
+   "storm_bail": {
+    "window_seconds": 0.15,
+    "wave_water": 0.08,
+    "leak_rate": 0.018
    }
   },
   "hard": {
@@ -184,7 +194,28 @@
    },
    "joint": {
     "stress_cap_mult": 1.0
-   }
+   },
+   "storm_bail": {}
   }
+ },
+ "storm_bail": {
+  "session_seconds": 35,
+  "beat_seconds": 0.9,
+  "window_seconds": 0.1,
+  "scoop": 0.05,
+  "offbeat_scoop": 0.012,
+  "combo_bonus": 0.08,
+  "combo_max": 6,
+  "leak_rate": 0.022,
+  "plugged_leak_factor": 0.25,
+  "wrong_plug_seconds": 2.0,
+  "wave_water": 0.1,
+  "set_interval": [
+   6.0,
+   9.0
+  ],
+  "waves_per_set": 3,
+  "wave_gap": 0.9,
+  "start_water": 0.15
  }
 }

@@ -1,6 +1,31 @@
 extends RefCounted
 ## Plays the voyage screen from Eriksfjord to the end with a bot pressing A, using the ring's autopilot.
 
+## Plays whichever mini-game the voyage opened (star ring, storm bail, or hand line) with its expert bot.
+static func drive_child(scene: Node) -> void:
+	if scene.line != null:
+		var l: Node = scene.line
+		l.autopilot = true
+		var g := 0
+		while l.result.is_empty() and g < 20000:
+			l._process(1.0 / 60.0); g += 1
+		scene._close_line()
+		return
+	var r: Node = scene.ring
+	r.autopilot = true
+	var guard := 0
+	if r is Node2D and "rules" in r and r.rules is StormBail:
+		while r.result.is_empty() and guard < 20000:
+			r._process(1.0 / 60.0); guard += 1
+		scene._close_bail()
+		return
+	while r.outcome.is_empty() and guard < 5000:
+		r._process(1.0 / 60.0)
+		guard += 1
+		if r.rule.seat_held >= r.rule.seat_time + 0.3 and r.outcome.is_empty():
+			r._finish(r.rule.commit())
+	scene._close_ring()
+
 static func run(t) -> void:
 	var tree: SceneTree = t.get_tree()
 	for seed in [11, 12, 13]:
@@ -26,16 +51,8 @@ static func run(t) -> void:
 						scene._handle_events(ev.slice(1))
 					scene._try_watch()
 				"ring":
-					var r: Node = scene.ring
-					r.autopilot = true
-					var guard := 0
-					while r.outcome.is_empty() and guard < 5000:
-						r._process(1.0 / 60.0)
-						guard += 1
-						if r.rule.seat_held >= RingFix.SEAT_TIME + 0.3 and r.outcome.is_empty():
-							r._finish(r.rule.commit())
+					drive_child(scene)
 					rings += 1
-					scene._close_ring()
 		t.check("voyage screen: seed %d plays to an ending" % seed, v.state != "sailing",
 			"%s day %d, %d people, %d rings, %d cards, %d steps" % [v.state, v.day, v.people, rings, cards, steps])
 		scene.queue_free()
@@ -57,13 +74,7 @@ static func run_slice(t) -> void:
 			"card": vs._unhandled_input(press)
 			"sail": vs._try_watch()
 			"ring":
-				var r: Node = vs.ring
-				r.autopilot = true
-				while r.outcome.is_empty():
-					r._process(1.0 / 60.0)
-					if r.rule.seat_held >= RingFix.SEAT_TIME + 0.3 and r.outcome.is_empty():
-						r._finish(r.rule.commit())
-				vs._close_ring()
+				drive_child(vs)
 	Game.voyage = v
 	vs.queue_free()
 	await tree.process_frame
