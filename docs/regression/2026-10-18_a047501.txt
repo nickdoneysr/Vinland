@@ -1,8 +1,8 @@
-Vinland regression pass  ·  2026-10-18  ·  commit 7975193
+Vinland regression pass  ·  2026-10-18  ·  commit a047501
 Godot: 4.3.stable.official.77dcf97d8
 
 Boot smoke             pass    0  fail   0  SMOKE knobs=62 art=258 hold=17/24 nav01=(900, 900) result=PASS
-Full suite             pass  233  fail   0  RESULT PASS (0 failures)
+Full suite             pass  244  fail   0  RESULT PASS (0 failures)
     INFO  balance careful  arrived 100%  days 14.9  deaths 0.13  animals lost 0.00  starving days 0.0  hull 0.00  sail torn 0%  food days left 7.8  losses {  }
     INFO  balance average  arrived 100%  days 13.9  deaths 0.08  animals lost 0.00  starving days 0.0  hull 0.00  sail torn 0%  food days left 6.8  losses {  }
     INFO  balance average_nofix arrived 100%  days 16.7  deaths 0.20  animals lost 0.00  starving days 0.0  hull 0.00  sail torn 0%  food days left 5.5  losses {  }
@@ -29,13 +29,14 @@ Full suite             pass  233  fail   0  RESULT PASS (0 failures)
     INFO  outfit year Shipwright's kin spring 100%  deaths 0.0  animals lost 0.0
     INFO  return crossing: arrived 40 of 40, 17.0 timber units home
     INFO  second summer: gate opened 12 of 12, home 12, 83.4 marks, 16.9 volunteers on average
-    INFO  balance planner   full saga 100%  score   351  deaths  0.1  { "The full saga": 16 }
-    INFO  balance average   full saga  56%  score   274  deaths  3.2  { "A dear-bought saga": 7, "The full saga": 9 }
-    INFO  balance careless  full saga   0%  score   127  deaths  9.9  { "A dear-bought saga": 12, "lost homeward": 4 }
-    INFO  full run Merchant         home 8 of 8, full saga 8, average score 349, ends { "home": 8 }
-    INFO  full run Farm household   home 8 of 8, full saga 8, average score 346, ends { "home": 8 }
-    INFO  full run Hunter-boat      home 8 of 8, full saga 8, average score 355, ends { "home": 8 }
-    INFO  full run Shipwright's kin home 8 of 8, full saga 8, average score 355, ends { "home": 8 }
+    INFO  balance planner   full saga 100%  score   375  deaths  0.1  { "The full saga": 16 }
+    INFO  balance average   full saga  56%  score   297  deaths  3.2  { "A dear-bought saga": 7, "The full saga": 9 }
+    INFO  balance careless  full saga   0%  score   129  deaths  9.9  { "A dear-bought saga": 12, "lost homeward": 4 }
+    INFO  full run Merchant         home 8 of 8, full saga 8, average score 373, ends { "home": 8 }
+    INFO  full run Farm household   home 8 of 8, full saga 8, average score 371, ends { "home": 8 }
+    INFO  full run Hunter-boat      home 8 of 8, full saga 8, average score 379, ends { "home": 8 }
+    INFO  full run Shipwright's kin home 8 of 8, full saga 8, average score 379, ends { "home": 8 }
+    INFO  hóp worth: planner 372 score, 12 of 12 full; with the push 377 score, 12 of 12 full
 Novice sweep           pass   36  fail   0  RESULT PASS (0 failures)
     INFO  novice ring    forg/key  92%  forg/pad  96%  stan/key  83%  stan/pad  83%  hard/key   4%  hard/pad  79%
     INFO  novice line    forg/key  96%  forg/pad  96%  stan/key 100%  stan/pad  92%  hard/key  96%  hard/pad  88%
@@ -48,8 +49,8 @@ Novice sweep           pass   36  fail   0  RESULT PASS (0 failures)
     INFO  novice rack    forg/key 100%  forg/pad 100%  stan/key 100%  stan/pad 100%  hard/key 100%  hard/pad  13%
 Save and load          pass    6  fail   0  RESULT PASS (0 failures)
 Balance sweep (n=20)   pass    0  fail   0  RESULT PASS (balance targets: planner 75%+, average 15-80%, careless 10% or less)
-    INFO  balance planner   full saga 100%  score   349  deaths  0.4  { "The full saga": 80 }
-    INFO  balance average   full saga  44%  score   265  deaths  3.8  { "A dear-bought saga": 42, "The full saga": 35, "A camp at the Strait": 1, "stranded": 2 }
-    INFO  balance careless  full saga   0%  score   129  deaths  9.8  { "A dear-bought saga": 56, "lost homeward": 7, "stranded": 11, "A camp at the Strait": 6 }
+    INFO  balance planner   full saga 100%  score   374  deaths  0.4  { "The full saga": 80 }
+    INFO  balance average   full saga  44%  score   288  deaths  3.8  { "A dear-bought saga": 42, "The full saga": 35, "A camp at the Strait": 1, "stranded": 2 }
+    INFO  balance careless  full saga   0%  score   132  deaths  9.8  { "A dear-bought saga": 56, "lost homeward": 7, "stranded": 11, "A camp at the Strait": 6 }
 
 Manual items: see the plan's Regression sheet; tick them on this build and note the report file name there.
