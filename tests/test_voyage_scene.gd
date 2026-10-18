@@ -14,6 +14,11 @@ static func drive_child(scene: Node) -> void:
 	var r: Node = scene.ring
 	r.autopilot = true
 	var guard := 0
+	if r is Node2D and "rules" in r and r.rules is SunBoard:
+		while r.result.is_empty() and guard < 20000:
+			r._process(1.0 / 60.0); guard += 1
+		scene._close_sun()
+		return
 	if r is Node2D and "rules" in r and r.rules is StormBail:
 		while r.result.is_empty() and guard < 20000:
 			r._process(1.0 / 60.0); guard += 1

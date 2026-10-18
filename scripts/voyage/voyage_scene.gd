@@ -2,12 +2,13 @@ extends Node2D
 ## The outbound voyage, playable (Backlog F02 with F01, F09, F35, F37, F38, F39).
 ## Controls: A sail a watch (hold A to keep sailing) · Y fish (coastal legs, costs a watch)
 ##           LB/RB choose a selector · D-pad or left stick left/right change it
-## At the night watch the star ring opens; a storm night has no sky.
+## At the noon watch on a sunny day the sun board opens; at the night watch the star ring opens; a storm night has no sky.
 ## Draws procedurally until real art is saved at the asset list's paths.
 
 const RING_SCENE := preload("res://scenes/star_ring.tscn")
 const LINE_SCENE := preload("res://scenes/hand_line.tscn")
 const BAIL_SCENE := preload("res://scenes/storm_bail.tscn")
+const SUN_SCENE := preload("res://scenes/sun_board.tscn")
 const SELECTORS := ["pace", "ration", "animal_ration"]
 const SEL_NAMES := {"pace": "Pace", "ration": "Rations", "animal_ration": "Animals"}
 const SEL_VALUES := {"pace": ["crack", "easy", "heave"], "ration": ["full", "half", "bare"], "animal_ration": ["full", "half", "none"]}
@@ -87,6 +88,8 @@ func _handle_events(evs: Array) -> void:
 			"animal_died": _card("An animal died", "With no fodder, a %s died. Starve the bull, lose the trade good." % ("head of cattle" if e.kind == "cattle" else "sheep"))
 			"drift":
 				pass
+			"sun":
+				pass
 			"arrived": _end(true)
 			"lost": _end(false, e.reason)
 			"day_end":
@@ -126,6 +129,24 @@ func _open_bail() -> void:
 	b.start()
 	ring = b                      # reuse the child slot; the tests drive it like any mini-game
 	b.closed.connect(_close_bail)
+
+func _open_sun() -> void:
+	mode = "ring"
+	var b := SUN_SCENE.instantiate()
+	b.embedded = true
+	add_child(b)
+	b.start(v.weather == "low_cloud")
+	ring = b
+	b.finished.connect(func(r): _handle_events(v.take_sun_fix(int(r.result))))
+	b.closed.connect(_close_sun)
+
+func _close_sun() -> void:
+	ring.queue_free()
+	ring = null
+	mode = "sail"
+	if v.sun_today < 0:
+		v.take_sun_fix(RingFix.Result.NONE)
+	_sail_one()
 
 func _close_bail() -> void:
 	var r: Dictionary = ring.result
@@ -167,7 +188,9 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 func _try_watch() -> void:
-	if v.watch == Voyage.NIGHT_WATCH and v.fix_today == -1:
+	if v.watch == Voyage.NOON_WATCH and v.sun_noon and v.sun_today == -1:
+		_open_sun()
+	elif v.watch == Voyage.NIGHT_WATCH and v.fix_today == -1:
 		_night()
 	else:
 		_sail_one()
@@ -398,7 +421,11 @@ func _draw_hud() -> void:
 		draw_string(_font, Vector2(1636, y + 34), "‹ %s ›" % VALUE_NAMES[v.get(key)], HORIZONTAL_ALIGNMENT_LEFT, -1, 28, ink)
 	draw_string(_font, Vector2(1622, 1030), "LB/RB choose · D-pad change", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(ink, 0.6))
 	if mode == "sail":
-		var prompt := "A: take the star ring" if v.watch == Voyage.NIGHT_WATCH and v.fix_today == -1 else "A: sail a watch (hold to keep sailing)"
+		var prompt := "A: sail a watch (hold to keep sailing)"
+		if v.watch == Voyage.NOON_WATCH and v.sun_noon and v.sun_today == -1:
+			prompt = "A: read the sun board at noon"
+		elif v.watch == Voyage.NIGHT_WATCH and v.fix_today == -1:
+			prompt = "A: take the star ring" + ("  (the sun gave a clean fix today)" if v.sun_today == RingFix.Result.CLEAN else "")
 		if v.can_fish():
 			prompt += "    Y: fish (%d hooks)" % v.hooks
 		draw_string(_font, Vector2(620, 900), prompt, HORIZONTAL_ALIGNMENT_LEFT, -1, 24, ink)

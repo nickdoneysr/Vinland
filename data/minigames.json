@@ -161,6 +161,47 @@
     "pick_radius": 80.0,
     "banner": true,
     "magnet_radius": 220.0
+   },
+   "sun_board": {
+    "dir_tol": 11.0,
+    "len_tol": 0.09,
+    "seat_time": 1.0,
+    "roll_amp_deg": 8.0,
+    "wander_deg": 6.0,
+    "turn_speed": 40.0,
+    "banner": true,
+    "wander_speed": 0.25,
+    "roll_len": 0.2,
+    "roll_rate": 1.3,
+    "brace_cut": 0.8
+   },
+   "net": {
+    "net_radius": 145.0,
+    "school_speed": [
+     40.0,
+     75.0
+    ],
+    "depth_tol": 0.38,
+    "sink_rate": 0.32,
+    "extra_throws": 1,
+    "banner": true
+   },
+   "smoke_rack": {
+    "shove": 100.0,
+    "rack_half": 100.0,
+    "band": [
+     0.36,
+     0.78
+    ],
+    "harden_rate": 0.25,
+    "cure_rate": 0.06,
+    "banner": true,
+    "hard_above": 0.86,
+    "gust_every": [
+     2.5,
+     5.0
+    ],
+    "session_seconds": 40
    }
   },
   "standard": {
@@ -221,6 +262,39 @@
     "pick_radius": 70.0,
     "banner": true,
     "magnet_radius": 150.0
+   },
+   "sun_board": {
+    "dir_tol": 6.5,
+    "len_tol": 0.055,
+    "seat_time": 1.5,
+    "roll_amp_deg": 13.0,
+    "wander_deg": 10.0,
+    "banner": true,
+    "roll_rate": 1.3,
+    "brace_cut": 0.75
+   },
+   "net": {
+    "net_radius": 125.0,
+    "school_speed": [
+     50.0,
+     95.0
+    ],
+    "depth_tol": 0.3,
+    "sink_rate": 0.38,
+    "banner": true
+   },
+   "smoke_rack": {
+    "shove": 175.0,
+    "rack_half": 70.0,
+    "band": [
+     0.42,
+     0.7
+    ],
+    "harden_rate": 0.45,
+    "cure_rate": 0.045,
+    "banner": true,
+    "hard_above": 0.8,
+    "session_seconds": 40
    }
   },
   "hard": {
@@ -234,7 +308,10 @@
    },
    "storm_bail": {},
    "hunt": {},
-   "forage": {}
+   "forage": {},
+   "sun_board": {},
+   "net": {},
+   "smoke_rack": {}
   }
  },
  "storm_bail": {
@@ -325,5 +402,76 @@
   "banner": false,
   "pass_health": 0.85,
   "magnet_radius": 0.0
+ },
+ "sun_board": {
+  "session_seconds": 40,
+  "turn_speed": 45.0,
+  "peg_speed": 0.35,
+  "dir_tol": 3.5,
+  "len_tol": 0.03,
+  "seat_time": 2.2,
+  "seat_decay": 2.0,
+  "roll_amp_deg": 18.0,
+  "roll_len": 0.3,
+  "brace_time": 0.5,
+  "brace_cut": 0.7,
+  "wander_deg": 14.0,
+  "wander_speed": 0.35,
+  "start_offset_deg": 70.0,
+  "cloud_gap": [
+   3.0,
+   6.0
+  ],
+  "cloud_cover": [
+   1.5,
+   3.5
+  ],
+  "banner": false,
+  "roll_rate": 2.0
+ },
+ "net": {
+  "session_seconds": 45,
+  "net_radius": 110.0,
+  "school_r": [
+   55.0,
+   85.0
+  ],
+  "school_speed": [
+   60.0,
+   110.0
+  ],
+  "aim_speed": 520.0,
+  "max_range": 620.0,
+  "flight_time": 0.7,
+  "sink_rate": 0.45,
+  "school_depth": 0.45,
+  "rain_depth": 0.7,
+  "depth_tol": 0.25,
+  "fog_radius": 280.0,
+  "extra_throws": 0,
+  "banner": false
+ },
+ "smoke_rack": {
+  "session_seconds": 36,
+  "steer": 420.0,
+  "shove": 230.0,
+  "gust_every": [
+   1.8,
+   4.0
+  ],
+  "wind_max": 1.0,
+  "damping": 2.2,
+  "rack_half": 55.0,
+  "heat_rate": 0.9,
+  "heat_cool": 0.03,
+  "band": [
+   0.46,
+   0.64
+  ],
+  "hard_above": 0.74,
+  "harden_rate": 0.7,
+  "cure_rate": 0.034,
+  "spoil_q": 0.25,
+  "banner": false
  }
 }

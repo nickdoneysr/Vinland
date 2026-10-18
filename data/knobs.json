@@ -138,5 +138,13 @@
  "fear_from_the_bull": 2,
  "fear_eased_per_quiet_week": 0.5,
  "raid_chance_per_week_at_the_fear_cap": 0.3,
- "pelts_per_cargo_unit": 10
+ "pelts_per_cargo_unit": 10,
+ "sun_board_days_with_sun_at_noon": "fair, calm, drift ice",
+ "sun_board_chance_of_a_sunny_noon_on_low_cloud": 0.35,
+ "nets_carried": 1,
+ "net_most_a_throw_can_land": 48,
+ "net_throws_per_day": 1,
+ "tended_rack_capacity_at_the_best_fire": 1.5,
+ "tended_rack_yield_at_the_best_fire": 1,
+ "tended_rack_yield_at_the_worst_fire": 0.6
 }

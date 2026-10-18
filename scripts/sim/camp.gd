@@ -9,7 +9,7 @@ extends RefCounted
 const JOBS := ["build", "fish", "hunt", "forage", "dry", "timber", "hay", "tend"]
 const JOB_NAMES := {"build": "Build", "fish": "Fish the shore", "hunt": "Hunt caribou", "forage": "Forage", "dry": "Smoke and dry",
 	"timber": "Fell timber", "hay": "Cut hay", "tend": "Tend the sick"}
-const PLAYABLE := {"build": "the joint", "fish": "the hand line", "hunt": "the hunt", "forage": "the berry patch"}
+const PLAYABLE := {"build": "the joint", "fish": "the hand line", "hunt": "the hunt", "forage": "the berry patch", "dry": "the smoke rack"}
 const RATION := {"full": 1.0, "half": 0.5, "bare": 0.25}
 const MONTHS := [["January", 1], ["February", 32], ["March", 60], ["April", 91], ["May", 121], ["June", 152], ["July", 182],
 	["August", 213], ["September", 244], ["October", 274], ["November", 305], ["December", 335]]
@@ -40,6 +40,8 @@ var ration := "full"
 var rain := false              # wet day: rain in summer, snow in winter
 var assign := {"build": 8, "fish": 6, "hunt": 0, "forage": 4, "dry": 0, "timber": 2, "hay": 0, "tend": 0}
 var hunt_far := false          # hunters range to the far grounds: more caribou, and fear can rise
+var fish_net := false          # when you fish yourself: the net from the boat instead of the hand line (F14)
+var nets := 1
 var fear := 0.0                # Goodwill / fear clock (F19): read by the market when it comes
 var hides := 0                 # trade goods from the hunt
 var patch_health := 1.0        # forage patches this season; greedy picking thins them until spring
@@ -70,6 +72,7 @@ func setup(knobs: Dictionary, seed: int = 0) -> void:
 	else:
 		rng.randomize()
 	food = 1.0
+	nets = int(n("nets_carried", 1))
 	cloth_strips = 20    # the default HoldCheck load carries two units of trade goods: cloth and iron
 	iron_blades = 5
 	_roll_weather()
@@ -227,7 +230,14 @@ func _roll_weather() -> void:
 	rain = rng.randf() < (0.35 if is_winter() else 0.3)
 
 # ------------------------------------------------------------------ the day
+## What you play when you work a job yourself.
+func playable(job: String) -> String:
+	if job == "fish" and fish_net and nets > 0:
+		return "the net"
+	return PLAYABLE.get(job, "")
+
 ## player = {"job": "build"|"fish"|"", "seated": bool, "person_days": float, "hooks_lost": int}; {} = crew only.
+## Smoke rack: {"job": "dry", "quality": 0..1, "spoiled": bool}.
 func work_day(player: Dictionary = {}) -> Dictionary:
 	default_assignments()
 	var held_back := ""
@@ -340,14 +350,23 @@ func work_day(player: Dictionary = {}) -> Dictionary:
 	# The rack: what is left over is smoked and dried into stores (F15). Fair days only.
 	var dryers := int(assign.dry)
 	if dryers > 0 and not rain:
-		var cap := dryers * n("drying_per_worker_day", 15)
-		var dried := 0.0
-		for f in fresh:
-			var take2 := minf(cap - dried, f[0])
-			f[0] -= take2
-			dried += take2
-		if dried > 0.0:
-			var kept := dried * n("dried_fish_yield", 0.9)
+		var per := n("drying_per_worker_day", 15)
+		var mine := pjob == "dry"
+		var cap := (dryers - (1 if mine else 0)) * per
+		var dried := _take_fresh(cap)
+		var kept := dried * n("dried_fish_yield", 0.9)
+		if mine:
+			# your own fire: a well-kept one cures more and loses nothing; a case-hardened rack is lost
+			var q := clampf(float(player.get("quality", 0.0)), 0.0, 1.0)
+			var my_dried := _take_fresh(per * n("tended_rack_capacity_at_the_best_fire", 1.5) * maxf(q, 0.3))
+			history.racks_played = int(history.get("racks_played", 0)) + 1
+			if player.get("spoiled", false):
+				tally.lines.append("Your rack spoiled: %d person-days of fish crusted and rotted." % roundi(my_dried))
+			else:
+				var my_kept := my_dried * lerpf(n("tended_rack_yield_at_the_worst_fire", 0.6), n("tended_rack_yield_at_the_best_fire", 1.0), q)
+				kept += my_kept
+				tally.lines.append("Your fire cured %d person-days on the rack." % roundi(my_kept))
+		if kept > 0.0:
 			food += kept / n("food_unit_feeds", 168)
 			history.dried_pd += kept
 			tally.lines.append("The rack: %d person-days smoked and dried into stores." % roundi(kept))
@@ -443,6 +462,15 @@ func work_day(player: Dictionary = {}) -> Dictionary:
 	_log(tally)
 	_advance_calendar(tally)
 	return tally
+
+## Take up to cap person-days of fresh food off the pile for the rack, oldest first.
+func _take_fresh(cap: float) -> float:
+	var got := 0.0
+	for f in fresh:
+		var take := minf(cap - got, f[0])
+		f[0] -= take
+		got += take
+	return got
 
 func _advance_calendar(tally: Dictionary) -> void:
 	var was := season()
@@ -645,7 +673,7 @@ func build_short() -> String:
 # ------------------------------------------------------------------ save and log
 const SAVE_FIELDS := ["day", "year", "day_of_year", "people", "dead", "cattle", "sheep", "fodderless_days", "food", "fresh", "hooks",
 	"trade", "timber", "hay", "booths", "longhouse", "byre", "joints", "morale", "ration", "rain", "assign", "player_job", "state",
-	"end_reason", "history", "hunt_far", "fear", "hides", "patch_health", "goodwill", "cloth_strips", "iron_blades", "pelts",
+	"end_reason", "history", "hunt_far", "fish_net", "nets", "fear", "hides", "patch_health", "goodwill", "cloth_strips", "iron_blades", "pelts",
 	"market_today", "market_pelts", "weapon_request", "penned_today", "quiet_days"]
 
 func to_dict() -> Dictionary:

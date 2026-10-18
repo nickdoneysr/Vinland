@@ -31,7 +31,7 @@ func _refresh() -> void:
 	var cont := ("Start / Tab: continue  (%s)\n" % save.get("where", "saved game")) if not save.is_empty() else ""
 	info.text = ("Production build  ·  slice art in place %d%%\n\n" % int(Art.coverage("Vertical slice") * 100)) + cont + \
 		"A / Enter: new voyage: load the knarr at Eriksfjord\n" + \
-		"Practice:  Y / F star ring   1 hand line   2 joint   3 storm bail   4 hunt   5 berry patch\n\n" + \
+		"Practice:  Y / F star ring   1 hand line   2 joint   3 storm bail   4 hunt   5 berry patch   6 sun board   7 net   8 smoke rack\n\n" + \
 		"Difficulty:  ‹ %s ›   (D-pad or Z / C to change)\n" % Game.DIFFICULTY_NAMES[Game.settings.difficulty] + \
 		{"forgiving": "Wide windows, steadier hands, clear prompts. Start here.",
 		 "standard": "Tighter windows. The prompts stay on.",
@@ -73,6 +73,12 @@ func _unhandled_input(e: InputEvent) -> void:
 		get_tree().change_scene_to_file("res://scenes/hunt.tscn")
 	elif e is InputEventKey and e.pressed and e.physical_keycode == KEY_5:
 		get_tree().change_scene_to_file("res://scenes/forage.tscn")
+	elif e is InputEventKey and e.pressed and e.physical_keycode == KEY_6:
+		get_tree().change_scene_to_file("res://scenes/sun_board.tscn")
+	elif e is InputEventKey and e.pressed and e.physical_keycode == KEY_7:
+		get_tree().change_scene_to_file("res://scenes/net.tscn")
+	elif e is InputEventKey and e.pressed and e.physical_keycode == KEY_8:
+		get_tree().change_scene_to_file("res://scenes/smoke_rack.tscn")
 
 func _smoke() -> void:
 	var ok := true

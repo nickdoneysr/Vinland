@@ -7,6 +7,7 @@ extends RefCounted
 
 const WATCHES_PER_DAY := 6
 const NIGHT_WATCH := 4                 # the fix is taken in the fifth watch
+const NOON_WATCH := 2                  # the sun board is read at noon, in the third watch
 const RATION := {"full": 1.0, "half": 0.5, "bare": 0.25}
 const ANIMAL_RATION := {"full": 1.0, "half": 0.5, "none": 0.0}
 const PACES := ["crack", "easy", "heave"]
@@ -54,6 +55,9 @@ var sail_strain := 0.0
 var weather := "fair"
 var deck: Array = []
 var fix_today := -1          # RingFix.Result or -1 when no fix was taken
+var sun_today := -1          # RingFix.Result of the noon sun board, or -1
+var sun_noon := false        # is there sun at noon today?
+var sun_fixes := [0, 0, 0]
 var storm_bailed := false    # the storm bail was held tonight: no strakes spring for the rest of the day
 var fished_today := false
 var day_nm := 0.0
@@ -154,6 +158,11 @@ func start_day() -> Dictionary:
 		_new_deck()
 	weather = deck.pop_back()
 	fix_today = -1
+	sun_today = -1
+	var sunny := str(k.get("sun_board_days_with_sun_at_noon", "fair, calm, drift ice")).replace(" ", "_").replace(",_", ",").split(",")
+	sun_noon = weather in sunny
+	if weather == "low_cloud":
+		sun_noon = rng.randf() < n("sun_board_chance_of_a_sunny_noon_on_low_cloud", 0.35)
 	fished_today = false
 	storm_bailed = false
 	day_nm = 0.0
@@ -277,6 +286,21 @@ func apply_bail(held: bool) -> Array:
 			ev.append({"type": "overboard", "lost": false})
 	return ev
 
+## The noon fix from the sun board. One a day; the day's drift uses the better of sun and stars.
+func take_sun_fix(result: int) -> Array:
+	var ev: Array = []
+	if sun_today == -1:
+		sun_today = result
+		sun_fixes[result] += 1
+		if result == 2:
+			morale = clampf(morale + n("morale_change_clean_fix", 2), 0, 100)
+		ev.append({"type": "sun", "result": result})
+	return ev
+
+## The day's best fix, sun or stars, or -1.
+func best_fix() -> int:
+	return maxi(fix_today, sun_today)
+
 ## The night fix from the star ring. Only one per day counts.
 func take_fix(result: int) -> Array:
 	var ev: Array = []
@@ -293,12 +317,12 @@ func end_day() -> Array:
 	var ev: Array = []
 	var info: Dictionary = wx[weather]
 	# Drift (Systems): no fix walks downwind, partial halves, clean refunds.
-	var mult := 1.0 if fix_today < 0 else RingFix.drift_multiplier(fix_today)
+	var mult := 1.0 if best_fix() < 0 else RingFix.drift_multiplier(best_fix())
 	var drift := n("daily_drift_with_no_fix", 24) * float(info.drift) * float(leg().get("drift_mult", 1.0)) * mult
 	drift_nm_total += drift
 	leg_left += drift
 	if drift > 0.5:
-		ev.append({"type": "drift", "nm": drift, "fix": fix_today})
+		ev.append({"type": "drift", "nm": drift, "fix": best_fix()})
 	# Food: fresh fish first, then stores.
 	var need: float = people * RATION[ration]
 	for f in fresh_fish:
@@ -430,7 +454,7 @@ func write_log(path: String) -> void:
 const SAVE_FIELDS := ["day", "day_of_year", "watch", "leg_i", "leg_left", "sailed_nm", "drift_nm_total", "state", "loss_reason",
 	"people", "dead", "cattle", "sheep", "fodderless_days", "food", "fresh_fish", "drink", "fodder", "trade", "cloth_units", "iron_units", "hooks", "timber",
 	"ration", "animal_ration", "pace", "morale", "hull", "sail_torn", "sail_strain", "weather", "deck", "fix_today", "fished_today",
-	"day_nm", "starving_days", "animals_lost", "fixes", "storm_bailed"]
+	"day_nm", "starving_days", "animals_lost", "fixes", "storm_bailed", "sun_today", "sun_noon", "sun_fixes"]
 
 func to_dict() -> Dictionary:
 	var d := {"sick": Array(sick), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
@@ -452,6 +476,10 @@ func from_dict(knobs: Dictionary, legs_data: Dictionary, d: Dictionary) -> void:
 	for x in fixes:
 		fx.append(int(x))
 	fixes = fx
+	var sx: Array = []
+	for x in sun_fixes:
+		sx.append(int(x))
+	sun_fixes = sx
 	sick.clear()
 	for s in d.get("sick", []):
 		sick.append(int(s))

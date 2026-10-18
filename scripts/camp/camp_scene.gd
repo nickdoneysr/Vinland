@@ -8,6 +8,8 @@ const JOINT_SCENE := preload("res://scenes/joint.tscn")
 const LINE_SCENE := preload("res://scenes/hand_line.tscn")
 const HUNT_SCENE := preload("res://scenes/hunt.tscn")
 const FORAGE_SCENE := preload("res://scenes/forage.tscn")
+const NET_SCENE := preload("res://scenes/net.tscn")
+const RACK_SCENE := preload("res://scenes/smoke_rack.tscn")
 
 var camp := Camp.new()
 var voyage: Voyage = null
@@ -63,6 +65,8 @@ func _start_day() -> void:
 func _start_work() -> void:
 	camp.default_assignments()
 	var job := camp.player_job
+	if job == "dry" and camp.rain:
+		job = ""                     # no fire on the rack in the rain
 	if job != "" and int(camp.assign[job]) > 0:
 		mode = "minigame"
 		match job:
@@ -72,11 +76,22 @@ func _start_work() -> void:
 				add_child(child)
 				child.start(camp.rain)
 			"fish":
-				child = LINE_SCENE.instantiate()
+				if camp.playable("fish") == "the net":
+					child = NET_SCENE.instantiate()
+					child.embedded = true
+					add_child(child)
+					child.start(camp.rain, false)
+				else:
+					child = LINE_SCENE.instantiate()
+					child.embedded = true
+					child.hook_stock = camp.hooks
+					add_child(child)
+					child.start(false, 0.3)
+			"dry":
+				child = RACK_SCENE.instantiate()
 				child.embedded = true
-				child.hook_stock = camp.hooks
 				add_child(child)
-				child.start(false, 0.3)
+				child.start()
 			"hunt":
 				child = HUNT_SCENE.instantiate()
 				child.embedded = true
@@ -101,6 +116,7 @@ func _close_minigame() -> void:
 		"fish": _finish_day({"job": "fish", "person_days": float(r.get("person_days", 0.0)), "hooks_lost": int(r.get("hooks_lost", 0))})
 		"hunt": _finish_day({"job": "hunt", "kill": bool(r.get("kill", false)), "person_days": float(r.get("person_days", 0.0)), "fear_tick": bool(r.get("fear_tick", false))})
 		"forage": _finish_day({"job": "forage", "person_days": float(r.get("person_days", 0.0)), "patch_health": float(r.get("patch_health", 1.0))})
+		"dry": _finish_day({"job": "dry", "quality": float(r.get("quality", 0.0)), "spoiled": bool(r.get("spoiled", false))})
 
 func _finish_day(player: Dictionary) -> void:
 	market_done = false
@@ -233,6 +249,8 @@ func _unhandled_input(e: InputEvent) -> void:
 		var job: String = Camp.JOBS[focus]
 		if Camp.PLAYABLE.has(job):
 			camp.player_job = "" if camp.player_job == job else job
+	elif e.is_action_pressed("drop") and Camp.JOBS[focus] == "fish" and camp.nets > 0:
+		camp.fish_net = not camp.fish_net
 	elif e.is_action_pressed("drop") and Camp.JOBS[focus] == "hunt":
 		camp.hunt_far = not camp.hunt_far
 	elif e.is_action_pressed("menu"):
@@ -420,13 +438,16 @@ func _draw_board() -> void:
 			label = "Build: " + camp.build_short()
 		elif job == "hunt":
 			label = "Hunt: %s grounds" % ("far" if camp.hunt_far else "near")
+		elif job == "fish" and camp.nets > 0:
+			label = "Fish: %s" % ("the net" if camp.fish_net else "hand lines")
 		draw_string(_font, Vector2(bx + 24, y), label, HORIZONTAL_ALIGNMENT_LEFT, 370, 24 if open else 20, Color(ink, 1.0 if open else 0.4))
 		draw_string(_font, Vector2(bx + 400, y), "‹ %d ›" % int(camp.assign[job]), HORIZONTAL_ALIGNMENT_LEFT, -1, 26, ink)
 		if camp.player_job == job:
 			draw_string(_font, Vector2(bx + 480, y), "you", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color("c9a55a"))
-	draw_string(_font, Vector2(bx + 20, by + 560), "Y: work this job yourself · B on Hunt: near / far", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(ink, 0.65))
+	draw_string(_font, Vector2(bx + 20, by + 548), "Y: work this job yourself", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(ink, 0.65))
+	draw_string(_font, Vector2(bx + 20, by + 574), "B: fish with line or net · hunt near or far", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(ink, 0.65))
 	if mode == "morning":
-		var you := "A: start the day" + (" (you play %s)" % Camp.PLAYABLE[camp.player_job] if camp.player_job != "" and int(camp.assign[camp.player_job]) > 0 else "")
+		var you := "A: start the day" + (" (you play %s)" % camp.playable(camp.player_job) if camp.player_job != "" and int(camp.assign[camp.player_job]) > 0 else "")
 		draw_rect(Rect2(560, 1000, 980, 56), panel)
 		draw_string(_font, Vector2(580, 1038), you + "      Start/Tab: let the crew work a week", HORIZONTAL_ALIGNMENT_LEFT, -1, 24, ink)
 

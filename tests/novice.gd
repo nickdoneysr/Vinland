@@ -183,3 +183,60 @@ func forage(n: Node) -> Array:
 			st = Vector2(signf(st.x) if absf(st.x) > 0.38 else 0.0, signf(st.y) if absf(st.y) > 0.38 else 0.0)
 		return [st, false]
 	return [Vector2.ZERO, o.ripe_near > 0.0 or rng.randf() < 0.5]
+
+# ------------------------------------------------------------------ sun board
+## Turns toward the noon line and sets the peg a reaction late; on keyboard the disk turns at full speed.
+func sun(n: Node) -> Array:
+	var dt := 1.0 / 60.0
+	var r: SunBoard = n.rules
+	var o := see(dt, {"dir": r.dir_err(), "len": r.len_err(), "seat": r.seat_held, "vis": r.sun_visible})
+	var tol_d := float(n._cfg.dir_tol); var tol_l := float(n._cfg.len_tol)
+	var turn := 0.0; var pm := 0.0
+	if o.vis:
+		turn = stick(o.dir, 25.0, tol_d * 0.4)
+		if keyboard and absf(o.dir) < tol_d * 2.0 and turn != 0.0:
+			turn *= 1.0 if rng.randf() < 0.5 else 0.0      # taps the key once it is close
+		if absf(o.dir) < tol_d * 1.5:
+			pm = stick(-o.len, 0.2, tol_l * 0.4)
+			if keyboard and absf(o.len) < tol_l * 2.0 and pm != 0.0:
+				pm *= 1.0 if rng.randf() < 0.5 else 0.0
+	var take := false
+	if o.seat >= float(n._cfg.seat_time):
+		memo.ready_t = memo.get("ready_t", t)
+		take = t - memo.ready_t > 0.35
+	else:
+		memo.erase("ready_t")
+	return [turn, pm, true, take, false]
+
+# ------------------------------------------------------------------ net
+## Aims at the school with a rough lead, casts once close, closes when the gold mark is seen in the band.
+func net(n: Node) -> Array:
+	var dt := 1.0 / 60.0
+	var r: NetThrow = n.rules
+	var o := see(dt, {"phase": r.phase, "school": r.school, "v": r.school_v, "aim": r.aim, "depth": r.net_depth, "seen": r.school_seen()})
+	if not memo.has("lead"):
+		memo.lead = rng.randf_range(0.5, 1.1)
+	if o.phase == NetThrow.Phase.AIM:
+		if not o.seen:
+			return [Vector2.ZERO, false, 0.0, 0.0]
+		var lead: float = (float(n._cfg.flight_time) + r.school_depth / float(n._cfg.sink_rate)) * memo.lead
+		var want: Vector2 = o.school + o.v * lead
+		var to: Vector2 = want - o.aim
+		var st := Vector2(stick(to.x, 120.0, 10.0), stick(to.y, 120.0, 10.0))
+		return [st, to.length() < 40.0 and rng.randf() < 0.2, 0.0, 0.0]
+	if o.phase == NetThrow.Phase.SINK and o.depth >= r.school_depth - 0.03:
+		return [Vector2.ZERO, false, 1.0, 1.0]
+	return [Vector2.ZERO, false, 0.0, 0.0]
+
+# ------------------------------------------------------------------ smoke rack
+## Chases the smoke back under the rack and nudges the fire toward the band, a reaction late.
+func rack(n: Node) -> Array:
+	var dt := 1.0 / 60.0
+	var r: SmokeRack = n.rules
+	var o := see(dt, {"col": r.column, "heat": r.heat})
+	var mid := (float(n._cfg.band[0]) + float(n._cfg.band[1])) * 0.5
+	var steer := stick(-o.col, 120.0, float(n._cfg.rack_half) * 0.35)
+	var feed := stick(mid - o.heat, 0.12, 0.07)
+	if keyboard and feed != 0.0:
+		feed *= 1.0 if rng.randf() < 0.35 else 0.0          # taps Up / Down rather than holding
+	return [steer, feed]

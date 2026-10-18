@@ -92,6 +92,7 @@ static func run(t) -> void:
 	fg.work_day()
 	t.check("camp forage: the patches recover at the thaw", fg.patch_health == 1.0)
 	_market(t)
+	_work_games(t)
 	# whole-year sweeps
 	var res := {}
 	for policy in ["planner", "summer_only", "no_hay"]:
@@ -208,3 +209,31 @@ static func _market(t) -> void:
 	var back := Camp.new()
 	back.from_dict(Knobs._v, JSON.parse_string(JSON.stringify(sv.to_dict())))
 	t.check("market: goodwill, pelts, cloth and blades survive a save", back.goodwill == sv.goodwill and back.pelts == sv.pelts and back.cloth_strips == sv.cloth_strips and back.iron_blades == sv.iron_blades)
+
+## The net and the smoke rack when you work them yourself.
+static func _work_games(t) -> void:
+	var c := make(1200)
+	t.check("camp: fishing yourself plays the hand line, or the net when chosen", c.playable("fish") == "the hand line" and (func(): c.fish_net = true; return c.playable("fish") == "the net").call())
+	c.nets = 0
+	t.check("camp: no net, no net throw", c.playable("fish") == "the hand line")
+	t.check("camp: drying yourself plays the smoke rack", c.playable("dry") == "the smoke rack")
+	var stores := {}
+	for kind in ["crew", "best", "poor", "spoiled"]:
+		var r := make(1300)
+		r.assign = {"build": 0, "fish": 0, "forage": 0, "dry": 2, "timber": 0, "hay": 0, "tend": 0}
+		r.rain = false
+		r.fresh = [[90.0, 0]]
+		var before := r.food
+		match kind:
+			"crew": r.work_day()
+			"best": r.work_day({"job": "dry", "quality": 1.0, "spoiled": false})
+			"poor": r.work_day({"job": "dry", "quality": 0.4, "spoiled": false})
+			"spoiled": r.work_day({"job": "dry", "quality": 0.1, "spoiled": true})
+		stores[kind] = (r.food - before) * r.n("food_unit_feeds", 168)
+	t.check("camp rack: your well-kept fire puts more into stores than a crew dryer", stores.best > stores.crew, "%.1f vs %.1f person-days" % [stores.best, stores.crew])
+	t.check("camp rack: a poor fire keeps less, a spoiled rack loses your share", stores.poor < stores.best and stores.spoiled < stores.crew, "poor %.1f, spoiled %.1f" % [stores.poor, stores.spoiled])
+	var sv := make(1400)
+	sv.fish_net = true
+	var back := Camp.new()
+	back.from_dict(Knobs._v, JSON.parse_string(JSON.stringify(sv.to_dict())))
+	t.check("camp: the line / net choice survives a save", back.fish_net and back.nets == sv.nets)
