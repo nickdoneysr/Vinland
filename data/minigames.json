@@ -205,13 +205,13 @@
     "leak_rate": 0.018
    },
    "hunt": {
-    "alert_watch": 0.38,
+    "alert_watch": 0.32,
     "alert_graze": 0.009,
     "scent_per_second": 0.006,
     "sway_deg": 0.9,
     "vitals_deg": [
-     1.8,
-     1.0
+     2.0,
+     1.15
     ],
     "range_m": 50,
     "banner": true

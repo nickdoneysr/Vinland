@@ -27,11 +27,11 @@ All numbers come from the plan's Assumptions sheet. After changing the plan, run
 - **New voyage** (title, A): Eriksfjord to the Strait. Weather cards, pace / rations / animals, the star ring on
   clear nights, the storm bail on storm nights, hand-line fishing on coastal legs.
 - **The camp**: a full year at the Strait. Share the crew each morning, play the joint or the hand line yourself,
-  dry surplus fish on the rack, cut hay in August, raise booths, the longhouse and the byre, and get people and
+  hunt caribou (near or far grounds) and pick berries, dry surplus fish and meat on the rack, cut hay in August, raise booths, the longhouse and the byre, and get people and
   animals through the first winter to the second spring.
 - **Continue** (title, Start/Tab): autosaves every watch at sea and every day ashore (three rolling slots).
 - **Difficulty** (title, D-pad or Z/C): Forgiving (default), Standard, Hard.
-- **Practice**: Y star ring · 1 hand line · 2 joint · 3 storm bail.
+- **Practice**: Y star ring · 1 hand line · 2 joint · 3 storm bail · 4 hunt · 5 berry patch.
 
 ## Tests
     godot --headless --path . res://tests/test_runner.tscn      # rules, bots, balance sweeps, saves, full playthrough

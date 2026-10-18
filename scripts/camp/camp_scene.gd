@@ -6,6 +6,8 @@ extends Node2D
 
 const JOINT_SCENE := preload("res://scenes/joint.tscn")
 const LINE_SCENE := preload("res://scenes/hand_line.tscn")
+const HUNT_SCENE := preload("res://scenes/hunt.tscn")
+const FORAGE_SCENE := preload("res://scenes/forage.tscn")
 
 var camp := Camp.new()
 var voyage: Voyage = null
@@ -48,17 +50,28 @@ func _start_day() -> void:
 	var job := camp.player_job
 	if job != "" and int(camp.assign[job]) > 0:
 		mode = "minigame"
-		if job == "build":
-			child = JOINT_SCENE.instantiate()
-			child.embedded = true
-			add_child(child)
-			child.start(camp.rain)
-		else:
-			child = LINE_SCENE.instantiate()
-			child.embedded = true
-			child.hook_stock = camp.hooks
-			add_child(child)
-			child.start(false, 0.3)
+		match job:
+			"build":
+				child = JOINT_SCENE.instantiate()
+				child.embedded = true
+				add_child(child)
+				child.start(camp.rain)
+			"fish":
+				child = LINE_SCENE.instantiate()
+				child.embedded = true
+				child.hook_stock = camp.hooks
+				add_child(child)
+				child.start(false, 0.3)
+			"hunt":
+				child = HUNT_SCENE.instantiate()
+				child.embedded = true
+				add_child(child)
+				child.start(camp.hunt_far)
+			"forage":
+				child = FORAGE_SCENE.instantiate()
+				child.embedded = true
+				add_child(child)
+				child.start(0, camp.patch_health)
 		child.closed.connect(_close_minigame)
 	else:
 		_finish_day({})
@@ -68,10 +81,11 @@ func _close_minigame() -> void:
 	var job := camp.player_job
 	child.queue_free()
 	child = null
-	if job == "build":
-		_finish_day({"job": "build", "seated": bool(r.get("seated", false))})
-	else:
-		_finish_day({"job": "fish", "person_days": float(r.get("person_days", 0.0)), "hooks_lost": int(r.get("hooks_lost", 0))})
+	match job:
+		"build": _finish_day({"job": "build", "seated": bool(r.get("seated", false))})
+		"fish": _finish_day({"job": "fish", "person_days": float(r.get("person_days", 0.0)), "hooks_lost": int(r.get("hooks_lost", 0))})
+		"hunt": _finish_day({"job": "hunt", "kill": bool(r.get("kill", false)), "person_days": float(r.get("person_days", 0.0)), "fear_tick": bool(r.get("fear_tick", false))})
+		"forage": _finish_day({"job": "forage", "person_days": float(r.get("person_days", 0.0)), "patch_health": float(r.get("patch_health", 1.0))})
 
 func _finish_day(player: Dictionary) -> void:
 	var tally := camp.work_day(player)
@@ -182,6 +196,8 @@ func _unhandled_input(e: InputEvent) -> void:
 		var job: String = Camp.JOBS[focus]
 		if Camp.PLAYABLE.has(job):
 			camp.player_job = "" if camp.player_job == job else job
+	elif e.is_action_pressed("drop") and Camp.JOBS[focus] == "hunt":
+		camp.hunt_far = not camp.hunt_far
 	elif e.is_action_pressed("menu"):
 		_work_week()
 	elif e.is_action_pressed("commit"):
@@ -270,7 +286,7 @@ func _draw_world() -> void:
 		draw_rect(Rect2(420 + i * 70, 820 + sin(t + i) * 2, 56, 30), Color("8a6d4e") if i > 0 else Color("3a2a1c"))
 	for i in camp.sheep:
 		draw_circle(Vector2(560 + i * 34, 880 + sin(t * 1.3 + i) * 2), 12, Color("e0d8c4"))
-	var spots := {"build": Vector2(900, 760), "fish": Vector2(1640, 860), "forage": Vector2(300, 860), "timber": Vector2(80, 600), "hay": Vector2(1100, 940), "tend": Vector2(1000, 640), "dry": Vector2(130, 740)}
+	var spots := {"build": Vector2(900, 760), "fish": Vector2(1640, 860), "forage": Vector2(300, 860), "timber": Vector2(80, 600), "hay": Vector2(1100, 940), "tend": Vector2(1000, 640), "dry": Vector2(130, 740), "hunt": Vector2(40, 820)}
 	for job in Camp.JOBS:
 		var c: int = int(camp.assign[job])
 		for i in c:
@@ -298,11 +314,11 @@ func _draw_board() -> void:
 		HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(ink, 0.85))
 	var food_col := ink if camp.is_winter() or camp.food_days() >= camp.winter_days_left() else Color("e8c35a")
 	draw_string(_font, Vector2(44, 132), "Food %.0f days · hay %.0f days · winter %d days" % [camp.food_days(), minf(camp.hay_days(), 999.0), camp.winter_days_left()], HORIZONTAL_ALIGNMENT_LEFT, -1, 22, food_col)
-	draw_string(_font, Vector2(44, 168), "Building %s · timber %.1f · hooks %d%s" % [camp.building_target(), camp.timber, camp.hooks, "" if camp.is_winter() else " · %d days to snow" % camp.days_to_snow()],
+	draw_string(_font, Vector2(44, 168), "Building %s · timber %.1f · hooks %d · hides %d · fear %d/%d%s" % [camp.building_target(), camp.timber, camp.hooks, camp.hides, int(camp.fear), int(camp.n("fear_cap", 5)), "" if camp.is_winter() else " · %d days to snow" % camp.days_to_snow()],
 		HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(ink, 0.75))
 	# job board
 	var bx := 1340.0; var by := 20.0
-	draw_rect(Rect2(bx, by, 556, 530), panel)
+	draw_rect(Rect2(bx, by, 556, 590), panel)
 	draw_string(_font, Vector2(bx + 20, by + 42), "MORNING  ·  %d idle" % camp.idle(), HORIZONTAL_ALIGNMENT_LEFT, -1, 26, ink)
 	for i in Camp.JOBS.size():
 		var job: String = Camp.JOBS[i]
@@ -313,11 +329,13 @@ func _draw_board() -> void:
 		var label: String = Camp.JOB_NAMES[job] + ("" if open else "  " + camp.job_note(job))
 		if job == "build":
 			label = "Build: " + camp.build_short()
+		elif job == "hunt":
+			label = "Hunt: %s grounds" % ("far" if camp.hunt_far else "near")
 		draw_string(_font, Vector2(bx + 24, y), label, HORIZONTAL_ALIGNMENT_LEFT, 370, 24 if open else 20, Color(ink, 1.0 if open else 0.4))
 		draw_string(_font, Vector2(bx + 400, y), "‹ %d ›" % int(camp.assign[job]), HORIZONTAL_ALIGNMENT_LEFT, -1, 26, ink)
 		if camp.player_job == job:
 			draw_string(_font, Vector2(bx + 480, y), "you", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color("c9a55a"))
-	draw_string(_font, Vector2(bx + 20, by + 508), "Y: work this job yourself (build or fish)", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(ink, 0.65))
+	draw_string(_font, Vector2(bx + 20, by + 560), "Y: work this job yourself · B on Hunt: near / far", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(ink, 0.65))
 	if mode == "morning":
 		var you := "A: start the day" + (" (you play %s)" % Camp.PLAYABLE[camp.player_job] if camp.player_job != "" and int(camp.assign[camp.player_job]) > 0 else "")
 		draw_rect(Rect2(560, 1000, 980, 56), panel)

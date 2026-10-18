@@ -72,6 +72,25 @@ static func run(t) -> void:
 	var a1 := sv.work_day(); var a2 := back.work_day()
 	t.check("camp: a saved camp continues exactly as the original", sv.food == back.food and sv.people == back.people and sv.day_of_year == back.day_of_year and sv.hay == back.hay,
 		"%.4f vs %.4f" % [sv.food, back.food])
+	# hunting: near and far grounds
+	var near_meat := 0.0; var far_meat := 0.0; var far_fear := 0.0
+	for sd in 20:
+		var hn := make(400 + sd); var hf := make(400 + sd)
+		hf.hunt_far = true
+		for c2 in [hn, hf]:
+			c2.assign = {"build": 0, "fish": 0, "hunt": 4, "forage": 0, "dry": 0, "timber": 0, "hay": 0, "tend": 0}
+			for i in 20:
+				c2.work_day()
+		near_meat += hn.history.kills; far_meat += hf.history.kills; far_fear += hf.fear
+	t.check("camp hunt: four hunters bring in caribou (about 5-6 kills in 20 days)", near_meat / 20.0 >= 3.0 and near_meat / 20.0 <= 9.0, "%.1f kills" % (near_meat / 20.0))
+	t.check("camp hunt: the far grounds give more kills and raise fear", far_meat > near_meat and far_fear / 20.0 >= 1.5, "%.1f vs %.1f kills, fear %.1f" % [far_meat / 20.0, near_meat / 20.0, far_fear / 20.0])
+	var fg := make(500)
+	fg.assign = {"build": 0, "fish": 0, "hunt": 0, "forage": 2, "dry": 0, "timber": 0, "hay": 0, "tend": 0}
+	fg.work_day({"job": "forage", "person_days": 10.0, "patch_health": 0.4})
+	t.check("camp forage: stripping a patch thins foraging for the season", fg.patch_health < 0.8, "%.2f" % fg.patch_health)
+	fg.day_of_year = 109
+	fg.work_day()
+	t.check("camp forage: the patches recover at the thaw", fg.patch_health == 1.0)
 	# whole-year sweeps
 	var res := {}
 	for policy in ["planner", "summer_only", "no_hay"]:

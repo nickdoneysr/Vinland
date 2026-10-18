@@ -13,7 +13,6 @@
  "alpha": 6,
  "beta": 6,
  "polish_and_ship": 4,
- "total_weeks_target_ship": 52,
  "design_week_rate": 1800,
  "engineering_week_rate": 2200,
  "art_week_rate": 1700,
@@ -114,5 +113,11 @@
  "death_chance_per_exposed_sick_person_day_in_winter": 0.02,
  "hay_per_head_of_cattle_per_winter_day": 0.06,
  "hay_needed_without_a_byre": 1.5,
- "work_to_raise_the_byre": 160
+ "work_to_raise_the_byre": 160,
+ "hunt_kill_chance_per_hunter_day": 0.07,
+ "meat_per_kill": 75,
+ "far_grounds_kill_bonus": 1.4,
+ "far_grounds_fear_chance_per_hunter_day": 0.05,
+ "winter_hunting_factor": 0.7,
+ "stripped_patch_damage_carried_to_the_season": 0.5
 }

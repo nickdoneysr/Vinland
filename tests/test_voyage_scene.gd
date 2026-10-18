@@ -91,10 +91,10 @@ static func run_slice(t) -> void:
 		match cs.mode:
 			"card": cs._unhandled_input(press)
 			"morning":
-				camp.assign = {"build": 8, "fish": 5, "forage": 5, "timber": 3, "hay": 0, "tend": 1}
+				camp.assign = {"build": 7, "fish": 5, "hunt": 2, "forage": 3, "dry": 2, "timber": 2, "hay": 2 if camp.job_open("hay") else 0, "tend": 1}
 				camp.default_assignments()
-				if played < 6:
-					camp.player_job = "build" if played % 2 == 0 else "fish"
+				if played < 8:
+					camp.player_job = ["build", "fish", "hunt", "forage"][played % 4]
 					played += 1
 					cs._start_day()
 				else:

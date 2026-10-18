@@ -6,10 +6,10 @@ extends RefCounted
 ## Day: you play your verb (the joint or the hand line); everyone else works by the knobs.
 ## Evening: a tally of what the day changed. Summer feeds the camp; what it dries and cuts feeds the winter.
 
-const JOBS := ["build", "fish", "forage", "dry", "timber", "hay", "tend"]
-const JOB_NAMES := {"build": "Build", "fish": "Fish the shore", "forage": "Forage", "dry": "Smoke and dry fish",
+const JOBS := ["build", "fish", "hunt", "forage", "dry", "timber", "hay", "tend"]
+const JOB_NAMES := {"build": "Build", "fish": "Fish the shore", "hunt": "Hunt caribou", "forage": "Forage", "dry": "Smoke and dry",
 	"timber": "Fell timber", "hay": "Cut hay", "tend": "Tend the sick"}
-const PLAYABLE := {"build": "the joint", "fish": "the hand line"}
+const PLAYABLE := {"build": "the joint", "fish": "the hand line", "hunt": "the hunt", "forage": "the berry patch"}
 const RATION := {"full": 1.0, "half": 0.5, "bare": 0.25}
 const MONTHS := [["January", 1], ["February", 32], ["March", 60], ["April", 91], ["May", 121], ["June", 152], ["July", 182],
 	["August", 213], ["September", 244], ["October", 274], ["November", 305], ["December", 335]]
@@ -38,11 +38,16 @@ var joints := 0.0              # builder-days toward the next booth
 var morale := 70.0
 var ration := "full"
 var rain := false              # wet day: rain in summer, snow in winter
-var assign := {"build": 8, "fish": 6, "forage": 4, "dry": 0, "timber": 2, "hay": 0, "tend": 0}
+var assign := {"build": 8, "fish": 6, "hunt": 0, "forage": 4, "dry": 0, "timber": 2, "hay": 0, "tend": 0}
+var hunt_far := false          # hunters range to the far grounds: more caribou, and fear can rise
+var fear := 0.0                # Goodwill / fear clock (F19): read by the market when it comes
+var hides := 0                 # trade goods from the hunt
+var patch_health := 1.0        # forage patches this season; greedy picking thins them until spring
 var player_job := "build"
 var state := "camp"            # camp | ended | lost
 var end_reason := ""
-var history := {"joints_seated": 0, "joints_split": 0, "fish_watches": 0, "fish_pd": 0.0, "dried_pd": 0.0, "animals_lost": 0}
+var history := {"joints_seated": 0, "joints_split": 0, "fish_watches": 0, "fish_pd": 0.0, "dried_pd": 0.0, "animals_lost": 0,
+	"kills": 0, "hunts_played": 0, "forage_played": 0}
 var log_rows: Array = []
 
 func n(key: String, fallback: float = 0.0) -> float:
@@ -140,9 +145,12 @@ func default_assignments() -> void:
 			assign[j] = 0
 		if not job_open(j):
 			assign[j] = 0
+	for key in ["kills", "hunts_played", "forage_played"]:
+		if not history.has(key):
+			history[key] = 0
 	assign.fish = mini(int(assign.fish), hooks)
 	while assigned() > healthy():
-		for j in ["tend", "hay", "timber", "dry", "forage", "build", "fish"]:
+		for j in ["tend", "hay", "timber", "dry", "forage", "hunt", "build", "fish"]:
 			if assign[j] > 0 and assigned() > healthy():
 				assign[j] -= 1
 
@@ -242,10 +250,49 @@ func work_day(player: Dictionary = {}) -> Dictionary:
 	if fish_pd > 0:
 		fresh.append([fish_pd, 0])
 		tally.lines.append("Fish: %d person-days landed%s." % [roundi(fish_pd), " through the ice" if winter else ""])
+	# Hunt
+	var hunters := int(assign.hunt)
+	var auto_hunters := hunters - (1 if pjob == "hunt" and hunters > 0 else 0)
+	var meat := 0.0
+	var kill_p := n("hunt_kill_chance_per_hunter_day", 0.2) * (n("far_grounds_kill_bonus", 1.4) if hunt_far else 1.0) * (n("winter_hunting_factor", 0.7) if winter else 1.0)
+	var kills := 0
+	for i in auto_hunters:
+		if rng.randf() < kill_p:
+			kills += 1
+			meat += n("meat_per_kill", 75) * rng.randf_range(0.8, 1.2)
+		if hunt_far and rng.randf() < n("far_grounds_fear_chance_per_hunter_day", 0.05):
+			fear += 1.0
+			tally.lines.append("Hunters ranging far were seen. Fear rises (%d of %d)." % [int(fear), int(n("fear_cap", 5))])
+	if pjob == "hunt" and hunters > 0:
+		history.hunts_played += 1
+		if player.get("kill", false):
+			kills += 1
+			meat += float(player.get("person_days", 0.0))
+			tally.lines.append("Your arrow flew true.")
+		if player.get("fear_tick", false):
+			fear += 1.0
+			tally.lines.append("You were seen chasing far from camp. Fear rises (%d of %d)." % [int(fear), int(n("fear_cap", 5))])
+	if kills > 0:
+		hides += kills
+		history.kills += kills
+		fresh.append([meat, 0])
+		tally.lines.append("Hunt: %d caribou, %d person-days of meat and %d hide%s." % [kills, roundi(meat), kills, "" if kills == 1 else "s"])
+	elif hunters > 0:
+		tally.lines.append("The hunters came back empty-handed.")
+	fear = clampf(fear, 0.0, n("fear_cap", 5))
 	# Forage and milk
 	var forage_pd := 0.0
 	if job_open("forage"):
-		forage_pd = int(assign.forage) * n("forage_per_worker_day", 4) * rng.randf_range(0.6, 1.4)
+		var foragers := int(assign.forage)
+		var auto_foragers := foragers - (1 if pjob == "forage" and foragers > 0 else 0)
+		forage_pd = auto_foragers * n("forage_per_worker_day", 4) * rng.randf_range(0.6, 1.4) * patch_health
+		if pjob == "forage" and foragers > 0:
+			history.forage_played += 1
+			forage_pd += float(player.get("person_days", 0.0))
+			var ph := float(player.get("patch_health", 1.0))
+			if ph < 0.99:
+				patch_health = clampf(patch_health - (1.0 - ph) * n("stripped_patch_damage_carried_to_the_season", 0.5), 0.2, 1.0)
+				tally.lines.append("The patches are thinner for the stripping (%d%% left this season)." % roundi(patch_health * 100))
 	var cows := maxi(0, cattle - 1)            # one of the cattle is the bull
 	var fed := not winter or hay > 0.0
 	var milk_pd := cows * n("milk_per_fed_cow_per_day", 2) * (n("winter_milk_factor", 0.3) if winter else 1.0) * (1.0 if fed else 0.0)
@@ -382,7 +429,9 @@ func _advance_calendar(tally: Dictionary) -> void:
 		tally.events.append("season")
 		match now:
 			"winter": tally.lines.append("First snow. Foraging and the rack are done for the year; the herd lives on hay now.")
-			"spring": tally.lines.append("The thaw. Meltwater in the brook, and the first green on the terrace.")
+			"spring":
+				patch_health = 1.0
+				tally.lines.append("The thaw. Meltwater in the brook, and the first green on the terrace.")
 			"autumn": tally.lines.append("Autumn: the days shorten. %d days to the first snow." % days_to_snow())
 	if people <= 0:
 		state = "lost"
@@ -453,7 +502,7 @@ func build_short() -> String:
 # ------------------------------------------------------------------ save and log
 const SAVE_FIELDS := ["day", "year", "day_of_year", "people", "dead", "cattle", "sheep", "fodderless_days", "food", "fresh", "hooks",
 	"trade", "timber", "hay", "booths", "longhouse", "byre", "joints", "morale", "ration", "rain", "assign", "player_job", "state",
-	"end_reason", "history"]
+	"end_reason", "history", "hunt_far", "fear", "hides", "patch_health"]
 
 func to_dict() -> Dictionary:
 	var d := {"sick": Array(sick), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
