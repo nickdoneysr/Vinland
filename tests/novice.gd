@@ -87,14 +87,31 @@ func joint(n: Node) -> Array:
 			var lo := float(o.best[0]); var hi := float(o.best[1])
 			memo.aim = clampf((lo + hi) / 2.0 + rng.randf_range(-0.14, 0.14), 0.2, 1.0)
 		var patient: bool = o.load < 0.6
-		if memo.get("pulling", false):
-			if o.pull >= memo.aim:
-				memo.pulling = false               # lets go (the release itself lands a reaction late)
-				memo.cd = 0.5
-				memo.erase("aim")
-			else:
-				rt = 1.0 if keyboard else minf(1.0, o.pull + 0.25)
-		elif memo.cd <= 0.0 and patient:
-			memo.pulling = true
-			rt = 1.0 if keyboard else 0.25
+		if keyboard:
+			# Watches the wind-up and lets go, anticipating the rising meter by about half a reaction.
+			var rate := 1.0 / float(n._cfg.get("charge_seconds", 0.8))
+			if memo.get("pulling", false):
+				if o.pull >= memo.aim - rate * delay * 0.5:
+					memo.pulling = false
+					memo.cd = 0.5
+					memo.erase("aim")
+				else:
+					rt = 1.0
+			elif memo.cd <= 0.0 and patient:
+				memo.pulling = true
+				rt = 1.0
+		else:
+			# A pad trigger is pulled to a depth by feel, held a moment, and released.
+			memo.hold = memo.get("hold", 0.0)
+			if memo.get("pulling", false):
+				memo.hold += dt
+				rt = memo.aim
+				if memo.hold > 0.15:
+					memo.pulling = false
+					memo.cd = 0.5
+					memo.hold = 0.0
+					memo.erase("aim")
+			elif memo.cd <= 0.0 and patient:
+				memo.pulling = true
+				rt = memo.aim
 	return [ls, rs, rt]

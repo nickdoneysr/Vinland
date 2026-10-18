@@ -167,7 +167,7 @@ func _draw() -> void:
 	# HUD
 	draw_rect(Rect2(24, 20, 760, 140), Color(0.1, 0.09, 0.07, 0.8))
 	draw_string(_font, Vector2(44, 60), "HAND LINE  ·  %s" % ("fog" if rules.fog else ("strong current" if rules.current > 0.6 else "clear water")), HORIZONTAL_ALIGNMENT_LEFT, -1, 26, ink)
-	draw_string(_font, Vector2(44, 96), "LS down pay out · LS up haul · RT set on the ease · B cut the line", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(ink, 0.75))
+	draw_string(_font, Vector2(44, 96), "S let out line · W haul · Space strike on the ease · Esc cut the line" if Controls.keyboard else "LS down pay out · LS up haul · RT set on the ease · B cut the line", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(ink, 0.75))
 	draw_string(_font, Vector2(44, 132), "Hooks %d   ·   catch %d (%.0f person-days)   ·   %ds left   ·   line out %.0f m" % [
 		rules.hooks, rules.catch.size(), rules.person_days(), maxi(0, ceili(rules.time_left)), rules.depth], HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(ink, 0.9))
 	if not embedded:
@@ -188,7 +188,7 @@ func _draw() -> void:
 			HandLine.Phase.TUG1, HandLine.Phase.GAP: banner = "TUG"
 			HandLine.Phase.TUG2: banner = "TUG TUG"
 			HandLine.Phase.EASE:
-				banner = "NOW!  pull RT"
+				banner = "NOW!  %s" % ("press Space" if Controls.keyboard else "pull RT")
 				bcol = Color("e8c35a")
 			HandLine.Phase.HOOKED:
 				banner = "Haul (LS up) · ease off (LS down) when the strain goes red"

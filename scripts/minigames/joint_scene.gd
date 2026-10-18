@@ -42,11 +42,11 @@ func _process(delta: float) -> void:
 		var ls := Controls.left_stick().x
 		var rs := Controls.right_stick().x
 		var rt := Input.get_action_strength("rt")
-		# Keyboard: a key is all or nothing, so holding it winds the blow up over 0.8 s and
+		# Keyboard: a key is all or nothing, so holding it winds the blow up (charge_seconds to full) and
 		# letting go strikes at the wound-up force. A pad trigger strikes at how far it was pulled.
 		if (Controls.keyboard or keyboard_charge) and not autopilot and not bot_input.is_valid():
 			if rt > 0.5:
-				_charge = minf(1.0, _charge + delta / 0.8)
+				_charge = minf(1.0, _charge + delta / float(_cfg.get("charge_seconds", 0.8)))
 				rt = maxf(0.16, _charge)
 			else:
 				_charge = 0.0
@@ -56,7 +56,7 @@ func _process(delta: float) -> void:
 			ls = b[0]; rs = b[1]; rt = b[2]
 			if keyboard_charge:
 				if rt > 0.5:
-					_charge = minf(1.0, _charge + delta / 0.8)
+					_charge = minf(1.0, _charge + delta / float(_cfg.get("charge_seconds", 0.8)))
 					rt = maxf(0.16, _charge)
 				else:
 					_charge = 0.0
@@ -142,9 +142,10 @@ func _draw() -> void:
 			draw_line(Vector2(rx, ry), Vector2(rx - 8, ry + 30), Color(0.85, 0.88, 0.9, 0.3), 1.5)
 	# HUD
 	draw_rect(Rect2(24, 20, 900, 150), Color(0.1, 0.09, 0.07, 0.82))
-	var step_text := {Joint.Phase.BRACE: "1  Brace the timber with the left stick until it stops rocking",
-		Joint.Phase.SET: "2  Turn the peg to the hole with the right stick",
-		Joint.Phase.DRIVE: "3  Drive it: pull RT for each blow. A half pull drives with the grain; a full pull can split it",
+	var kb := Controls.keyboard
+	var step_text := {Joint.Phase.BRACE: "1  Brace the timber (%s) against its rocking until the brace meter is green" % ("A / D" if kb else "left stick"),
+		Joint.Phase.SET: "2  Turn the peg (%s) to line up with the hole's mark" % ("left / right arrows" if kb else "right stick"),
+		Joint.Phase.DRIVE: "3  Drive it: %s. Too hard splits the log; keep the brace green" % ("hold Space and let go in the green" if kb else "pull RT into the green and release"),
 		Joint.Phase.SEATED: "The joint is seated.", Joint.Phase.SPLIT: "The log split along the grain.", Joint.Phase.TIMEOUT: "The light is gone and the peg is not home."}
 	draw_string(_font, Vector2(44, 60), "THE JOINT  ·  %s" % ("rain: the grain takes less" if rules.rain else "dry"), HORIZONTAL_ALIGNMENT_LEFT, -1, 26, ink)
 	draw_string(_font, Vector2(44, 98), step_text[rules.phase], HORIZONTAL_ALIGNMENT_LEFT, 860, 21, Color(ink, 0.9))

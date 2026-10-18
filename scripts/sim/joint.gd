@@ -58,13 +58,13 @@ func step(dt: float, ls_x: float, rs_x: float, rt: float) -> Array:
 	stress = maxf(0.0, stress - float(c.stress_decay_per_second) * dt)
 	match phase:
 		Phase.BRACE:
-			brace_held = brace_held + dt if braced() else maxf(0.0, brace_held - dt)
+			brace_held = brace_held + dt if braced() else maxf(0.0, brace_held - dt * float(c.get("brace_held_decay", 1.0)))
 			if brace_held >= float(c.brace_seconds):
 				phase = Phase.SET
 				events.append("braced")
 		Phase.SET:
-			peg_angle += rs_x * 40.0 * dt
-			set_held = set_held + dt if misalign() <= float(c.peg_tolerance_deg) else 0.0
+			peg_angle += rs_x * float(c.get("peg_speed", 40.0)) * dt
+			set_held = set_held + dt if misalign() <= float(c.peg_tolerance_deg) else maxf(0.0, set_held - dt * float(c.get("brace_held_decay", 1.0)) * 2.0)
 			if set_held >= float(c.peg_seat_seconds):
 				phase = Phase.DRIVE
 				events.append("set")

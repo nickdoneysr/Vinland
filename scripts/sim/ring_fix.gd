@@ -12,12 +12,14 @@ var clean_err := 0.5        # degrees of latitude
 var partial_err := 1.5
 var seat_time := 1.2        # seconds the star must stay seated before a commit counts
 var seat_radius := 0.6      # degrees between the sight and the star that count as seated
+var seat_decay := 1.0       # how fast the seat drains when the star slips (0: it waits for you)
 
 func configure(cfg: Dictionary) -> void:
 	clean_err = float(cfg.get("clean_err", clean_err))
 	partial_err = float(cfg.get("partial_err", partial_err))
 	seat_time = float(cfg.get("seat_seconds", seat_time))
 	seat_radius = float(cfg.get("seat_radius_deg", seat_radius))
+	seat_decay = float(cfg.get("seat_decay", seat_decay))
 
 var true_lat := 61.0
 var seat_held := 0.0
@@ -42,7 +44,7 @@ func step(delta: float, reading: float, level_err: float, aim_err: float, visibl
 		if samples.size() > 240:
 			samples.pop_front()
 	else:
-		seat_held = maxf(0.0, seat_held - delta)
+		seat_held = maxf(0.0, seat_held - delta * seat_decay)
 	return seat_quality(aim_err, visible)
 
 ## 0..1, drives the rim glow and the haptic pulse (they must always agree).

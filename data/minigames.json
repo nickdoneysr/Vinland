@@ -82,7 +82,12 @@
   "stress_cap_dry": 1.0,
   "stress_cap_rain": 0.75,
   "max_seconds": 30,
-  "stress_cap_mult": 1.0
+  "stress_cap_mult": 1.0,
+  "charge_seconds": 0.8,
+  "brace_strength": 1.6,
+  "brace_settle": 1.5,
+  "brace_held_decay": 1.0,
+  "peg_speed": 40.0
  },
  "ring": {
   "seat_radius_deg": 0.6,
@@ -91,7 +96,9 @@
   "partial_err": 1.5,
   "sway_scale": 1.0,
   "assist_level": 0.0,
-  "move_speed": 520.0
+  "move_speed": 520.0,
+  "cloud_scale": 1.0,
+  "seat_decay": 1.0
  },
  "difficulty": {
   "_note": "Overrides per difficulty. Forgiving is the default for new players; Hard is the original tuning the expert bots were built on.",
@@ -103,7 +110,9 @@
     "partial_err": 2.2,
     "sway_scale": 0.45,
     "assist_level": 0.6,
-    "move_speed": 340.0
+    "move_speed": 340.0,
+    "cloud_scale": 0.55,
+    "seat_decay": 0.0
    },
    "hand_line": {
     "ease_seconds": 1.1,
@@ -113,8 +122,8 @@
     "bite_banner": true
    },
    "joint": {
-    "brace_drift": 1.0,
-    "brace_tolerance": 0.35,
+    "brace_drift": 0.6,
+    "brace_tolerance": 0.45,
     "brace_seconds": 0.6,
     "peg_tolerance_deg": 12.0,
     "peg_seat_seconds": 0.3,
@@ -123,7 +132,11 @@
      0.35,
      0.85
     ],
-    "max_seconds": 45
+    "max_seconds": 45,
+    "charge_seconds": 1.5,
+    "brace_strength": 0.7,
+    "brace_held_decay": 0.25,
+    "peg_speed": 18.0
    }
   },
   "standard": {
@@ -134,7 +147,9 @@
     "partial_err": 1.8,
     "sway_scale": 0.7,
     "assist_level": 0.25,
-    "move_speed": 380.0
+    "move_speed": 380.0,
+    "cloud_scale": 0.8,
+    "seat_decay": 0.5
    },
    "hand_line": {
     "ease_seconds": 0.75,
@@ -144,17 +159,21 @@
     "bite_banner": true
    },
    "joint": {
-    "brace_drift": 1.6,
-    "brace_tolerance": 0.28,
+    "brace_drift": 0.9,
+    "brace_tolerance": 0.35,
     "brace_seconds": 0.8,
     "peg_tolerance_deg": 9.0,
     "peg_seat_seconds": 0.45,
     "stress_cap_mult": 1.2,
     "best_force": [
-     0.45,
-     0.8
+     0.4,
+     0.82
     ],
-    "max_seconds": 38
+    "max_seconds": 38,
+    "charge_seconds": 1.2,
+    "brace_strength": 0.8,
+    "brace_held_decay": 0.5,
+    "peg_speed": 24.0
    }
   },
   "hard": {

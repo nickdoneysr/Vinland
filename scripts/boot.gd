@@ -1,4 +1,6 @@
 extends Control
+
+var info: Label
 ## Boot and title screen. Run with `-- --smoke` to print a self-check and quit (used in CI).
 
 func _ready() -> void:
@@ -12,18 +14,38 @@ func _ready() -> void:
 	var title := Label.new()
 	title.text = "VINLAND"
 	title.add_theme_font_size_override("font_size", 120)
-	title.position = Vector2(140, 300)
+	title.position = Vector2(140, 200)
 	add_child(title)
-	var info := Label.new()
+	info = Label.new()
 	info.add_theme_font_size_override("font_size", 26)
-	info.position = Vector2(146, 460)
-	info.text = "Vertical slice build  ·  hold %s of %s units  ·  slice art in place %d%%\nA / Enter: sail from Eriksfjord      Y / F: star ring practice" % [
-		Game.hold_load(), Game.hold_capacity(), int(Art.coverage("Vertical slice") * 100)]
+	info.position = Vector2(146, 360)
 	add_child(info)
+	_refresh()
 	if "--smoke" in OS.get_cmdline_user_args():
 		_smoke()
 
+func _refresh() -> void:
+	info.text = ("Vertical slice build  ·  slice art in place %d%%\n\n" % int(Art.coverage("Vertical slice") * 100)) + \
+		"A / Enter: play the slice from Eriksfjord\n" + \
+		"Y / F: star ring practice      1: hand line practice      2: joint practice\n\n" + \
+		"Difficulty:  ‹ %s ›   (D-pad or Z / C to change)\n" % Game.DIFFICULTY_NAMES[Game.settings.difficulty] + \
+		{"forgiving": "Wide windows, steadier hands, clear prompts. Start here.",
+		 "standard": "Tighter windows. The prompts stay on.",
+		 "hard": "The original tuning: small windows, no prompts. Made for a gamepad."}[Game.settings.difficulty] + \
+		"\n\nKeyboard: WASD left stick · arrows right stick · Space right trigger · Shift left trigger · Enter A · Esc B · F Y · Q/E bumpers"
+
+func _cycle(d: int) -> void:
+	var i := Game.DIFFICULTIES.find(Game.settings.difficulty)
+	Game.settings.difficulty = Game.DIFFICULTIES[clampi(i + d, 0, Game.DIFFICULTIES.size() - 1)]
+	_refresh()
+
 func _unhandled_input(e: InputEvent) -> void:
+	if e.is_action_pressed("ui_right_pad"):
+		_cycle(1)
+		return
+	if e.is_action_pressed("ui_left_pad"):
+		_cycle(-1)
+		return
 	if e.is_action_pressed("commit"):
 		get_tree().change_scene_to_file("res://scenes/voyage.tscn")
 	elif e.is_action_pressed("alt"):

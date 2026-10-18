@@ -1,7 +1,7 @@
 extends RefCounted
 ## Can a first-time player pass each mini-game? Plays a novice model on keyboard and pad at each difficulty.
 
-const TARGET := {"forgiving": 0.8, "standard": 0.55}
+const TARGET := {"forgiving": 0.85, "standard": 0.6}
 
 static func run(t) -> void:
 	var tree: SceneTree = t.get_tree()

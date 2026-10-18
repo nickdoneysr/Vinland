@@ -71,7 +71,7 @@ func new_night(name: String) -> void:
 	false_offset = (_rng.randf_range(1.5, 3.0) * (1 if _rng.randf() < 0.5 else -1)) if cond.fog else 0.0
 	outcome = {}
 	clouds.clear()
-	var n := int(cond.cloud * 16)
+	var n := int(cond.cloud * 16 * float(cfg.get("cloud_scale", 1.0)))
 	for i in n:
 		clouds.append({"p": Vector2(_rng.randf_range(-300, 2200), _rng.randf_range(-100, 760)),
 			"r": _rng.randf_range(110, 260), "v": _rng.randf_range(18, 45)})
@@ -296,7 +296,19 @@ func _draw_ring() -> void:
 func _draw_hud() -> void:
 	var ink := Color("ede3cc")
 	draw_string(_font, Vector2(40, 54), "STAR RING  ·  %s" % cond.label, HORIZONTAL_ALIGNMENT_LEFT, -1, 26, ink)
-	draw_string(_font, Vector2(40, 90), "LS hold the ring   RS fine seat   RT raise   LT lower   A take the fix   B abort",
+	var help := "WASD move the ring · Space raise the sight · Shift lower · arrows fine · Enter take the fix · Esc abort" if Controls.keyboard else "LS hold the ring   RS fine seat   RT raise   LT lower   A take the fix   B abort"
+	if Game.settings.difficulty != "hard" and outcome.is_empty():
+		var step := "1  Put the ring's bottom bar on the horizon line"
+		var bar_y := ring.y + BAR_OFFSET
+		if absf(horizon_y_at(ring.x) - bar_y) < 14.0:
+			step = "2  Raise or lower the sight (the small circle) onto the bright Pole Star"
+		if quality > 0.3:
+			step = "3  Hold it there until the bar at the top right fills, then take the fix"
+		if rule.seat_held >= rule.seat_time:
+			step = "Seated. Take the fix now (%s)" % ("Enter" if Controls.keyboard else "A")
+		draw_rect(Rect2(30, 990, 1120, 60), Color(0.08, 0.07, 0.06, 0.75))
+		draw_string(_font, Vector2(50, 1030), step, HORIZONTAL_ALIGNMENT_LEFT, 1080, 26, Color("e8c35a"))
+	draw_string(_font, Vector2(40, 90), help,
 		HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(ink, 0.75))
 	if not embedded:
 		draw_string(_font, Vector2(40, 122), "Keys: WASD / arrows / Space / Shift / Enter / Esc   ·   1-5 conditions   R new night",
