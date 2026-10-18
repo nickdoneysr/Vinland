@@ -6,6 +6,7 @@ extends Node2D
 ## Draws procedurally until real art is saved at the asset list's paths.
 
 const RING_SCENE := preload("res://scenes/star_ring.tscn")
+const LINE_SCENE := preload("res://scenes/hand_line.tscn")
 const SELECTORS := ["pace", "ration", "animal_ration"]
 const SEL_NAMES := {"pace": "Pace", "ration": "Rations", "animal_ration": "Animals"}
 const SEL_VALUES := {"pace": ["crack", "easy", "heave"], "ration": ["full", "half", "bare"], "animal_ration": ["full", "half", "none"]}
@@ -21,6 +22,7 @@ var t := 0.0
 var auto_cd := 0.0
 var scroll := 0.0
 var ring: Node = null
+var line: Node = null
 var _font: Font
 var _stick_ready := true
 var _logged := false
@@ -83,7 +85,7 @@ func _end(won: bool, reason: String = "") -> void:
 	var summary := "Day %d, %s. %d people aboard (%d lost), %d cattle, %d sheep. %d nm sailed, %d nm of it lost to drift. Fixes: %d clean, %d partial, %d none." % [
 		v.day, v.date_text(), v.people, v.dead, v.cattle, v.sheep, roundi(v.sailed_nm), roundi(v.drift_nm_total), v.fixes[2], v.fixes[1], v.fixes[0]]
 	if won:
-		_card("Landfall at the Strait", "The camp site at last: a grassy terrace, a brook, a shingle shore.\n" + summary + "\nThe vertical slice continues with the camp day (Backlog F06).", "end")
+		_card("Landfall at the Strait", "The camp site at last: a grassy terrace, a brook, a shingle shore.\n" + summary, "camp")
 	else:
 		_card("The voyage is lost", reason + "\n" + summary, "end")
 
@@ -146,6 +148,9 @@ func _unhandled_input(e: InputEvent) -> void:
 			if c.get("kind", "") == "end":
 				get_tree().change_scene_to_file("res://scenes/boot.tscn")
 				return
+			if c.get("kind", "") == "camp":
+				get_tree().change_scene_to_file("res://scenes/camp.tscn")
+				return
 			if cards.is_empty():
 				mode = "sail"
 		return
@@ -159,12 +164,34 @@ func _unhandled_input(e: InputEvent) -> void:
 		elif e.is_action_pressed("ui_left_pad"):
 			_change(-1)
 		elif e.is_action_pressed("alt"):
-			var evs := v.fish()
-			if evs.is_empty():
-				_card("No fishing now", "Fishing is once a day, on a coastal leg, before the day's last watch." if v.is_coastal() else "Open water: no bottom for a hand line here.")
+			if not v.can_fish():
+				var why := "Open water: no bottom for a hand line here."
+				if v.hooks <= 0:
+					why = "No hooks left. The smith at the camp can make more."
+				elif v.is_coastal():
+					why = "Fishing is once a day, on a coastal leg, before the day's last watch."
+				_card("No fishing now", why)
 			else:
-				_card("Fishing", "A watch at anchor on the hand lines: %d person-days of fresh fish. It spoils in three days." % roundi(evs[0].person_days))
-				_handle_events(evs.slice(1))
+				_open_line()
+
+func _open_line() -> void:
+	mode = "ring"          # any child mini-game pauses the voyage the same way
+	line = LINE_SCENE.instantiate()
+	line.embedded = true
+	line.hook_stock = v.hooks
+	add_child(line)
+	line.start(v.weather == "fog", 0.8 if v.weather in ["beam_sea", "following_gale"] else 0.3)
+	line.closed.connect(_close_line)
+
+func _close_line() -> void:
+	var r: Dictionary = line.result
+	line.queue_free()
+	line = null
+	mode = "sail"
+	var evs := v.fish(1.0, float(r.get("person_days", 0.0)), int(r.get("hooks_lost", 0)))
+	if not evs.is_empty():
+		_card("Fishing", "A watch at anchor on the hand lines: %d person-days of fresh fish. It spoils in three days. %d hooks left." % [roundi(evs[0].person_days), v.hooks])
+		_handle_events(evs.slice(1))
 
 func _selectors_stick() -> void:
 	var x := Controls.left_stick().x
@@ -337,8 +364,8 @@ func _draw_hud() -> void:
 	draw_string(_font, Vector2(1622, 1030), "LB/RB choose · D-pad change", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(ink, 0.6))
 	if mode == "sail":
 		var prompt := "A: take the star ring" if v.watch == Voyage.NIGHT_WATCH and v.fix_today == -1 else "A: sail a watch (hold to keep sailing)"
-		if v.is_coastal() and not v.fished_today:
-			prompt += "    Y: fish"
+		if v.can_fish():
+			prompt += "    Y: fish (%d hooks)" % v.hooks
 		draw_string(_font, Vector2(620, 900), prompt, HORIZONTAL_ALIGNMENT_LEFT, -1, 24, ink)
 
 func _draw_card() -> void:
@@ -353,6 +380,6 @@ func _draw_card() -> void:
 	draw_rect(r, Color("8a6d4e"), false, 4.0)
 	draw_string(_font, r.position + Vector2(40, 74), c.title, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 80, 34, ink)
 	draw_multiline_string(_font, r.position + Vector2(40, 130), c.body, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 80, 24, -1, Color(ink, 0.88))
-	draw_string(_font, r.position + Vector2(40, r.size.y - 30), "A: continue" if c.get("kind", "") != "end" else "A: back to the title", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(ink, 0.6))
+	draw_string(_font, r.position + Vector2(40, r.size.y - 30), {"end": "A: back to the title", "camp": "A: go ashore"}.get(c.get("kind", ""), "A: continue"), HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(ink, 0.6))
 	if cards.size() > 1:
 		draw_string(_font, r.position + Vector2(r.size.x - 140, r.size.y - 30), "+%d more" % (cards.size() - 1), HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(ink, 0.5))

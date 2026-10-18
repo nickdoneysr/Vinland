@@ -13,6 +13,15 @@ func _ready() -> void:
 		n.new_night(a.preset)
 	if a.has("bot"):
 		n.autopilot = true
+	if a.has("rain") and n.has_method("start"):
+		n.start(true)
+	if a.has("camp_days"):
+		for i in int(a.camp_days):
+			n.camp.default_assignments()
+			n.camp.work_day({})
+	if a.has("clear"):
+		n.cards.clear()
+		n.mode = a.get("mode", "morning")
 	for i in int(a.get("frames", "60")):
 		await get_tree().process_frame
 	await RenderingServer.frame_post_draw

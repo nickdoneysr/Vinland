@@ -1,0 +1,84 @@
+{
+ "_note": "Feel tuning for the mini-games. Economy numbers stay on the plan's Assumptions sheet; these shape how each verb feels in the hands.",
+ "hand_line": {
+  "session_seconds": 60,
+  "max_depth_m": 30,
+  "pay_speed_mps": 8.0,
+  "fish_band": {
+   "cod": [
+    20,
+    30
+   ],
+   "char": [
+    4,
+    14
+   ],
+   "halibut": [
+    26,
+    30
+   ]
+  },
+  "fish_mix": {
+   "cod": 0.75,
+   "char": 0.2,
+   "halibut": 0.05
+  },
+  "person_days": {
+   "cod": [
+    3,
+    5
+   ],
+   "char": [
+    1.5,
+    2.5
+   ],
+   "halibut": [
+    10,
+    14
+   ]
+  },
+  "strength": {
+   "cod": 0.55,
+   "char": 0.4,
+   "halibut": 0.95
+  },
+  "find_seconds": [
+   2.0,
+   6.0
+  ],
+  "nibbles": [
+   0,
+   3
+  ],
+  "nibble_seconds": 0.12,
+  "tug_seconds": 0.18,
+  "tug_gap_seconds": 0.12,
+  "ease_seconds": 0.42,
+  "ease_seconds_fog": 0.32,
+  "rebait_seconds": 3.0,
+  "haul_speed_mps": 6.0,
+  "give_speed_mps": 5.0,
+  "snap_tension": 1.0,
+  "snap_hold_seconds": 0.4,
+  "band_tolerance_m": 4.0
+ },
+ "joint": {
+  "brace_seconds": 1.2,
+  "brace_tolerance": 0.18,
+  "brace_drift": 2.6,
+  "peg_tolerance_deg": 6.0,
+  "peg_seat_seconds": 0.6,
+  "depth_per_blow_at_full": 0.22,
+  "best_force": [
+   0.55,
+   0.8
+  ],
+  "stress_per_blow": 0.18,
+  "stress_over_force": 0.9,
+  "stress_misalign_per_deg": 0.04,
+  "stress_decay_per_second": 0.35,
+  "stress_cap_dry": 1.0,
+  "stress_cap_rain": 0.75,
+  "max_seconds": 30
+ }
+}

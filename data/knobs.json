@@ -84,5 +84,20 @@
  "morale_change_landfall": 8,
  "morale_change_clean_fix": 2,
  "starvation_sickness_multiplier": 15,
- "thirst_sickness_multiplier": 25
+ "thirst_sickness_multiplier": 25,
+ "hooks_carried": 6,
+ "work_to_raise_a_booth": 16,
+ "people_sheltered_per_booth": 8,
+ "your_seated_joint_counts_as": 3,
+ "shore_fishing_per_worker_day": 6,
+ "forage_per_worker_day": 4,
+ "timber_felled_per_worker_day": 0.05,
+ "hay_cut_per_worker_day": 0.5,
+ "first_hay_day": 213,
+ "milk_per_fed_cow_per_day": 2,
+ "unsheltered_sickness_multiplier": 3,
+ "tending_shortens_sickness_by": 1,
+ "slice_ends": 244,
+ "booth_plots_at_the_camp": 3,
+ "work_to_raise_the_longhouse": 540
 }

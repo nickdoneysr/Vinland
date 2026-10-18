@@ -38,6 +38,7 @@ var fresh_fish: Array = []   # [person_days, age_days]
 var drink := 0.0
 var fodder := 0.0
 var trade := 2
+var hooks := 6
 var timber := 0
 
 var ration := "full"
@@ -72,6 +73,7 @@ func setup(knobs: Dictionary, legs_data: Dictionary, seed: int = 0) -> void:
 	cattle = int(n("cattle_at_departure", 2))
 	sheep = int(n("sheep_and_goats_at_departure", 6))
 	trade = int(n("trade_goods_carried", 2))
+	hooks = int(n("hooks_carried", 6))
 	var load := default_provisions()
 	food = load.food
 	drink = load.drink
@@ -223,17 +225,22 @@ func _advance(nm: float, ev: Array) -> void:
 		_new_deck()
 		ev.append({"type": "new_leg", "leg": leg().name, "nm": leg_left})
 
-## Fishing spends a watch at anchor (Systems: once a day, coastal only). Placeholder catch until F05.
-func fish(quality: float = -1.0) -> Array:
+func can_fish() -> bool:
+	return state == "sailing" and not fished_today and is_coastal() and watch < WATCHES_PER_DAY and hooks > 0
+
+## Fishing spends a watch at anchor (Systems: once a day, coastal only).
+## The hand-line mini-game passes its catch in; without it (bots, tests) the knob's average is rolled.
+func fish(quality: float = -1.0, caught_pd: float = -1.0, hooks_lost: int = 0) -> Array:
 	var ev: Array = []
-	if state != "sailing" or fished_today or not is_coastal() or watch >= WATCHES_PER_DAY:
+	if not can_fish():
 		return ev
 	fished_today = true
+	hooks = maxi(0, hooks - hooks_lost)
 	if quality < 0.0:
 		quality = rng.randf_range(0.3, 1.4)
-	var pd := n("hand_line_catch_per_fishing_day", 30) * quality
+	var pd := caught_pd if caught_pd >= 0.0 else n("hand_line_catch_per_fishing_day", 18) * quality
 	fresh_fish.append([pd, 0])
-	ev.append({"type": "fished", "person_days": pd})
+	ev.append({"type": "fished", "person_days": pd, "hooks_lost": hooks_lost})
 	watch += 1
 	if watch >= WATCHES_PER_DAY:
 		ev.append_array(end_day())

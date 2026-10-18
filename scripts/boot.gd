@@ -28,6 +28,10 @@ func _unhandled_input(e: InputEvent) -> void:
 		get_tree().change_scene_to_file("res://scenes/voyage.tscn")
 	elif e.is_action_pressed("alt"):
 		get_tree().change_scene_to_file("res://scenes/star_ring.tscn")
+	elif e is InputEventKey and e.pressed and e.physical_keycode == KEY_1:
+		get_tree().change_scene_to_file("res://scenes/hand_line.tscn")
+	elif e is InputEventKey and e.pressed and e.physical_keycode == KEY_2:
+		get_tree().change_scene_to_file("res://scenes/joint.tscn")
 
 func _smoke() -> void:
 	var ok := true

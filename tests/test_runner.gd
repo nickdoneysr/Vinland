@@ -16,6 +16,9 @@ func _ready() -> void:
 	await _bot_nights()
 	load("res://tests/test_voyage.gd").run(self)
 	await load("res://tests/test_voyage_scene.gd").run(self)
+	load("res://tests/test_minigames.gd").run(self)
+	load("res://tests/test_camp.gd").run(self)
+	await load("res://tests/test_voyage_scene.gd").run_slice(self)
 	print("RESULT %s (%d failures)" % ["PASS" if fails == 0 else "FAIL", fails])
 	get_tree().quit(1 if fails else 0)
 

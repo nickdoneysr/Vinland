@@ -23,12 +23,14 @@ All numbers come from the plan's Assumptions sheet. After changing the plan, run
 ## Checks
     godot --headless --path . -- --smoke      # prints SMOKE ... result=PASS
 
-## What plays today
-- **Voyage** (title screen, A): Eriksfjord to the Strait, six legs, weather card each dawn, pace / rations / animal ration,
-  coastal fishing (Y), the star ring every clear night, landfalls, loss on the season clock, a daily run log.
-- **Star ring practice** (title screen, Y): five sky conditions on keys 1–5.
+## What plays today (vertical slice)
+- **The slice** (title screen, A): sail Eriksfjord to the Strait (six legs, weather cards, pace / rations / animals,
+  the star ring every clear night, hand-line fishing on coastal legs), then run the summer camp: share the crew between
+  jobs each morning, play the joint or the hand line yourself, raise three booths and the longhouse, stack timber,
+  and finish on 1 September with the G1 gate checklist.
+- **Practice**: Y star ring · 1 hand line · 2 joint (keyboard 1 / 2 on the title screen).
 
 ## Tests
     godot --headless --path . res://tests/test_runner.tscn
-Runs the ring rules, bot nights, voyage rules, a 1,200-voyage balance sweep with four captains, and three full
-playthroughs of the voyage screen. Run logs land in the Godot user folder under runlog/.
+Runs the ring rules and bot nights, voyage rules and a 1,200-voyage balance sweep, hand-line and joint bots,
+camp rules and a 300-summer sweep, three voyage-screen playthroughs, and one full slice playthrough to the G1 checklist. Run logs land in the Godot user folder under runlog/.

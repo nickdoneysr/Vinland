@@ -10,6 +10,7 @@ var day := 0            # days since departure
 var watch := 0          # 0..5, six four-hour watches a day
 var hold := {}          # cargo kind -> count
 var voyage: Voyage = null  # the live voyage, when one is running
+var camp: Camp = null      # the camp at the Strait, once ashore
 
 func new_run() -> void:
 	day = 0
