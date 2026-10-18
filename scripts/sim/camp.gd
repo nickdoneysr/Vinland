@@ -88,8 +88,8 @@ func from_voyage(v: Voyage) -> void:
 		fresh.append([f[0], f[1]])
 	hooks = v.hooks
 	trade = v.trade
-	cloth_strips = int(n("red_cloth_strips_per_trade_unit", 20)) * ceili(v.trade / 2.0)
-	iron_blades = int(n("iron_blades_per_trade_unit", 5)) * floori(v.trade / 2.0)
+	cloth_strips = int(n("red_cloth_strips_per_trade_unit", 20)) * v.cloth_units
+	iron_blades = int(n("iron_blades_per_trade_unit", 5)) * v.iron_units
 	morale = v.morale
 	ration = v.ration
 	default_assignments()

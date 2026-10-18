@@ -42,10 +42,15 @@ func _ready() -> void:
 		_card("Continuing the voyage", "%s, day %d. %s\n%s" % [v.date_text(), v.day + 1, v.weather_info().name, _leg_line()])
 		return
 	v.setup(Knobs._v, legs_data, seed)
+	if not Game.loadout.is_empty():
+		var lo := Loadout.new()
+		lo.setup(Knobs._v)
+		lo.c = Game.loadout.duplicate()
+		lo.apply_to(v)
 	Game.voyage = v
 	Game.camp = null
 	_card("Eriksfjord, %s" % v.date_text(),
-		"The knarr is loaded to the gunwales: %d people, %d cattle, %d sheep, %d food, %d drink, %d fodder, %d trade goods.\nThe hold is %.1f of %d units. Leave after the ice; be ashore before October." % [
+		"The knarr is loaded: %d people, %d cattle, %d sheep, %d food, %d drink, %d fodder, %d trade goods.\nThe hold is %.1f of %d units. Leave after the ice; be ashore before October." % [
 		v.people, v.cattle, v.sheep, int(v.food), int(v.drink), int(v.fodder), v.trade, v.hold_load(), int(v.hold_capacity())], "start")
 	_begin_day()
 

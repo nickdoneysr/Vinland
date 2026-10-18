@@ -30,7 +30,7 @@ func _refresh() -> void:
 	save = Game.latest_save()
 	var cont := ("Start / Tab: continue  (%s)\n" % save.get("where", "saved game")) if not save.is_empty() else ""
 	info.text = ("Production build  ·  slice art in place %d%%\n\n" % int(Art.coverage("Vertical slice") * 100)) + cont + \
-		"A / Enter: new voyage from Eriksfjord\n" + \
+		"A / Enter: new voyage: load the knarr at Eriksfjord\n" + \
 		"Practice:  Y / F star ring   1 hand line   2 joint   3 storm bail   4 hunt   5 berry patch\n\n" + \
 		"Difficulty:  ‹ %s ›   (D-pad or Z / C to change)\n" % Game.DIFFICULTY_NAMES[Game.settings.difficulty] + \
 		{"forgiving": "Wide windows, steadier hands, clear prompts. Start here.",
@@ -57,7 +57,8 @@ func _unhandled_input(e: InputEvent) -> void:
 		Game.voyage = null
 		Game.camp = null
 		Game.loaded_stage = ""
-		get_tree().change_scene_to_file("res://scenes/voyage.tscn")
+		Game.loadout = {}
+		get_tree().change_scene_to_file("res://scenes/loadout.tscn")
 	elif e.is_action_pressed("alt"):
 		get_tree().change_scene_to_file("res://scenes/star_ring.tscn")
 	elif e is InputEventKey and e.pressed and e.physical_keycode == KEY_1:

@@ -38,6 +38,8 @@ var fresh_fish: Array = []   # [person_days, age_days]
 var drink := 0.0
 var fodder := 0.0
 var trade := 2
+var cloth_units := 1        # trade goods split: red cloth and iron (F53)
+var iron_units := 1
 var hooks := 6
 var timber := 0
 
@@ -74,6 +76,8 @@ func setup(knobs: Dictionary, legs_data: Dictionary, seed: int = 0) -> void:
 	cattle = int(n("cattle_at_departure", 2))
 	sheep = int(n("sheep_and_goats_at_departure", 6))
 	trade = int(n("trade_goods_carried", 2))
+	cloth_units = ceili(trade / 2.0)
+	iron_units = trade - cloth_units
 	hooks = int(n("hooks_carried", 6))
 	var load := default_provisions()
 	food = load.food
@@ -424,7 +428,7 @@ func write_log(path: String) -> void:
 
 # ------------------------------------------------------------------ save (F50)
 const SAVE_FIELDS := ["day", "day_of_year", "watch", "leg_i", "leg_left", "sailed_nm", "drift_nm_total", "state", "loss_reason",
-	"people", "dead", "cattle", "sheep", "fodderless_days", "food", "fresh_fish", "drink", "fodder", "trade", "hooks", "timber",
+	"people", "dead", "cattle", "sheep", "fodderless_days", "food", "fresh_fish", "drink", "fodder", "trade", "cloth_units", "iron_units", "hooks", "timber",
 	"ration", "animal_ration", "pace", "morale", "hull", "sail_torn", "sail_strain", "weather", "deck", "fix_today", "fished_today",
 	"day_nm", "starving_days", "animals_lost", "fixes", "storm_bailed"]
 

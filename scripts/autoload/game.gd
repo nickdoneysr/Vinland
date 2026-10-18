@@ -26,6 +26,7 @@ var watch := 0          # 0..5, six four-hour watches a day
 var hold := {}          # cargo kind -> count
 var voyage: Voyage = null  # the live voyage, when one is running
 var camp: Camp = null      # the camp at the Strait, once ashore
+var loadout: Dictionary = {}  # the load chosen at Eriksfjord (F53); empty means the plan's HoldCheck load
 
 func new_run() -> void:
 	day = 0
