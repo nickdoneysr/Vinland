@@ -1,5 +1,5 @@
 extends RefCounted
-## Camp rules and a summer sweep: does a sensible camp get roofs up and stay fed?
+## Camp rules and whole-year sweeps: does a planning camp get through the first winter, and does a careless one not?
 
 static func make(seed: int) -> Camp:
 	var c := Camp.new()
@@ -11,6 +11,33 @@ static func make(seed: int) -> Camp:
 	c.default_assignments()
 	return c
 
+## Crew plans by season, the way a player would set them.
+static func plan(c: Camp, policy: String) -> void:
+	var s := c.season()
+	var a := {}
+	match policy:
+		"planner":
+			if s == "winter":
+				a = {"build": 6, "fish": 6, "forage": 0, "dry": 0, "timber": 6, "hay": 0, "tend": 3}
+				c.ration = "full" if c.food_days() > c.winter_days_left() * 0.8 else "half"
+			elif c.job_open("hay"):
+				a = {"build": 6, "fish": 6, "forage": 2, "dry": 3, "timber": 1, "hay": 4, "tend": 1}
+				c.ration = "full"
+			else:
+				a = {"build": 8, "fish": 6, "forage": 3, "dry": 3, "timber": 2, "hay": 0, "tend": 1}
+				c.ration = "full"
+		"summer_only":     # what the slice taught: build, fish, forage; nothing put by
+			a = {"build": 8, "fish": 6, "forage": 5, "dry": 0, "timber": 3, "hay": 0, "tend": 1}
+			c.ration = "full"
+		"no_hay":          # dries fish but forgets the herd
+			if s == "winter":
+				a = {"build": 6, "fish": 6, "forage": 0, "dry": 0, "timber": 6, "hay": 0, "tend": 3}
+			else:
+				a = {"build": 8, "fish": 6, "forage": 3, "dry": 3, "timber": 2, "hay": 0, "tend": 1}
+			c.ration = "full"
+	c.assign = a
+	c.default_assignments()
+
 static func run(t) -> void:
 	var c := make(5)
 	c.set_assign("fish", 20)
@@ -18,29 +45,49 @@ static func run(t) -> void:
 	c.set_assign("hay", 3)
 	t.check("camp: hay cannot be cut before August", c.assign.hay == 0)
 	var b := make(6)
-	b.assign = {"build": 2, "fish": 0, "forage": 0, "timber": 0, "hay": 0, "tend": 0}
-	b.player_job = "build"
+	b.assign = {"build": 2, "fish": 0, "forage": 0, "dry": 0, "timber": 0, "hay": 0, "tend": 0}
 	b.work_day({"job": "build", "seated": true})
 	t.check("camp: your seated joint is worth three builder-days", is_equal_approx(b.joints, 3.0 + 1.0), "%.2f" % b.joints)
-	t.check("camp: booths stop at the plot count", true)
-	for policy in ["balanced", "all_build", "all_food"]:
-		var booths := 0; var deaths := 0; var timber := 0.0; var hall := 0.0; var n := 100
+	var w := make(7)
+	w.day_of_year = 310
+	t.check("camp: winter closes foraging and the rack", w.is_winter() and not w.job_open("forage") and not w.job_open("dry"))
+	w.day_of_year = 365
+	w.work_day()
+	t.check("camp: the calendar rolls into a new year", w.year == 2 and w.day_of_year == 1, "%d/%d" % [w.year, w.day_of_year])
+	# rack: surplus fresh fish becomes stores
+	var r := make(8)
+	r.assign = {"build": 0, "fish": 0, "forage": 0, "dry": 2, "timber": 0, "hay": 0, "tend": 0}
+	r.rain = false
+	r.fresh = [[60.0, 0]]
+	var before := r.food
+	r.work_day()
+	var dried_units: float = (r.food - before) * r.n("food_unit_feeds", 168)
+	t.check("camp: the rack dries the surplus after the day's meals (2 dryers: 30 of 36 left, 90% kept)", is_equal_approx(snappedf(dried_units + 24.0 * 0.0, 0.1), 27.0), "%.1f person-days" % dried_units)
+	# save round trip
+	var sv := make(9)
+	for i in 30: sv.work_day()
+	var d: Dictionary = JSON.parse_string(JSON.stringify(sv.to_dict()))
+	var back := Camp.new()
+	back.from_dict(Knobs._v, d)
+	var a1 := sv.work_day(); var a2 := back.work_day()
+	t.check("camp: a saved camp continues exactly as the original", sv.food == back.food and sv.people == back.people and sv.day_of_year == back.day_of_year and sv.hay == back.hay,
+		"%.4f vs %.4f" % [sv.food, back.food])
+	# whole-year sweeps
+	var res := {}
+	for policy in ["planner", "summer_only", "no_hay"]:
+		var deaths := 0; var animals := 0; var ended := 0; var hall := 0; var n := 60
 		for s in n:
-			var cc := make(200 + s)
-			match policy:
-				"balanced": cc.assign = {"build": 8, "fish": 6, "forage": 5, "timber": 3, "hay": 0, "tend": 2}
-				"all_build": cc.assign = {"build": 24, "fish": 0, "forage": 0, "timber": 0, "hay": 0, "tend": 0}
-				"all_food": cc.assign = {"build": 0, "fish": 6, "forage": 18, "timber": 0, "hay": 0, "tend": 0}
-			while cc.state == "camp":
-				cc.default_assignments()
+			var cc := make(300 + s)
+			var guard := 0
+			while cc.state == "camp" and guard < 500:
+				guard += 1
+				plan(cc, policy)
 				cc.work_day()
-			booths += cc.booths; deaths += cc.dead; timber += cc.timber; hall += cc.longhouse / cc.n("work_to_raise_the_longhouse", 360)
-		print("INFO  camp %-9s booths %.1f  longhouse %d%%  deaths %.2f  timber %.1f" % [policy, float(booths) / n, roundi(hall / n * 100), float(deaths) / n, timber / n])
-		if policy == "balanced":
-			t.check("camp: a balanced summer gets a good way into the longhouse but not past it (40-100%)", hall / n >= 0.4 and hall / n <= 1.0, "%d%%" % roundi(hall / n * 100))
-		if policy == "balanced":
-			t.check("camp: a balanced summer roofs everyone (3+ booths) with few deaths", float(booths) / n >= 3.0 and float(deaths) / n < 1.0,
-				"%.1f booths, %.2f deaths" % [float(booths) / n, float(deaths) / n])
-			t.check("camp: a timber crew of three stacks a return cargo, not a forest (4 to 17 units)", timber / n >= 4.0 and timber / n <= 17.0, "%.1f" % (timber / n))
-		if policy == "all_build":
-			t.check("camp: building with no food work starves people", float(deaths) / n >= 1.0, "%.2f deaths" % (float(deaths) / n))
+			deaths += cc.dead; animals += int(cc.history.animals_lost)
+			if cc.state == "ended": ended += 1
+			if cc.hall_done(): hall += 1
+		res[policy] = {"deaths": float(deaths) / n, "animals": float(animals) / n, "ended": float(ended) / n}
+		print("INFO  camp year %-11s reached spring %3d%%  deaths %.1f  animals lost %.1f  longhouse %d%%" % [policy, roundi(100.0 * ended / n), float(deaths) / n, float(animals) / n, roundi(100.0 * hall / n)])
+	t.check("camp year: a planning camp reaches the second spring with few deaths (< 3)", res.planner.ended >= 0.95 and res.planner.deaths < 3.0, "%.1f deaths" % res.planner.deaths)
+	t.check("camp year: a summer-only camp loses people over the winter (3+)", res.summer_only.deaths >= 3.0, "%.1f deaths" % res.summer_only.deaths)
+	t.check("camp year: forgetting hay costs the herd", res.no_hay.animals >= 3.0 and res.planner.animals < 1.0, "%.1f vs %.1f" % [res.no_hay.animals, res.planner.animals])

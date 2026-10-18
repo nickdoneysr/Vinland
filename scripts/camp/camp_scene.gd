@@ -30,7 +30,7 @@ func _ready() -> void:
 		camp.default_assignments()
 	Game.camp = camp
 	_card("The Strait, %s" % camp.date_text(),
-		"The knarr is drawn up on the shingle. %d people come ashore with %.1f units of food in the stores and %d hooks.\nEach morning, share out the crew and pick the job you will work yourself. Roofs first: the booths shelter eight each.\nThe summer runs to 1 September." % [camp.people, camp.food, camp.hooks])
+		"The knarr is drawn up on the shingle. %d people come ashore with %.1f units of food in the stores and %d hooks.\nEach morning, share out the crew and pick the job you will work yourself. Roofs first: the booths shelter eight each.\nThe first snow comes about 1 November. Dry fish on the rack and cut hay in August, or the winter will take people and animals." % [camp.people, camp.food, camp.hooks])
 
 func _card(title: String, body: String, kind: String = "") -> void:
 	cards.append({"title": title, "body": body, "kind": kind})
@@ -69,9 +69,9 @@ func _close_minigame() -> void:
 
 func _finish_day(player: Dictionary) -> void:
 	var tally := camp.work_day(player)
-	var head := "Evening, %s%s" % [tally.date, "  ·  rain" if tally.rain else ""]
+	var head := "Evening, %s  ·  %s%s" % [tally.date, tally.season, ("  ·  snow" if tally.season == "winter" else "  ·  rain") if tally.rain else ""]
 	var body := "\n".join(tally.lines) if tally.lines.size() > 0 else "A quiet day."
-	body += "\nStores: %.0f days of food. %d of %d under a roof." % [camp.food_days(), mini(camp.people, camp.sheltered_total()), camp.people]
+	body += "\n" + _stores_line()
 	_card(head, body)
 	_check_end()
 
@@ -83,11 +83,21 @@ func _work_week() -> void:
 			break
 		var tally := camp.work_day({})
 		for l in tally.lines:
-			if l.begins_with("A booth") or l.begins_with("The longhouse") or "died" in l or "fell sick" in l or "empty" in l:
+			if l.begins_with("A booth") or l.begins_with("The longhouse") or l.begins_with("The byre") or l.begins_with("First snow") or l.begins_with("The thaw") \
+					or l.begins_with("Autumn") or "died" in l or "starved" in l or "fell sick" in l or "empty" in l or l.begins_with("No hay"):
 				lines.append("%s: %s" % [tally.date, l])
-	lines.append("Stores: %.0f days of food. Building: %s. Timber %.1f units." % [camp.food_days(), camp.building_target(), camp.timber])
+	if lines.size() > 9:
+		lines = lines.slice(lines.size() - 9)
+	lines.append(_stores_line() + " Building: %s." % camp.building_target())
 	_card("A week of work, %s to %s" % [start, camp.date_text()], "\n".join(lines))
 	_check_end()
+
+func _stores_line() -> String:
+	var s := "Stores: %.0f days of food" % camp.food_days()
+	if not camp.is_winter():
+		s += " (winter is %d days long)" % camp.winter_days_left()
+	s += ". Hay: %.0f days for the herd. %d of %d under a roof." % [minf(camp.hay_days(), 999.0), camp.sheltered_total(), camp.people]
+	return s
 
 func _check_end() -> void:
 	if camp.state == "camp":
@@ -106,10 +116,10 @@ func _check_end() -> void:
 	var gate := "Vertical slice gate (G1):\n%s One sea leg   %s A clean fix (%d)   %s A fish on the hand line (%d watches)   %s A seated joint (%d)   %s A hold that changed because of them" % [
 		check.call(v != null and v.state == "arrived"), check.call(fixes > 0), fixes, check.call(camp.history.fish_watches > 0), camp.history.fish_watches,
 		check.call(camp.history.joints_seated > 0), camp.history.joints_seated, check.call(hold_changed)]
-	_card("Autumn comes to the Strait",
-		"%d people at the camp (%d lost since Eriksfjord). %d booths, the longhouse %s. %.1f units of timber stacked for the return, %.1f of hay.\n%s\nWinter, the market, and the voyage home come next, in Production." % [
-		camp.people, camp.dead, camp.booths, "finished" if camp.longhouse >= camp.n("work_to_raise_the_longhouse", 540) else "%d%% raised" % roundi(camp.longhouse / camp.n("work_to_raise_the_longhouse", 540) * 100.0),
-		camp.timber, camp.hay, gate], "end")
+	_card("Spring at the Strait, year two",
+		"The camp came through its first winter. %d people at the camp (%d lost since Eriksfjord), %d cattle and %d sheep.\n%d booths, the longhouse %s, the byre %s. %.1f units of timber stacked for the return. %d person-days of fish went onto the rack.\n%s\nThe market, the second summer, and the voyage home come next." % [
+		camp.people, camp.dead, camp.cattle, camp.sheep, camp.booths, "finished" if camp.hall_done() else "%d%% raised" % roundi(camp.longhouse / camp.n("work_to_raise_the_longhouse", 540) * 100.0),
+		"finished" if camp.byre_done() else "unfinished", camp.timber, roundi(camp.history.dried_pd), gate], "end")
 
 # ------------------------------------------------------------------ input
 func _process(delta: float) -> void:
@@ -170,16 +180,25 @@ func _draw() -> void:
 		_draw_card()
 
 func _draw_world() -> void:
+	var winter := camp.is_winter()
 	var sky := Color("a9c4d0") if not camp.rain else Color("7d8a90")
-	if camp.day_of_year >= 213:
+	if camp.season() == "autumn":
 		sky = sky.lerp(Color("c9a77a"), 0.25)
+	if winter:
+		sky = Color("c8d2d6") if not camp.rain else Color("9aa4a8")
 	draw_rect(Rect2(0, 0, 1920, 540), sky)
 	var hills := PackedVector2Array()
 	for x in range(0, 1961, 40):
 		hills.append(Vector2(x, 420 - 50 * sin(x * 0.003) - 20 * sin(x * 0.011)))
 	hills.append(Vector2(1960, 560)); hills.append(Vector2(0, 560))
 	draw_colored_polygon(hills, Color("2e4a36"))
-	var grass := Color("6e8a4e") if camp.day_of_year < 213 else Color("9a9a52")
+	var grass := Color("6e8a4e")
+	if camp.season() == "autumn":
+		grass = Color("9a9a52")
+	if winter:
+		grass = Color("e8ecec")
+	elif camp.season() == "spring":
+		grass = Color("8a8a5a")
 	draw_rect(Rect2(0, 520, 1920, 560), grass)
 	# brook, shore and sea on the right
 	draw_line(Vector2(786, 520), Vector2(806, 1080), Color("5c7c8a"), 22.0)
@@ -202,6 +221,12 @@ func _draw_world() -> void:
 				draw_line(Vector2(px, y), Vector2(px, y - 100), Color("4a3828"), 6.0)
 		else:
 			draw_rect(Rect2(x, y - 6, 150, 6), Color("4a3828", 0.5))
+	# the byre beside the booths
+	var byre_p := camp.byre / camp.n("work_to_raise_the_byre", 160)
+	if byre_p > 0.0:
+		draw_rect(Rect2(1180, 820 - 70 * byre_p, 200, 70 * byre_p), Color("5a4a36"))
+		if byre_p >= 1.0:
+			draw_colored_polygon(PackedVector2Array([Vector2(1170, 750), Vector2(1280, 712), Vector2(1390, 750)]), Color("7a8a5a") if not winter else Color("f0f2f2"))
 	# the longhouse rises behind
 	var hall := camp.longhouse / camp.n("work_to_raise_the_longhouse", 540)
 	draw_rect(Rect2(300, 640, 460, 6), Color("4a3828"))
@@ -210,6 +235,14 @@ func _draw_world() -> void:
 	if hall > 0.7:
 		var rp := (hall - 0.7) / 0.3
 		draw_colored_polygon(PackedVector2Array([Vector2(290, 530), Vector2(290 + 240 * rp, 530 - 60 * rp), Vector2(770 - 240 * rp, 530 - 60 * rp), Vector2(770, 530)]), Color("6e8a4e"))
+	# the smoke rack
+	draw_line(Vector2(140, 720), Vector2(140, 640), Color("4a3828"), 6.0)
+	draw_line(Vector2(240, 720), Vector2(240, 640), Color("4a3828"), 6.0)
+	draw_line(Vector2(130, 645), Vector2(250, 645), Color("4a3828"), 6.0)
+	if int(camp.assign.get("dry", 0)) > 0 and not camp.rain:
+		for i in 4:
+			draw_rect(Rect2(150 + i * 24, 650, 10, 30), Color("c9a55a"))
+		draw_circle(Vector2(190 + sin(t) * 6, 610 - fmod(t * 30.0, 60.0)), 14, Color(0.85, 0.85, 0.85, 0.4))
 	# timber stack and hay
 	for i in mini(int(camp.timber), 12):
 		draw_rect(Rect2(1380 + (i % 4) * 30, 900 - (i / 4) * 22, 26, 18), Color("8a6d4e"))
@@ -220,13 +253,18 @@ func _draw_world() -> void:
 		draw_rect(Rect2(420 + i * 70, 820 + sin(t + i) * 2, 56, 30), Color("8a6d4e") if i > 0 else Color("3a2a1c"))
 	for i in camp.sheep:
 		draw_circle(Vector2(560 + i * 34, 880 + sin(t * 1.3 + i) * 2), 12, Color("e0d8c4"))
-	var spots := {"build": Vector2(900, 760), "fish": Vector2(1640, 860), "forage": Vector2(200, 760), "timber": Vector2(80, 600), "hay": Vector2(1100, 940), "tend": Vector2(1000, 640)}
+	var spots := {"build": Vector2(900, 760), "fish": Vector2(1640, 860), "forage": Vector2(300, 860), "timber": Vector2(80, 600), "hay": Vector2(1100, 940), "tend": Vector2(1000, 640), "dry": Vector2(130, 740)}
 	for job in Camp.JOBS:
 		var c: int = int(camp.assign[job])
 		for i in c:
 			var p: Vector2 = spots[job] + Vector2((i % 6) * 18, (i / 6) * 26)
 			draw_rect(Rect2(p, Vector2(10, 22)), Color("2a2119") if job != camp.player_job or i > 0 else Color("c9a55a"))
-	if camp.rain:
+	if camp.rain and winter:
+		for i in 120:
+			var sx := fmod(i * 97.0 + t * 60.0 + sin(t + i) * 30.0, 1920.0)
+			var sy := fmod(i * 53.0 + t * 140.0, 1080.0)
+			draw_circle(Vector2(sx, sy), 3.0, Color(1, 1, 1, 0.8))
+	elif camp.rain:
 		for i in 70:
 			var rx := fmod(i * 97.0 + t * 700.0, 1920.0)
 			var ry := fmod(i * 53.0 + t * 1200.0, 1080.0)
@@ -236,13 +274,18 @@ func _draw_board() -> void:
 	var ink := Color("ede3cc")
 	var panel := Color(0.1, 0.09, 0.07, 0.86)
 	draw_rect(Rect2(24, 20, 640, 120), panel)
-	draw_string(_font, Vector2(44, 62), "%s  ·  camp day %d%s" % [camp.date_text(), camp.day + 1, "  ·  rain" if camp.rain else ""], HORIZONTAL_ALIGNMENT_LEFT, -1, 30, ink)
-	draw_string(_font, Vector2(44, 100), "%d people, %d sick · food %.0f days · %d of %d sheltered" % [camp.people, camp.sick.size(), camp.food_days(), mini(camp.people, camp.sheltered_total()), camp.people],
+	draw_rect(Rect2(24, 140, 640, 60), panel)
+	var wx := ("snow" if camp.is_winter() else "rain") if camp.rain else "fair"
+	draw_string(_font, Vector2(44, 62), "%s, year %d  ·  %s  ·  %s" % [camp.date_text(), camp.year, camp.season(), wx], HORIZONTAL_ALIGNMENT_LEFT, -1, 30, ink)
+	draw_string(_font, Vector2(44, 100), "%d people, %d sick · %d of %d under a roof · cattle %d, sheep %d" % [camp.people, camp.sick.size(), camp.sheltered_total(), camp.people, camp.cattle, camp.sheep],
 		HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(ink, 0.85))
-	draw_string(_font, Vector2(44, 128), "Building %s · timber %.1f · hay %.1f · hooks %d" % [camp.building_target(), camp.timber, camp.hay, camp.hooks], HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(ink, 0.75))
+	var food_col := ink if camp.is_winter() or camp.food_days() >= camp.winter_days_left() else Color("e8c35a")
+	draw_string(_font, Vector2(44, 132), "Food %.0f days · hay %.0f days · winter %d days" % [camp.food_days(), minf(camp.hay_days(), 999.0), camp.winter_days_left()], HORIZONTAL_ALIGNMENT_LEFT, -1, 22, food_col)
+	draw_string(_font, Vector2(44, 168), "Building %s · timber %.1f · hooks %d%s" % [camp.building_target(), camp.timber, camp.hooks, "" if camp.is_winter() else " · %d days to snow" % camp.days_to_snow()],
+		HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(ink, 0.75))
 	# job board
 	var bx := 1340.0; var by := 20.0
-	draw_rect(Rect2(bx, by, 556, 470), panel)
+	draw_rect(Rect2(bx, by, 556, 530), panel)
 	draw_string(_font, Vector2(bx + 20, by + 42), "MORNING  ·  %d idle" % camp.idle(), HORIZONTAL_ALIGNMENT_LEFT, -1, 26, ink)
 	for i in Camp.JOBS.size():
 		var job: String = Camp.JOBS[i]
@@ -250,14 +293,14 @@ func _draw_board() -> void:
 		var open := camp.job_open(job)
 		if i == focus and mode == "morning":
 			draw_rect(Rect2(bx + 10, y - 34, 536, 50), Color("c9a55a", 0.25))
-		var label: String = Camp.JOB_NAMES[job] + ("" if open else "  (from August)")
+		var label: String = Camp.JOB_NAMES[job] + ("" if open else "  " + camp.job_note(job))
 		if job == "build":
-			label = "Build: " + ("booth" if camp.booths < int(camp.n("booth_plots_at_the_camp", 3)) else "longhouse")
-		draw_string(_font, Vector2(bx + 24, y), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 24, Color(ink, 1.0 if open else 0.4))
-		draw_string(_font, Vector2(bx + 380, y), "‹ %d ›" % int(camp.assign[job]), HORIZONTAL_ALIGNMENT_LEFT, -1, 26, ink)
+			label = "Build: " + camp.build_short()
+		draw_string(_font, Vector2(bx + 24, y), label, HORIZONTAL_ALIGNMENT_LEFT, 370, 24 if open else 20, Color(ink, 1.0 if open else 0.4))
+		draw_string(_font, Vector2(bx + 400, y), "‹ %d ›" % int(camp.assign[job]), HORIZONTAL_ALIGNMENT_LEFT, -1, 26, ink)
 		if camp.player_job == job:
-			draw_string(_font, Vector2(bx + 460, y), "you", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color("c9a55a"))
-	draw_string(_font, Vector2(bx + 20, by + 448), "Y: work this job yourself (build or fish)", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(ink, 0.65))
+			draw_string(_font, Vector2(bx + 480, y), "you", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color("c9a55a"))
+	draw_string(_font, Vector2(bx + 20, by + 508), "Y: work this job yourself (build or fish)", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(ink, 0.65))
 	if mode == "morning":
 		var you := "A: start the day" + (" (you play %s)" % Camp.PLAYABLE[camp.player_job] if camp.player_job != "" and int(camp.assign[camp.player_job]) > 0 else "")
 		draw_rect(Rect2(560, 1000, 980, 56), panel)
