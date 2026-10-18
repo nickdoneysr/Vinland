@@ -117,8 +117,8 @@ func _draw() -> void:
 	# the beat: a swinging bucket metronome
 	var bp := rules.beat_phase()
 	var swing := sin(bp * TAU) * 0.6
-	var pivot := Vector2(960, 1010)
-	var bucket := pivot + Vector2(sin(swing) * 140, -cos(swing) * 140) * Vector2(1, -1)
+	var pivot := Vector2(960, 1060)
+	var bucket := pivot + Vector2(sin(swing) * 170, -cos(swing) * 170)
 	draw_line(pivot, bucket, Color("8a6d4e"), 6.0)
 	var on_beat := minf(bp, 1.0 - bp) * float(_cfg.beat_seconds) <= float(_cfg.window_seconds)
 	draw_rect(Rect2(bucket - Vector2(30, 24), Vector2(60, 48)), Color("e8c35a") if on_beat else Color("6b4a35"))

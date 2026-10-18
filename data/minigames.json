@@ -111,7 +111,7 @@
     "sway_scale": 0.45,
     "assist_level": 0.6,
     "move_speed": 340.0,
-    "cloud_scale": 0.45,
+    "cloud_scale": 0.35,
     "seat_decay": 0.0
    },
    "hand_line": {
@@ -140,7 +140,7 @@
    },
    "storm_bail": {
     "window_seconds": 0.22,
-    "wave_water": 0.06,
+    "wave_water": 0.1,
     "leak_rate": 0.015
    }
   },
@@ -181,8 +181,8 @@
     "peg_speed": 24.0
    },
    "storm_bail": {
-    "window_seconds": 0.15,
-    "wave_water": 0.08,
+    "window_seconds": 0.11,
+    "wave_water": 0.17,
     "leak_rate": 0.018
    }
   },
@@ -202,17 +202,17 @@
   "session_seconds": 35,
   "beat_seconds": 0.9,
   "window_seconds": 0.1,
-  "scoop": 0.05,
+  "scoop": 0.04,
   "offbeat_scoop": 0.012,
   "combo_bonus": 0.08,
   "combo_max": 6,
   "leak_rate": 0.022,
   "plugged_leak_factor": 0.25,
   "wrong_plug_seconds": 2.0,
-  "wave_water": 0.1,
+  "wave_water": 0.19,
   "set_interval": [
-   6.0,
-   9.0
+   5.0,
+   7.5
   ],
   "waves_per_set": 3,
   "wave_gap": 0.9,

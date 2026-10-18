@@ -55,12 +55,15 @@ func _ready() -> void:
 	_noise.frequency = 0.35
 	new_night(preset_name)
 
-func new_night(name: String) -> void:
+func new_night(name: String, seed: int = 0) -> void:
 	cfg = Game.tuning("ring", difficulty)
 	rule.configure(cfg)
 	preset_name = name
 	cond = PRESETS[name]
-	_rng.randomize()
+	if seed != 0:
+		_rng.seed = seed
+	else:
+		_rng.randomize()
 	_noise.seed = _rng.randi()
 	rule.reset(_rng.randf_range(58.5, 64.5))
 	_vel = Vector2.ZERO

@@ -33,7 +33,7 @@ static func _ring(t, tree: SceneTree, diff: String, kb: bool) -> float:
 		sc.embedded = true
 		t.add_child(sc)
 		sc.difficulty = diff
-		sc.new_night(presets[s % presets.size()])
+		sc.new_night(presets[s % presets.size()], 4100 + s)
 		var nov := Novice.new(900 + s, kb)
 		sc.bot_input = nov.ring
 		var g := 0

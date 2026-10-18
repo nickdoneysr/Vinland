@@ -31,7 +31,7 @@ func _refresh() -> void:
 	var cont := ("Start / Tab: continue  (%s)\n" % save.get("where", "saved game")) if not save.is_empty() else ""
 	info.text = ("Production build  ·  slice art in place %d%%\n\n" % int(Art.coverage("Vertical slice") * 100)) + cont + \
 		"A / Enter: new voyage from Eriksfjord\n" + \
-		"Y / F: star ring practice      1: hand line practice      2: joint practice\n\n" + \
+		"Practice:  Y / F star ring      1 hand line      2 joint      3 storm bail\n\n" + \
 		"Difficulty:  ‹ %s ›   (D-pad or Z / C to change)\n" % Game.DIFFICULTY_NAMES[Game.settings.difficulty] + \
 		{"forgiving": "Wide windows, steadier hands, clear prompts. Start here.",
 		 "standard": "Tighter windows. The prompts stay on.",
@@ -64,6 +64,8 @@ func _unhandled_input(e: InputEvent) -> void:
 		get_tree().change_scene_to_file("res://scenes/hand_line.tscn")
 	elif e is InputEventKey and e.pressed and e.physical_keycode == KEY_2:
 		get_tree().change_scene_to_file("res://scenes/joint.tscn")
+	elif e is InputEventKey and e.pressed and e.physical_keycode == KEY_3:
+		get_tree().change_scene_to_file("res://scenes/storm_bail.tscn")
 
 func _smoke() -> void:
 	var ok := true
