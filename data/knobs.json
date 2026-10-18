@@ -4,7 +4,7 @@
  "plan_date": "2026-10-09",
  "production_start": "2026-11-02",
  "target_platform": "PC, gamepad-first",
- "engine_assumption": "Godot 4 or Unity",
+ "engine_assumption": "Godot 4.3, 2D painted",
  "build_scope": "Single-player, 6 to 8 hours",
  "currency": "USD",
  "preproduction": 8,

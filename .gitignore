@@ -1,4 +1,5 @@
 .godot/
 *.import.tmp
 export/
+
 art_source/**/*.kra~
