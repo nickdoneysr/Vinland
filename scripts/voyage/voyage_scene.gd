@@ -38,6 +38,14 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--seed="):
 			seed = int(a.trim_prefix("--seed="))
+	if Game.loaded_stage == "homeward" and Game.voyage != null:
+		v = Game.voyage
+		Game.loaded_stage = ""
+		_card("Leaving the Strait, %s" % v.date_text(),
+			"%d aboard, %d units of timber%s in the hold. %s stay to winter the camp.\nThe way home runs up the coast and across the open sea. Autumn brings more fog and more gales; if she labours in a storm, timber may have to go over the side." % [
+			v.people, v.timber, (" and %d pelts" % v.pelts) if v.pelts > 0 else "", ("%d" % Game.camp.people) if Game.camp != null and Game.camp.state == "camp" else "No one"], "")
+		_begin_day()
+		return
 	if Game.loaded_stage == "voyage" and Game.voyage != null:
 		v = Game.voyage
 		Game.loaded_stage = ""
@@ -77,6 +85,7 @@ func _handle_events(evs: Array) -> void:
 			"new_leg": _card("Next leg: %s" % e.leg, "%d nm to go on this leg." % roundi(e.nm))
 			"repair": _card("Repairs ashore", "A day's work on the strakes. The hull is %s." % _hull_word())
 			"no_repair": _card("No one to mend her", "With no shipwright left, the sprung strakes stay sprung. The hull is %s." % _hull_word())
+			"jettison": _card("Timber over the side", "She was settling by the head. %d units of timber went over the side to lighten her; %d remain." % [e.units, v.timber])
 			"spare_sail": _card("The spare sail", "The old sail split in the wind; the spare went up before we lost way.")
 			"sail_torn": _card("The sail has torn", "Cracking on in heavy weather split the wool. We make less way until it is mended.")
 			"strake": _card("A strake has sprung", "Water is coming in. The hull is %s." % _hull_word())
@@ -123,7 +132,10 @@ func _end(won: bool, reason: String = "") -> void:
 		v.write_log("user://runlog/voyage_%s.csv" % Time.get_datetime_string_from_system(true).replace(":", "-"))
 	var summary := "Day %d, %s. %d people aboard (%d lost), %d cattle, %d sheep. %d nm sailed, %d nm of it lost to drift. Fixes: %d clean, %d partial, %d none." % [
 		v.day, v.date_text(), v.people, v.dead, v.cattle, v.sheep, roundi(v.sailed_nm), roundi(v.drift_nm_total), v.fixes[2], v.fixes[1], v.fixes[0]]
-	if won:
+	if won and v.homeward:
+		_card("Eriksfjord", "Home, %s. The knarr comes in past the skerries with %d units of timber%s.\n%s" % [
+			v.date_text(), v.timber, (" and %d pelts" % v.pelts) if v.pelts > 0 else "", summary], "home")
+	elif won:
 		_card("Landfall at the Strait", "The camp site at last: a grassy terrace, a brook, a shingle shore.\n" + summary, "camp")
 	else:
 		_card("The voyage is lost", reason + "\n" + summary, "end")
@@ -228,6 +240,10 @@ func _unhandled_input(e: InputEvent) -> void:
 				return
 			if c.get("kind", "") == "camp":
 				get_tree().change_scene_to_file("res://scenes/camp.tscn")
+				return
+			if c.get("kind", "") == "home":
+				Game.loaded_stage = ""
+				get_tree().change_scene_to_file("res://scenes/homecoming.tscn")
 				return
 			if cards.is_empty():
 				mode = "sail"

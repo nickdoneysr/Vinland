@@ -89,7 +89,7 @@ static func run_slice(t) -> void:
 	var camp: Camp = cs.camp
 	var played := 0
 	guard = 0
-	while guard < 3000 and camp.state == "camp" or (cs.mode == "card" and cs.cards.size() > 0 and cs.cards[0].get("kind", "") != "end"):
+	while guard < 3000 and camp.state == "camp" and not (cs.mode == "card" and cs.cards.size() > 0 and cs.cards[0].get("kind", "") == "spring"):
 		guard += 1
 		if guard > 3000:
 			break
@@ -113,7 +113,7 @@ static func run_slice(t) -> void:
 					g2 += 1
 				cs._close_minigame()
 	var end_body: String = cs.cards[0].body if cs.cards.size() > 0 else ""
-	t.check("slice: plays from Eriksfjord to autumn at the Strait", camp.state == "ended", "%s, %d people, %d booths, longhouse %d%%" % [camp.state, camp.people, camp.booths, roundi(camp.longhouse / 540.0 * 100)])
+	t.check("slice: plays from Eriksfjord through the first winter to the second spring", camp.second_spring and camp.state == "camp", "%s, %d people, %d booths, longhouse %d%%" % [camp.state, camp.people, camp.booths, roundi(camp.longhouse / 540.0 * 100)])
 	t.check("slice: every G1 gate item is met by a played run", end_body.count("[x]") == 5, end_body.get_slice("\n", 1))
 	cs.queue_free()
 	await tree.process_frame

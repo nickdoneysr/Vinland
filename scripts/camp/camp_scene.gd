@@ -13,7 +13,9 @@ const RACK_SCENE := preload("res://scenes/smoke_rack.tscn")
 
 var camp := Camp.new()
 var voyage: Voyage = null
-var mode := "morning"          # morning | market | minigame | card
+var mode := "morning"          # morning | market | return | minigame | card
+var plan: ReturnPlan = null    # the voyage home being loaded (F24)
+var rfocus := 0
 var market_done := false       # today's market has been met (or there was none)
 var offer := {"cloth": 0, "milk": 0, "pen": true}
 var mfocus := 0
@@ -170,6 +172,9 @@ func _stores_line() -> String:
 	return s
 
 func _check_end() -> void:
+	if camp.second_spring and not camp.history.get("spring_card", false):
+		camp.history.spring_card = true
+		_spring_card()
 	if camp.state == "camp":
 		return
 	if not _logged:
@@ -179,6 +184,9 @@ func _check_end() -> void:
 	if camp.state == "lost":
 		_card("The camp is lost", camp.end_reason, "end")
 		return
+
+## The first winter is behind them: the G1 checklist, and what the second summer asks.
+func _spring_card() -> void:
 	var v := voyage
 	var fixes := 0 if v == null else int(v.fixes[2])
 	var hold_changed: bool = v != null and (v.food < v.default_provisions().food or v.hooks < int(v.n("hooks_carried", 6)) or v.fixes[2] > 0)
@@ -187,9 +195,10 @@ func _check_end() -> void:
 		check.call(v != null and v.state == "arrived"), check.call(fixes > 0), fixes, check.call(camp.history.fish_watches > 0), camp.history.fish_watches,
 		check.call(camp.history.joints_seated > 0), camp.history.joints_seated, check.call(hold_changed)]
 	_card("Spring at the Strait, year two",
-		"The camp came through its first winter. %d people at the camp (%d lost since Eriksfjord), %d cattle and %d sheep.\n%d booths, the longhouse %s, the byre %s. %.1f units of timber stacked for the return. %d person-days of fish went onto the rack.\n%s\nThe market, the second summer, and the voyage home come next." % [
+		"The camp came through its first winter. %d people at the camp (%d lost since Eriksfjord), %d cattle and %d sheep.\n%d booths, the longhouse %s, the byre %s. %.1f units of timber stacked for the return. %d person-days of fish went onto the rack.\n%s\n" % [
 		camp.people, camp.dead, camp.cattle, camp.sheep, camp.booths, "finished" if camp.hall_done() else "%d%% raised" % roundi(camp.longhouse / camp.n("work_to_raise_the_longhouse", 540) * 100.0),
-		"finished" if camp.byre_done() else "unfinished", camp.timber, roundi(camp.history.dried_pd), gate], "end")
+		"finished" if camp.byre_done() else "unfinished", camp.timber, roundi(camp.history.dried_pd), gate] + \
+		"\nFrom 1 June the knarr can sail home with timber: raise the boat shed, mend the hull, stack at least %d units, then Y on the knarr row." % int(camp.n("timber_units_to_open_a_return", 4)), "spring")
 
 # ------------------------------------------------------------------ input
 func _process(delta: float) -> void:
@@ -201,12 +210,14 @@ func _process(delta: float) -> void:
 		elif _stick_ready:
 			_stick_ready = false
 			if absf(s.y) > absf(s.x):
-				focus = clampi(focus + (1 if s.y > 0 else -1), 0, Camp.JOBS.size() - 1)
+				focus = clampi(focus + (1 if s.y > 0 else -1), 0, Camp.JOBS.size())
 			else:
 				_change(1 if s.x > 0 else -1)
 	queue_redraw()
 
 func _change(d: int) -> void:
+	if focus >= Camp.JOBS.size():
+		return
 	var job: String = Camp.JOBS[focus]
 	camp.set_assign(job, int(camp.assign[job]) + d)
 
@@ -215,6 +226,9 @@ func _unhandled_input(e: InputEvent) -> void:
 		return
 	if mode == "market":
 		_market_input(e)
+		return
+	if mode == "return":
+		_return_input(e)
 		return
 	if mode == "card" and not cards.is_empty() and cards[0].get("kind", "") == "weapon":
 		if e.is_action_pressed("commit") or e.is_action_pressed("alt"):
@@ -238,25 +252,102 @@ func _unhandled_input(e: InputEvent) -> void:
 				mode = "morning"
 		return
 	if e.is_action_pressed("tool_next"):
-		focus = (focus + 1) % Camp.JOBS.size()
+		focus = (focus + 1) % (Camp.JOBS.size() + 1)
 	elif e.is_action_pressed("tool_prev"):
-		focus = (focus + Camp.JOBS.size() - 1) % Camp.JOBS.size()
+		focus = (focus + Camp.JOBS.size()) % (Camp.JOBS.size() + 1)
 	elif e.is_action_pressed("ui_right_pad"):
 		_change(1)
 	elif e.is_action_pressed("ui_left_pad"):
 		_change(-1)
+	elif e.is_action_pressed("alt") and focus >= Camp.JOBS.size():
+		open_return()
 	elif e.is_action_pressed("alt"):
 		var job: String = Camp.JOBS[focus]
 		if Camp.PLAYABLE.has(job):
 			camp.player_job = "" if camp.player_job == job else job
-	elif e.is_action_pressed("drop") and Camp.JOBS[focus] == "fish" and camp.nets > 0:
+	elif e.is_action_pressed("drop") and focus < Camp.JOBS.size() and Camp.JOBS[focus] == "fish" and camp.nets > 0:
 		camp.fish_net = not camp.fish_net
-	elif e.is_action_pressed("drop") and Camp.JOBS[focus] == "hunt":
+	elif e.is_action_pressed("drop") and focus < Camp.JOBS.size() and Camp.JOBS[focus] == "hunt":
 		camp.hunt_far = not camp.hunt_far
 	elif e.is_action_pressed("menu"):
 		_work_week()
 	elif e.is_action_pressed("commit"):
 		_start_day()
+
+# ------------------------------------------------------------------ the voyage home (F24)
+## Y on the knarr row: plan the voyage home if the return gate is open, or say what still stands in the way.
+func open_return() -> void:
+	var why := camp.return_gate()
+	if not why.is_empty():
+		_card("The knarr is not ready", "\n".join(why))
+		return
+	plan = ReturnPlan.new()
+	plan.setup(Knobs._v, camp)
+	rfocus = 0
+	mode = "return"
+
+func _return_input(e: InputEvent) -> void:
+	var rows := ReturnPlan.ROWS.size()
+	if e.is_action_pressed("tool_next") or e.is_action_pressed("ui_down"):
+		rfocus = (rfocus + 1) % rows
+	elif e.is_action_pressed("tool_prev") or e.is_action_pressed("ui_up"):
+		rfocus = (rfocus + rows - 1) % rows
+	elif e.is_action_pressed("ui_right_pad") or e.is_action_pressed("ui_right"):
+		plan.change(ReturnPlan.ROWS[rfocus], 1)
+	elif e.is_action_pressed("ui_left_pad") or e.is_action_pressed("ui_left"):
+		plan.change(ReturnPlan.ROWS[rfocus], -1)
+	elif e.is_action_pressed("alt"):
+		plan.reset()
+	elif e.is_action_pressed("drop"):
+		get_viewport().set_input_as_handled()
+		plan = null
+		mode = "morning"
+	elif e.is_action_pressed("commit"):
+		get_viewport().set_input_as_handled()
+		sail_home()
+
+## Launch the voyage home: the stayers keep the camp; the voyage scene takes the knarr out.
+func sail_home() -> bool:
+	if plan == null or not plan.can_sail():
+		return false
+	var legs_data: Dictionary = JSON.parse_string(FileAccess.open("res://data/legs.json", FileAccess.READ).get_as_text())
+	var v := plan.launch(legs_data)
+	Game.voyage = v
+	Game.camp = camp
+	Game.loaded_stage = "homeward"
+	plan = null
+	mode = "sailed"
+	if not autosave_off:
+		Game.save_game("voyage")
+	if is_inside_tree() and not get_tree().root.has_meta("no_scene_change"):
+		get_tree().change_scene_to_file("res://scenes/voyage.tscn")
+	return true
+
+func _draw_return() -> void:
+	var ink := Color("ede3cc")
+	var r := Rect2(300, 200, 1320, 660)
+	draw_rect(r, Color("2a2119"))
+	draw_rect(Rect2(r.position, Vector2(r.size.x, 10)), Color("c9a55a"))
+	draw_string(_font, r.position + Vector2(40, 64), "THE VOYAGE HOME  ·  loading the knarr at the Strait", HORIZONTAL_ALIGNMENT_LEFT, -1, 30, ink)
+	draw_string(_font, r.position + Vector2(40, 102), "%s. The crossing is planned at %d days; autumn brings fog and gales. Whoever stays winters the camp." % [camp.date_text(), plan.crossing_days()],
+		HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 80, 20, Color(ink, 0.8))
+	for i in ReturnPlan.ROWS.size():
+		var row: String = ReturnPlan.ROWS[i]
+		var y := r.position.y + 170 + i * 58
+		if i == rfocus:
+			draw_rect(Rect2(r.position.x + 24, y - 38, r.size.x - 48, 52), Color("c9a55a", 0.22))
+		draw_string(_font, Vector2(r.position.x + 50, y), ReturnPlan.LABELS[row], HORIZONTAL_ALIGNMENT_LEFT, -1, 24, ink)
+		draw_string(_font, Vector2(r.position.x + 480, y), "‹ %d ›" % int(plan.c[row]), HORIZONTAL_ALIGNMENT_LEFT, -1, 24, ink)
+		draw_string(_font, Vector2(r.position.x + 620, y), plan.readout(row), HORIZONTAL_ALIGNMENT_LEFT, 660, 20, Color(ink, 0.8))
+	var names: Array = plan.sailing_crew().map(func(m): return str(m.name).split(" ")[0] + ("" if m.role == "hand" else " (" + str(Crew.ROLE_NAMES[m.role]).to_lower() + ")"))
+	draw_multiline_string(_font, r.position + Vector2(50, 470), "Sailing: " + ", ".join(names), HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 100, 18, -1, Color(ink, 0.75))
+	var over := plan.hold_load() > plan.capacity()
+	draw_string(_font, r.position + Vector2(50, 560), "Hold %.1f of %d units" % [plan.hold_load(), int(plan.capacity())], HORIZONTAL_ALIGNMENT_LEFT, -1, 26, Color("e0735e") if over else ink)
+	var w := plan.warnings()
+	draw_string(_font, r.position + Vector2(400, 560), w[0] if not w.is_empty() else "Ready to sail.", HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 450, 20, Color("e0a35e") if not w.is_empty() else Color("9ec27a"))
+	var kb := Controls.keyboard
+	draw_string(_font, r.position + Vector2(50, 626), ("Q/E choose · Z/C change · F the plan's load · Enter sail · Esc not yet" if kb else "LB/RB choose · D-pad change · Y the plan's load · A sail · B not yet"),
+		HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(ink, 0.7))
 
 func _market_input(e: InputEvent) -> void:
 	var rows := 3 if not camp.byre_done() else 2
@@ -288,6 +379,8 @@ func _draw() -> void:
 	_draw_board()
 	if mode == "market":
 		_draw_market()
+	if mode == "return":
+		_draw_return()
 	if mode == "card":
 		_draw_card()
 
@@ -427,7 +520,7 @@ func _draw_board() -> void:
 		HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(ink, 0.75))
 	# job board
 	var bx := 1340.0; var by := 20.0
-	draw_rect(Rect2(bx, by, 556, 590), panel)
+	draw_rect(Rect2(bx, by, 556, 650), panel)
 	draw_string(_font, Vector2(bx + 20, by + 42), "MORNING  ·  %d idle" % camp.idle(), HORIZONTAL_ALIGNMENT_LEFT, -1, 26, ink)
 	for i in Camp.JOBS.size():
 		var job: String = Camp.JOBS[i]
@@ -446,8 +539,14 @@ func _draw_board() -> void:
 		draw_string(_font, Vector2(bx + 400, y), "‹ %d ›" % int(camp.assign[job]), HORIZONTAL_ALIGNMENT_LEFT, -1, 26, ink)
 		if camp.player_job == job:
 			draw_string(_font, Vector2(bx + 480, y), "you", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color("c9a55a"))
-	draw_string(_font, Vector2(bx + 20, by + 548), "Y: work this job yourself", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(ink, 0.65))
-	draw_string(_font, Vector2(bx + 20, by + 574), "B: fish with line or net · hunt near or far", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(ink, 0.65))
+	var ky := by + 92 + Camp.JOBS.size() * 56
+	if focus == Camp.JOBS.size() and mode == "morning":
+		draw_rect(Rect2(bx + 10, ky - 34, 536, 50), Color("c9a55a", 0.25))
+	var gate := camp.return_gate()
+	draw_string(_font, Vector2(bx + 24, ky), "The knarr: " + ("ready to sail home (Y)" if gate.is_empty() else "not ready (Y: why)"), HORIZONTAL_ALIGNMENT_LEFT, 520, 22,
+		Color("9ec27a") if gate.is_empty() else Color(ink, 0.7))
+	draw_string(_font, Vector2(bx + 20, by + 608), "Y: work this job yourself", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(ink, 0.65))
+	draw_string(_font, Vector2(bx + 20, by + 634), "B: fish with line or net · hunt near or far", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(ink, 0.65))
 	if mode == "morning":
 		var you := "A: start the day" + (" (you play %s)" % camp.playable(camp.player_job) if camp.player_job != "" and int(camp.assign[camp.player_job]) > 0 else "")
 		draw_rect(Rect2(560, 1000, 980, 56), panel)

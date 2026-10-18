@@ -7,6 +7,12 @@ func _ready() -> void:
 	for s in OS.get_cmdline_user_args():
 		var kv := s.trim_prefix("--").split("=", true, 1)
 		a[kv[0]] = kv[1] if kv.size() > 1 else "1"
+	if a.has("home_page"):
+		var TR = load("res://tests/test_return.gd")
+		var c: Camp = TR.ready_camp(9)
+		var pl := ReturnPlan.new(); pl.setup(Knobs._v, c)
+		Game.voyage = pl.launch(TR.legs_data(), 9)
+		Game.camp = c
 	var n = load(a.get("scene", "res://scenes/boot.tscn")).instantiate()
 	add_child(n)
 	if a.has("preset") and n.has_method("new_night"):
@@ -27,6 +33,18 @@ func _ready() -> void:
 		n.camp.market_pelts = 7
 		n.offer = {"cloth": mini(n.camp.cloth_strips, 4), "milk": mini(n.camp.milk_to_spare(), 20), "pen": true}
 		n.mode = "market"
+	if a.has("return"):
+		var c: Camp = n.camp
+		c.year = 2; c.day_of_year = 200; c.second_spring = true
+		c.booths = 3; c.longhouse = 540.0; c.byre = 200.0; c.shed = 80.0
+		c.timber = 21.4; c.timber_felled = 24.0; c.timber_winter = 13.0; c.food = 3.0; c.pelts = 34
+		n.cards.clear(); n.mode = "morning"
+		n.open_return()
+	if a.has("home_page"):
+		n.autosave_off = true
+		for i in int(a.home_page): n.page += 1
+		if int(a.home_page) == 2:
+			n.home.set_hull(true); n.home.set_hires(8)
 	if a.has("pause"):
 		get_tree().current_scene = n
 		Pause.show_menu()

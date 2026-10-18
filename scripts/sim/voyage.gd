@@ -44,6 +44,10 @@ var outfit := ""             # F22: merchant | farm_household | hunter_boat | sh
 var crew := Crew.new()       # F23: who they are
 var spare_sail := 0
 var nets := 1
+var homeward := false        # F24: the voyage home from the Strait, legs reversed, autumn bias
+var pelts := 0               # pelts aboard (cargo)
+var pelt_bales := 0          # cargo units they take
+var jettisoned := 0.0        # timber thrown over to save her
 var iron_units := 1
 var hooks := 6
 var timber := 0
@@ -93,6 +97,28 @@ func setup(knobs: Dictionary, legs_data: Dictionary, seed: int = 0) -> void:
 	food = load.food
 	drink = load.drink
 	fodder = load.fodder
+	leg_i = 0
+	leg_left = leg_length(0)
+	_new_deck()
+
+## The voyage home (F24): from the Strait back up the coast and across to Eriksfjord, late in the year.
+func setup_return(knobs: Dictionary, legs_data: Dictionary, seed: int, camp: Camp) -> void:
+	k = knobs
+	legs = legs_data.legs.duplicate()
+	legs.reverse()
+	wx = legs_data.weather
+	if seed != 0:
+		rng.seed = seed
+	else:
+		rng.randomize()
+	homeward = true
+	outfit = camp.outfit
+	day_of_year = camp.day_of_year
+	cattle = 0; sheep = 0; fodder = 0.0
+	trade = 0; cloth_units = 0; iron_units = 0
+	hull = camp.hull
+	morale = camp.morale
+	nets = 0
 	leg_i = 0
 	leg_left = leg_length(0)
 	_new_deck()
@@ -147,7 +173,7 @@ func is_coastal() -> bool:
 func hold_load() -> float:
 	var u := people * n("cargo_units_per_person", 0.4) + cattle * n("cargo_units_per_head_of_cattle", 1.5) \
 		+ sheep * n("cargo_units_per_sheep_or_goat", 0.4) + ceilf(food) + ceilf(drink) + ceilf(fodder) + trade \
-		+ timber * n("cargo_units_per_timber_unit", 1.0) + spare_sail
+		+ timber * n("cargo_units_per_timber_unit", 1.0) + spare_sail + pelt_bales
 	return snappedf(u, 0.1)
 
 func hold_capacity() -> float:
@@ -171,7 +197,10 @@ func _new_deck() -> void:
 	deck.clear()
 	var w: Dictionary = leg().weather
 	for card in w:
-		for i in int(w[card]):
+		var count := int(w[card])
+		if homeward and card in ["fog", "low_cloud", "following_gale", "beam_sea", "storm"]:
+			count = roundi(count * n("autumn_bias_foul_weather_weight_multiplier", 1.6))
+		for i in count:
 			deck.append(card)
 	# Fisher-Yates with our own rng so seeds replay exactly
 	for i in range(deck.size() - 1, 0, -1):
@@ -182,6 +211,8 @@ func start_day() -> Dictionary:
 	if deck.is_empty():
 		_new_deck()
 	weather = deck.pop_back()
+	if homeward and day_of_year >= 244 and weather in ["fair", "calm"] and rng.randf() < n("autumn_bias_chance_a_fair_day_turns_foul_after_1_september", 0.25):
+		weather = "beam_sea"
 	fix_today = -1
 	sun_today = -1
 	var sunny := str(k.get("sun_board_days_with_sun_at_noon", "fair, calm, drift ice")).replace(" ", "_").replace(",_", ",").split(",")
@@ -304,6 +335,12 @@ func apply_bail(held: bool) -> Array:
 		storm_bailed = true
 		ev.append({"type": "bail_held"})
 		return ev
+	if homeward and timber > 0 and rng.randf() < n("timber_jettison_chance_when_the_bail_fails", 0.5):
+		var over := mini(timber, 2)
+		timber -= over
+		jettisoned += over
+		ev.append({"type": "jettison", "units": over})
+		return ev
 	var roll := rng.randf()
 	if roll < 0.5:
 		hull += 1
@@ -411,7 +448,7 @@ func end_day() -> Array:
 	var base: float = {"full": n("sickness_chance_per_person_day_full_ration", 0.0005),
 		"half": n("sickness_chance_per_person_day_half_ration", 0.0015),
 		"bare": n("sickness_chance_per_person_day_bare_bones", 0.004)}[ration]
-	var chance: float = base * (2.0 if info.wet else 1.0) * (n("starvation_sickness_multiplier", 15) if starving else 1.0) * (n("thirst_sickness_multiplier", 25) if thirsty else 1.0)
+	var chance: float = base * (n("autumn_bias_sickness_multiplier", 1.25) if homeward else 1.0) * (2.0 if info.wet else 1.0) * (n("starvation_sickness_multiplier", 15) if starving else 1.0) * (n("thirst_sickness_multiplier", 25) if thirsty else 1.0)
 	var healthy := people - sick.size()
 	var new_sick := 0
 	for i in healthy:
@@ -497,7 +534,7 @@ func write_log(path: String) -> void:
 const SAVE_FIELDS := ["day", "day_of_year", "watch", "leg_i", "leg_left", "sailed_nm", "drift_nm_total", "state", "loss_reason",
 	"people", "dead", "cattle", "sheep", "fodderless_days", "food", "fresh_fish", "drink", "fodder", "trade", "cloth_units", "iron_units", "hooks", "timber",
 	"ration", "animal_ration", "pace", "morale", "hull", "sail_torn", "sail_strain", "weather", "deck", "fix_today", "fished_today",
-	"day_nm", "starving_days", "animals_lost", "fixes", "storm_bailed", "sun_today", "sun_noon", "sun_fixes", "outfit", "spare_sail", "nets"]
+	"day_nm", "starving_days", "animals_lost", "fixes", "storm_bailed", "sun_today", "sun_noon", "sun_fixes", "outfit", "spare_sail", "nets", "homeward", "pelts", "pelt_bales", "jettisoned"]
 
 func to_dict() -> Dictionary:
 	var d := {"sick": Array(sick), "rng_seed": str(rng.seed), "rng_state": str(rng.state), "crew": crew.to_array()}
@@ -507,7 +544,9 @@ func to_dict() -> Dictionary:
 
 func from_dict(knobs: Dictionary, legs_data: Dictionary, d: Dictionary) -> void:
 	k = knobs
-	legs = legs_data.legs
+	legs = legs_data.legs.duplicate()
+	if d.get("homeward", false):
+		legs.reverse()
 	wx = legs_data.weather
 	for f in SAVE_FIELDS:
 		if d.has(f):

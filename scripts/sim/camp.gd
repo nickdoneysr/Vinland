@@ -59,7 +59,13 @@ var weapon_request := false
 var penned_today := false
 var quiet_days := 0
 var player_job := "build"
-var state := "camp"            # camp | ended | lost
+var state := "camp"            # camp | abandoned | lost
+var second_spring := false     # the camp came through its first winter (the G1 milestone)
+var hull := 0                  # the knarr drawn up on the shingle: 0 sound .. 3 holed
+var shed := 0.0                # builder-days into the boat shed
+var timber_felled := 0.0
+var timber_winter := 0.0       # timber felled in winter seasons better (F25 grade)
+var sailed := 0                # times the knarr has sailed home from here
 var end_reason := ""
 var history := {"joints_seated": 0, "joints_split": 0, "fish_watches": 0, "fish_pd": 0.0, "dried_pd": 0.0, "animals_lost": 0,
 	"kills": 0, "hunts_played": 0, "forage_played": 0, "markets": 0, "weapon_sales": 0, "bull_loose": 0, "raids": 0}
@@ -99,6 +105,7 @@ func from_voyage(v: Voyage) -> void:
 	iron_blades = int(n("iron_blades_per_trade_unit", 5)) * v.iron_units
 	morale = v.morale
 	ration = v.ration
+	hull = v.hull
 	outfit = v.outfit
 	nets = v.nets
 	crew.from_array(v.crew.to_array())
@@ -357,6 +364,9 @@ func work_day(player: Dictionary = {}) -> Dictionary:
 	# Timber and hay
 	var t_gain := int(assign.timber) * n("timber_felled_per_worker_day", 0.05) * om("timber_felled_multiplier")
 	timber += t_gain
+	timber_felled += t_gain
+	if winter:
+		timber_winter += t_gain
 	if t_gain > 0:
 		tally.lines.append("Timber: %.2f units felled (%.1f stacked for the return)." % [t_gain, timber])
 	if job_open("hay"):
@@ -518,9 +528,9 @@ func _advance_calendar(tally: Dictionary) -> void:
 	if people <= 0:
 		state = "lost"
 		end_reason = "No one is left at the camp."
-	elif year >= 2 and day_of_year >= int(n("camp_build_ends", 145)) and day_of_year < int(n("first_snow", 305)):
-		state = "ended"
-		end_reason = "Spring"
+	elif year >= 2 and not second_spring and day_of_year >= int(n("camp_build_ends", 145)) and day_of_year < int(n("first_snow", 305)):
+		second_spring = true
+		tally.events.append("second_spring")
 
 # ------------------------------------------------------------------ the market (F19, F20, F21)
 ## Morning check: do visitors come to the shore today? Sets market_today and what they bring.
@@ -640,12 +650,16 @@ func milk_per_cow() -> float:
 	return n("milk_per_fed_cow_per_day", 2) * om("milk_multiplier") \
 		* (n("role_milk_multiplier_with_a_householder", 1.2) if crew.has_role("householder") else 1.0)
 
-## The smith works a blade of trade iron into hooks once a week when hooks run short.
+## Weekly: the shipwright mends the knarr; the smith works a blade of trade iron into hooks when hooks run short.
 func _smith(tally: Dictionary) -> void:
 	smith_days += 1
 	if smith_days < 7:
 		return
 	smith_days = 0
+	if hull > 0 and crew.has_role("shipwright") and timber >= 0.2:
+		hull = maxi(0, hull - int(n("hull_levels_mended_a_week_ashore_with_a_shipwright", 1)))
+		timber -= 0.2
+		tally.lines.append("The shipwright drove new strakes into the knarr (%s)." % ["sound", "strained", "sprung", "holed"][hull])
 	if crew.has_role("smith") and iron_blades > 0 and hooks < int(n("role_hooks_the_camp_keeps_before_the_smith_works_iron", 6)):
 		iron_blades -= 1
 		var made := int(n("role_hooks_a_smith_makes_from_one_iron_blade", 4))
@@ -691,12 +705,22 @@ func _build(work: float, tally: Dictionary) -> void:
 		else:
 			tally.lines.append("Longhouse: %d%% raised." % roundi(longhouse / hall * 100.0))
 	if work > 0.0 and byre < byre_need:
-		byre = minf(byre_need, byre + work)
+		var put3 := minf(byre_need - byre, work)
+		byre += put3
+		work -= put3
 		if byre >= byre_need:
 			tally.events.append("byre")
 			tally.lines.append("The byre is finished. The herd will winter under a roof.")
 		else:
 			tally.lines.append("Byre: %d%% raised." % roundi(byre / byre_need * 100.0))
+	var shed_need := n("work_to_raise_the_boat_shed", 80)
+	if work > 0.0 and byre >= byre_need and shed < shed_need:
+		shed = minf(shed_need, shed + work)
+		if shed >= shed_need:
+			tally.events.append("shed")
+			tally.lines.append("The boat shed is roofed. The knarr can be readied for the voyage home.")
+		else:
+			tally.lines.append("Boat shed: %d%% raised." % roundi(shed / shed_need * 100.0))
 
 func building_target() -> String:
 	if booths < int(n("booth_plots_at_the_camp", 3)):
@@ -705,6 +729,8 @@ func building_target() -> String:
 		return "longhouse (%d%%)" % roundi(longhouse / n("work_to_raise_the_longhouse", 540) * 100.0)
 	if not byre_done():
 		return "byre (%d%%)" % roundi(byre / byre_need() * 100.0)
+	if not shed_done():
+		return "boat shed (%d%%)" % roundi(shed / n("work_to_raise_the_boat_shed", 80) * 100.0)
 	return "all built"
 
 func build_short() -> String:
@@ -714,13 +740,41 @@ func build_short() -> String:
 		return "longhouse"
 	if not byre_done():
 		return "byre"
+	if not shed_done():
+		return "boat shed"
 	return "repairs"
+
+func shed_done() -> bool:
+	return shed >= n("work_to_raise_the_boat_shed", 80)
+
+## Share of the timber felled in winter (seasoned, straighter: the appraisal's grade, F25).
+func winter_share() -> float:
+	return 0.0 if timber_felled <= 0.0 else clampf(timber_winter / timber_felled, 0.0, 1.0)
+
+## What still stands between the camp and the voyage home (F24). Empty means the return gate is open.
+func return_gate() -> Array:
+	var why: Array = []
+	if year < 2 or day_of_year < int(n("return_window_opens", 152)) or is_winter():
+		why.append("The return window opens on 1 June of the second summer.")
+	if not shed_done():
+		why.append("Raise the boat shed (%d%%)." % roundi(shed / n("work_to_raise_the_boat_shed", 80) * 100.0))
+	if hull > 1:
+		why.append("The hull is %s: a shipwright must mend her." % ["sound", "strained", "sprung", "holed"][hull])
+	if timber < n("timber_units_to_open_a_return", 4):
+		why.append("Stack at least %d units of timber (%.1f)." % [int(n("timber_units_to_open_a_return", 4)), timber])
+	if not crew.can_sail_home(int(n("role_fewest_crew_to_sail_a_knarr_home", 10))):
+		why.append("She needs a skipper or a pilot and %d hands." % int(n("role_fewest_crew_to_sail_a_knarr_home", 10)))
+	return why
+
+func late_in_the_year() -> bool:
+	return day_of_year > int(n("last_sensible_day_to_sail_home", 245))
 
 # ------------------------------------------------------------------ save and log
 const SAVE_FIELDS := ["day", "year", "day_of_year", "people", "dead", "cattle", "sheep", "fodderless_days", "food", "fresh", "hooks",
 	"trade", "timber", "hay", "booths", "longhouse", "byre", "joints", "morale", "ration", "rain", "assign", "player_job", "state",
 	"end_reason", "history", "hunt_far", "fish_net", "nets", "fear", "hides", "patch_health", "goodwill", "cloth_strips", "iron_blades", "pelts",
-	"market_today", "market_pelts", "weapon_request", "penned_today", "quiet_days", "outfit", "smith_days"]
+	"market_today", "market_pelts", "weapon_request", "penned_today", "quiet_days", "outfit", "smith_days",
+	"second_spring", "hull", "shed", "timber_felled", "timber_winter", "sailed"]
 
 func to_dict() -> Dictionary:
 	var d := {"sick": Array(sick), "rng_seed": str(rng.seed), "rng_state": str(rng.state), "crew": crew.to_array()}

@@ -100,12 +100,12 @@ static func run(t) -> void:
 		for s in n:
 			var cc := make(300 + s)
 			var guard := 0
-			while cc.state == "camp" and guard < 500:
+			while cc.state == "camp" and not cc.second_spring and guard < 500:
 				guard += 1
 				plan(cc, policy)
 				cc.work_day()
 			deaths += cc.dead; animals += int(cc.history.animals_lost)
-			if cc.state == "ended": ended += 1
+			if cc.second_spring: ended += 1
 			if cc.hall_done(): hall += 1
 		res[policy] = {"deaths": float(deaths) / n, "animals": float(animals) / n, "ended": float(ended) / n}
 		print("INFO  camp year %-11s reached spring %3d%%  deaths %.1f  animals lost %.1f  longhouse %d%%" % [policy, roundi(100.0 * ended / n), float(deaths) / n, float(animals) / n, roundi(100.0 * hall / n)])

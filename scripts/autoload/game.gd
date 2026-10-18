@@ -81,6 +81,7 @@ var watch := 0          # 0..5, six four-hour watches a day
 var hold := {}          # cargo kind -> count
 var voyage: Voyage = null  # the live voyage, when one is running
 var camp: Camp = null      # the camp at the Strait, once ashore
+var home: Dictionary = {}  # Eriksfjord after a cargo comes home (F25, F26)
 var loadout: Dictionary = {}  # the load chosen at Eriksfjord (F53); empty means the plan's HoldCheck load
 
 func new_run() -> void:
@@ -126,8 +127,10 @@ func save_game(stage: String) -> bool:
 	var data := {"version": 1, "stage": stage, "settings": settings, "saved_utc": Time.get_datetime_string_from_system(true)}
 	if voyage != null:
 		data.voyage = voyage.to_dict()
-	if camp != null and stage == "camp":
+	if camp != null:
 		data.camp = camp.to_dict()
+	if stage == "home":
+		data.home = home
 	data.where = _where(stage)
 	var tmp := SAVE_DIR + "/autosave.tmp"
 	var f := FileAccess.open(tmp, FileAccess.WRITE)
@@ -148,6 +151,10 @@ func save_game(stage: String) -> bool:
 func _where(stage: String) -> String:
 	if stage == "camp" and camp != null:
 		return "%s, year %d, at the Strait" % [camp.date_text(), camp.year]
+	if stage == "home":
+		return "winter at Eriksfjord, year %d" % int(home.get("year", 2))
+	if voyage != null and voyage.homeward:
+		return "%s, sailing home, %s" % [voyage.date_text(), voyage.leg().name]
 	if voyage != null:
 		return "%s, %s" % [voyage.date_text(), voyage.leg().name]
 	return ""
@@ -176,8 +183,12 @@ func load_game(d: Dictionary) -> String:
 	if d.has("camp"):
 		camp = Camp.new()
 		camp.from_dict(Knobs._v, d.camp)
+	home = d.get("home", {})
 	loaded_stage = str(d.stage)
-	return "res://scenes/camp.tscn" if loaded_stage == "camp" else "res://scenes/voyage.tscn"
+	match loaded_stage:
+		"camp": return "res://scenes/camp.tscn"
+		"home": return "res://scenes/homecoming.tscn"
+	return "res://scenes/voyage.tscn"
 
 func clear_saves() -> void:
 	for i in SLOTS:

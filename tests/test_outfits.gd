@@ -159,7 +159,7 @@ static func run(t) -> void:
 			var c := camp_for(id, 8500 + s)
 			c.food = 0.6
 			var guard := 0
-			while c.state == "camp" and guard < 500:
+			while c.state == "camp" and not c.second_spring and guard < 500:
 				guard += 1
 				TC.plan(c, "planner")
 				if id == "farm_household" and c.job_open("hay"):
@@ -167,7 +167,7 @@ static func run(t) -> void:
 					c.default_assignments()
 				c.work_day()
 			deaths += c.dead; animals += int(c.history.animals_lost)
-			if c.state == "ended": ended += 1
+			if c.second_spring: ended += 1
 		print("INFO  outfit year %-16s spring %3d%%  deaths %.1f  animals lost %.1f" % [table[id].name, roundi(100.0 * ended / n), float(deaths) / n, float(animals) / n])
 		t.check("outfits: a planning %s camp reaches the second spring with few deaths (< 3) and its herd (< 1 lost)" % table[id].name, ended >= n - 1 and float(deaths) / n < 3.0 and float(animals) / n < 1.0, "%.1f deaths, %.1f animals" % [float(deaths) / n, float(animals) / n])
 	# the loadout screen steps through the outfits
