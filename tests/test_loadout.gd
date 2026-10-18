@@ -67,7 +67,7 @@ static func run(t) -> void:
 	sc._ready()
 	sc.lo.change("people", 3)
 	var refused: bool = not sc.sail()
-	sc.lo.reset()
+	sc.lo.set_outfit("")
 	sc.lo.change("cloth", 1); sc.lo.change("food", -1)
 	Engine.get_main_loop().root.set_meta("no_scene_change", true)
 	var ok: bool = sc.sail()

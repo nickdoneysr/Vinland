@@ -36,12 +36,37 @@ const DIFFICULTIES := ["forgiving", "standard", "hard"]
 const DIFFICULTY_NAMES := {"forgiving": "Forgiving", "standard": "Standard", "hard": "Hard"}
 
 var _mg: Dictionary = {}
+var outfits: Dictionary = {}
+
+## The run's outfit data (data/outfits.json), loaded once.
+func outfit_table() -> Dictionary:
+	if outfits.is_empty():
+		outfits = JSON.parse_string(FileAccess.open("res://data/outfits.json", FileAccess.READ).get_as_text())
+	return outfits
+
+## Difficulty steps for one mini-game in this run: the outfit's ease, and a harder sky with no pilot left.
+func ease_shift(game: String) -> int:
+	var o := ""
+	var cr: Crew = null
+	if camp != null:
+		o = camp.outfit; cr = camp.crew
+	elif voyage != null:
+		o = voyage.outfit; cr = voyage.crew
+	var shift := 0
+	if o != "":
+		shift += int(outfit_table().get(o, {}).get("ease", {}).get(game, 0))
+	if cr != null and game in ["ring", "sun_board"] and not cr.has_role("pilot"):
+		shift += 1
+	return shift
 
 ## Mini-game feel tuning for one game, with the chosen difficulty's overrides applied.
 func tuning(game: String, difficulty: String = "") -> Dictionary:
 	if _mg.is_empty():
 		_mg = JSON.parse_string(FileAccess.open("res://data/minigames.json", FileAccess.READ).get_as_text())
 	var d := difficulty if difficulty != "" else str(settings.difficulty)
+	if difficulty == "":
+		var i := clampi(DIFFICULTIES.find(d) + ease_shift(game), 0, DIFFICULTIES.size() - 1)
+		d = DIFFICULTIES[i]
 	var out: Dictionary = (_mg[game] as Dictionary).duplicate(true)
 	var over: Dictionary = _mg.difficulty.get(d, {}).get(game, {})
 	for key in over:

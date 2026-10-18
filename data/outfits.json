@@ -1,0 +1,48 @@
+{
+ "_note": "Four outfits (Backlog F22, plan sheet Pillars). load = the starting hold (must fit the knarr), gear = fixed kit, ease = mini-game difficulty steps (-1 easier, +1 harder), roles = named crew roles carried, lead = the named leaders. Economy multipliers live on the plan's Assumptions sheet under OUTFITS AND CREW ROLES.",
+ "order": ["merchant", "farm_household", "hunter_boat", "shipwright_s_kin"],
+ "merchant": {
+  "name": "Merchant", "silver": "High",
+  "strength": "Red cloth and iron; better prices at the market",
+  "weakness": "Poor foragers; the animals eat the margin",
+  "feel": "Karlsefni. Trade-rich, forage-poor.",
+  "load": {"people": 22, "cattle": 2, "sheep": 4, "food": 2, "drink": 3, "fodder": 1, "cloth": 2, "iron": 2},
+  "gear": {"hooks": 6, "nets": 1, "spare_sail": 0},
+  "ease": {"forage": 1},
+  "roles": {"skipper": 1, "pilot": 1, "shipwright": 1, "smith": 1, "healer": 1, "householder": 1, "hunter": 1},
+  "lead": [["Thorfinn Karlsefni", "skipper", "m"], ["Gudrid Thorbjarnardottir", "householder", "f"]]
+ },
+ "farm_household": {
+  "name": "Farm household", "silver": "Low",
+  "strength": "Livestock, cheese, a hand with fodder; the byre goes up faster",
+  "weakness": "Little cargo to trade, few fighters",
+  "feel": "The byre is easier, the hold is tighter.",
+  "load": {"people": 21, "cattle": 3, "sheep": 7, "food": 2, "drink": 3, "fodder": 2, "cloth": 1, "iron": 0},
+  "gear": {"hooks": 6, "nets": 1, "spare_sail": 0},
+  "ease": {},
+  "roles": {"skipper": 1, "pilot": 1, "shipwright": 1, "smith": 1, "healer": 1, "householder": 2, "hunter": 1},
+  "lead": [["Thorbjorn Vifilsson", "skipper", "m"], ["Hallveig Einarsdottir", "householder", "f"]]
+ },
+ "hunter_boat": {
+  "name": "Hunter-boat", "silver": "Medium",
+  "strength": "Fishing and pilotage: a better hand on the star ring, more hooks, a second net",
+  "weakness": "Weak builders, weak at the market",
+  "feel": "Better ring, worse joint.",
+  "load": {"people": 24, "cattle": 2, "sheep": 4, "food": 3, "drink": 3, "fodder": 1, "cloth": 1, "iron": 1},
+  "gear": {"hooks": 10, "nets": 2, "spare_sail": 0},
+  "ease": {"ring": -1, "sun_board": -1, "joint": 1},
+  "roles": {"skipper": 1, "pilot": 2, "shipwright": 1, "smith": 1, "healer": 1, "householder": 1, "hunter": 2},
+  "lead": [["Thorhall the Hunter", "pilot", "m"], ["Aud Ketilsdottir", "skipper", "f"]]
+ },
+ "shipwright_s_kin": {
+  "name": "Shipwright's kin", "silver": "Medium",
+  "strength": "Hull repair, a spare sail, better timber",
+  "weakness": "Poor foragers",
+  "feel": "The slipway is the fantasy.",
+  "load": {"people": 24, "cattle": 2, "sheep": 4, "food": 2, "drink": 3, "fodder": 1, "cloth": 1, "iron": 1},
+  "gear": {"hooks": 6, "nets": 1, "spare_sail": 1},
+  "ease": {"joint": -1, "forage": 1},
+  "roles": {"skipper": 1, "pilot": 1, "shipwright": 3, "smith": 1, "healer": 1, "householder": 1, "hunter": 1},
+  "lead": [["Bjarni Grimolfsson", "skipper", "m"], ["Thorunn Bjarnadottir", "shipwright", "f"]]
+ }
+}

@@ -12,16 +12,41 @@ const LIMITS := {"people": [12, 40], "cattle": [0, 4], "sheep": [0, 12], "food":
 
 var k: Dictionary
 var c := {}       # row -> count
+var outfits: Dictionary = {}
+var outfit := ""  # "" is the plan's HoldCheck load with no outfit
 
-func setup(knobs: Dictionary) -> void:
+func setup(knobs: Dictionary, outfit_data: Dictionary = {}) -> void:
 	k = knobs
+	outfits = outfit_data
 	reset()
+
+## Pick an outfit: its starting hold replaces the current one.
+func set_outfit(id: String) -> void:
+	outfit = id
+	reset()
+
+func outfit_data() -> Dictionary:
+	return outfits.get(outfit, {}) if outfit != "" else {}
+
+func om(key: String, fallback: float = 1.0) -> float:
+	if outfit == "":
+		return fallback
+	return float(k.get(outfit + "_" + key, fallback))
+
+## Units the outfit's fixed kit takes (a spare sail).
+func gear_units() -> float:
+	return float(outfit_data().get("gear", {}).get("spare_sail", 0))
 
 func n(key: String, fallback: float = 0.0) -> float:
 	return float(k.get(key, fallback))
 
-## The plan's HoldCheck load.
+## The outfit's starting hold, or the plan's HoldCheck load with no outfit.
 func reset() -> void:
+	if outfit != "" and outfits.has(outfit):
+		c = (outfits[outfit].load as Dictionary).duplicate()
+		for r in ROWS:
+			c[r] = int(c.get(r, 0))
+		return
 	c = {"people": int(n("party_size_default", 24)), "cattle": int(n("cattle_at_departure", 2)),
 		"sheep": int(n("sheep_and_goats_at_departure", 6))}
 	var trade := int(n("trade_goods_carried", 2))
@@ -38,7 +63,7 @@ func crossing_days() -> int:
 func provisions_for(people: int, cattle: int, sheep: int) -> Dictionary:
 	var d := crossing_days()
 	return {"food": ceili(people * d / n("food_unit_feeds", 168)), "drink": ceili(people * d / n("drink_unit_covers", 120)),
-		"fodder": ceili((cattle + sheep * n("sheep_fodder_as_share_of_a_cow", 0.25)) * d / n("fodder_unit_covers", 40))}
+		"fodder": ceili((cattle + sheep * n("sheep_fodder_as_share_of_a_cow", 0.25)) * d / (n("fodder_unit_covers", 40) * om("fodder_and_hay_go_further")))}
 
 func unit_cost(row: String) -> float:
 	match row:
@@ -48,7 +73,7 @@ func unit_cost(row: String) -> float:
 		_: return 1.0
 
 func hold_load() -> float:
-	var u := 0.0
+	var u := gear_units()
 	for r in ROWS:
 		u += c[r] * unit_cost(r)
 	return snappedf(u, 0.1)
@@ -66,7 +91,7 @@ func days_of(row: String) -> float:
 		"drink": return 999.0 if c.people == 0 else c.drink * n("drink_unit_covers", 120) / c.people
 		"fodder":
 			var herd: float = c.cattle + c.sheep * n("sheep_fodder_as_share_of_a_cow", 0.25)
-			return 999.0 if herd <= 0.0 else c.fodder * n("fodder_unit_covers", 40) / herd
+			return 999.0 if herd <= 0.0 else c.fodder * n("fodder_unit_covers", 40) * om("fodder_and_hay_go_further") / herd
 	return 0.0
 
 ## One line for each row: what this choice means at sea and at the camp.
@@ -116,6 +141,18 @@ func apply_to(v: Voyage) -> void:
 	v.cloth_units = c.cloth
 	v.iron_units = c.iron
 	v.trade = c.cloth + c.iron
+	if outfit != "":
+		v.set_outfit(outfit, outfit_data())
+	else:
+		v.crew.build({"roles": {"skipper": 1, "pilot": 1, "shipwright": 1, "smith": 1, "healer": 1, "householder": 1, "hunter": 1}}, v.people, v.rng)
 
 func to_dict() -> Dictionary:
-	return c.duplicate()
+	var d := c.duplicate()
+	d.outfit = outfit
+	return d
+
+func from_dict(d: Dictionary) -> void:
+	outfit = str(d.get("outfit", ""))
+	c = {}
+	for r in ROWS:
+		c[r] = int(d.get(r, 0))

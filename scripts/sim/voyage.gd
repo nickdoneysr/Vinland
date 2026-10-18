@@ -40,6 +40,10 @@ var drink := 0.0
 var fodder := 0.0
 var trade := 2
 var cloth_units := 1        # trade goods split: red cloth and iron (F53)
+var outfit := ""             # F22: merchant | farm_household | hunter_boat | shipwright_s_kin ("" = the plan's load)
+var crew := Crew.new()       # F23: who they are
+var spare_sail := 0
+var nets := 1
 var iron_units := 1
 var hooks := 6
 var timber := 0
@@ -83,6 +87,8 @@ func setup(knobs: Dictionary, legs_data: Dictionary, seed: int = 0) -> void:
 	cloth_units = ceili(trade / 2.0)
 	iron_units = trade - cloth_units
 	hooks = int(n("hooks_carried", 6))
+	nets = int(n("nets_carried", 1))
+	crew.build({"roles": {"skipper": 1, "pilot": 1, "shipwright": 1, "smith": 1, "healer": 1, "householder": 1, "hunter": 1}}, people, rng)
 	var load := default_provisions()
 	food = load.food
 	drink = load.drink
@@ -93,6 +99,25 @@ func setup(knobs: Dictionary, legs_data: Dictionary, seed: int = 0) -> void:
 
 func n(key: String, fallback: float = 0.0) -> float:
 	return float(k.get(key, fallback))
+
+## An outfit's multiplier from the Assumptions sheet, or the fallback when this outfit has none.
+func om(key: String, fallback: float = 1.0) -> float:
+	if outfit == "":
+		return fallback
+	return float(k.get(outfit + "_" + key, fallback))
+
+## Take on an outfit's crew and kit (the hold itself comes from the loadout).
+func set_outfit(id: String, data: Dictionary) -> void:
+	outfit = id
+	var g: Dictionary = data.get("gear", {})
+	hooks = int(g.get("hooks", hooks))
+	nets = int(g.get("nets", nets))
+	spare_sail = int(g.get("spare_sail", 0))
+	crew.build(data, people, rng)
+
+## Who a death took: keep the roster in step with the head count and say who it was.
+func _names_lost() -> Array:
+	return crew.sync_to(people, rng)
 
 ## Same arithmetic as the HoldCheck sheet: provisions for the planned crossing.
 func default_provisions() -> Dictionary:
@@ -122,7 +147,7 @@ func is_coastal() -> bool:
 func hold_load() -> float:
 	var u := people * n("cargo_units_per_person", 0.4) + cattle * n("cargo_units_per_head_of_cattle", 1.5) \
 		+ sheep * n("cargo_units_per_sheep_or_goat", 0.4) + ceilf(food) + ceilf(drink) + ceilf(fodder) + trade \
-		+ timber * n("cargo_units_per_timber_unit", 1.0)
+		+ timber * n("cargo_units_per_timber_unit", 1.0) + spare_sail
 	return snappedf(u, 0.1)
 
 func hold_capacity() -> float:
@@ -200,14 +225,20 @@ func sail_watch() -> Array:
 		speed *= 0.85
 	if morale < 25:
 		speed *= 0.85
+	if not crew.has_role("skipper"):
+		speed *= n("role_speed_without_a_skipper", 0.9)
 	_advance(speed, ev)
 	# Ship condition (F45 basics)
 	if pace == "crack" and info.rough:
 		sail_strain += n("sail_strain_per_watch_cracking_on_in_wind", 0.08)
 		if sail_strain >= 1.0 and not sail_torn:
-			sail_torn = true
 			sail_strain = 0.0
-			ev.append({"type": "sail_torn"})
+			if spare_sail > 0:
+				spare_sail -= 1
+				ev.append({"type": "spare_sail"})
+			else:
+				sail_torn = true
+				ev.append({"type": "sail_torn"})
 	if weather == "storm" and not storm_bailed:
 		var chance := n("sprung_strake_chance_per_storm_watch_hove_to", 0.02) if pace == "heave" else n("sprung_strake_chance_per_storm_watch_running", 0.12)
 		if rng.randf() < chance:
@@ -228,9 +259,14 @@ func _advance(nm: float, ev: Array) -> void:
 		var over := -leg_left
 		ev.append({"type": "landfall", "leg": leg().name})
 		morale = clampf(morale + n("morale_change_landfall", 8), 0, 100)
-		if hull > 0:
-			hull -= 1
+		var levels := 0
+		if crew.has_role("shipwright"):
+			levels = int(om("repair_levels_at_a_landfall", n("role_repair_levels_at_a_landfall_with_a_shipwright", 1)))
+		if hull > 0 and levels > 0:
+			hull = maxi(0, hull - levels)
 			ev.append({"type": "repair", "hull": hull})
+		elif hull > 0:
+			ev.append({"type": "no_repair", "hull": hull})
 		if leg_i >= legs.size() - 1:
 			state = "arrived"
 			ev.append({"type": "arrived"})
@@ -281,7 +317,7 @@ func apply_bail(held: bool) -> Array:
 		if rng.randf() < 0.5 and people > 1:
 			people -= 1
 			dead += 1
-			ev.append({"type": "overboard", "lost": true})
+			ev.append({"type": "overboard", "lost": true, "names": _names_lost()})
 		else:
 			ev.append({"type": "overboard", "lost": false})
 	return ev
@@ -355,7 +391,7 @@ func end_day() -> Array:
 		ev.append({"type": "cask_breach"})
 	# Animals
 	var herd := cattle + sheep * n("sheep_fodder_as_share_of_a_cow", 0.25)
-	fodder -= herd * ANIMAL_RATION[animal_ration] / n("fodder_unit_covers", 40)
+	fodder -= herd * ANIMAL_RATION[animal_ration] / (n("fodder_unit_covers", 40) * om("fodder_and_hay_go_further"))
 	if fodder <= 0.0 or animal_ration == "none":
 		fodder = maxf(fodder, 0.0)
 		fodderless_days += 1
@@ -381,7 +417,7 @@ func end_day() -> Array:
 	for i in healthy:
 		if rng.randf() < chance:
 			new_sick += 1
-			sick.append(int(n("days_a_sick_person_stays_sick", 5)))
+			sick.append(sick_days())
 	if new_sick > 0:
 		ev.append({"type": "sick", "count": new_sick})
 	var deaths := 0
@@ -401,7 +437,7 @@ func end_day() -> Array:
 	if deaths > 0:
 		people -= deaths
 		dead += deaths
-		ev.append({"type": "death", "count": deaths})
+		ev.append({"type": "death", "count": deaths, "names": _names_lost()})
 	# Morale
 	var parts := str(k.get("morale_change_per_day_full_half_bare_rations", "1 / -2 / -5")).split("/")
 	var rm := {"full": float(parts[0]), "half": float(parts[1]), "bare": float(parts[2])}
@@ -421,6 +457,13 @@ func end_day() -> Array:
 		_lose("Still at sea in October. The autumn storms took the ship.", ev)
 	ev.append({"type": "day_end", "day": day})
 	return ev
+
+## How long a new sickness lasts: a healer aboard saves a day.
+func sick_days() -> int:
+	var d := int(n("days_a_sick_person_stays_sick", 5))
+	if crew.has_role("healer"):
+		d -= int(n("role_sick_days_saved_by_a_healer", 1))
+	return maxi(1, d)
 
 func _lose(reason: String, ev: Array) -> void:
 	state = "lost"
@@ -454,10 +497,10 @@ func write_log(path: String) -> void:
 const SAVE_FIELDS := ["day", "day_of_year", "watch", "leg_i", "leg_left", "sailed_nm", "drift_nm_total", "state", "loss_reason",
 	"people", "dead", "cattle", "sheep", "fodderless_days", "food", "fresh_fish", "drink", "fodder", "trade", "cloth_units", "iron_units", "hooks", "timber",
 	"ration", "animal_ration", "pace", "morale", "hull", "sail_torn", "sail_strain", "weather", "deck", "fix_today", "fished_today",
-	"day_nm", "starving_days", "animals_lost", "fixes", "storm_bailed", "sun_today", "sun_noon", "sun_fixes"]
+	"day_nm", "starving_days", "animals_lost", "fixes", "storm_bailed", "sun_today", "sun_noon", "sun_fixes", "outfit", "spare_sail", "nets"]
 
 func to_dict() -> Dictionary:
-	var d := {"sick": Array(sick), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
+	var d := {"sick": Array(sick), "rng_seed": str(rng.seed), "rng_state": str(rng.state), "crew": crew.to_array()}
 	for f in SAVE_FIELDS:
 		d[f] = get(f)
 	return d
@@ -480,6 +523,8 @@ func from_dict(knobs: Dictionary, legs_data: Dictionary, d: Dictionary) -> void:
 	for x in sun_fixes:
 		sx.append(int(x))
 	sun_fixes = sx
+	if d.has("crew"):
+		crew.from_array(d.crew)
 	sick.clear()
 	for s in d.get("sick", []):
 		sick.append(int(s))

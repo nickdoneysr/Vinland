@@ -46,14 +46,15 @@ func _ready() -> void:
 	v.setup(Knobs._v, legs_data, seed)
 	if not Game.loadout.is_empty():
 		var lo := Loadout.new()
-		lo.setup(Knobs._v)
-		lo.c = Game.loadout.duplicate()
+		lo.setup(Knobs._v, Game.outfit_table())
+		lo.from_dict(Game.loadout)
 		lo.apply_to(v)
 	Game.voyage = v
 	Game.camp = null
-	_card("Eriksfjord, %s" % v.date_text(),
+	var od: Dictionary = Game.outfit_table().get(v.outfit, {})
+	_card("Eriksfjord, %s%s" % [v.date_text(), ("  ·  " + str(od.name)) if not od.is_empty() else ""],
 		"The knarr is loaded: %d people, %d cattle, %d sheep, %d food, %d drink, %d fodder, %d trade goods.\nThe hold is %.1f of %d units. Leave after the ice; be ashore before October." % [
-		v.people, v.cattle, v.sheep, int(v.food), int(v.drink), int(v.fodder), v.trade, v.hold_load(), int(v.hold_capacity())], "start")
+		v.people, v.cattle, v.sheep, int(v.food), int(v.drink), int(v.fodder), v.trade, v.hold_load(), int(v.hold_capacity())] + "\nAboard: " + v.crew.roles_line() + ".", "start")
 	_begin_day()
 
 # ------------------------------------------------------------------ flow
@@ -75,6 +76,8 @@ func _handle_events(evs: Array) -> void:
 			"landfall": _card("Landfall", "The coast of %s is behind us." % e.leg, "landfall")
 			"new_leg": _card("Next leg: %s" % e.leg, "%d nm to go on this leg." % roundi(e.nm))
 			"repair": _card("Repairs ashore", "A day's work on the strakes. The hull is %s." % _hull_word())
+			"no_repair": _card("No one to mend her", "With no shipwright left, the sprung strakes stay sprung. The hull is %s." % _hull_word())
+			"spare_sail": _card("The spare sail", "The old sail split in the wind; the spare went up before we lost way.")
 			"sail_torn": _card("The sail has torn", "Cracking on in heavy weather split the wool. We make less way until it is mended.")
 			"strake": _card("A strake has sprung", "Water is coming in. The hull is %s." % _hull_word())
 			"cask_breach": _card("A cask is breached", "Water floods across the deck and is lost. Sour whey would have kept.")
@@ -82,9 +85,9 @@ func _handle_events(evs: Array) -> void:
 			"starving": _card("The food is gone", "No stores left. Sickness spreads among the hungry.")
 			"thirst": _card("The water is gone", "Without drink the crew sickens fast.")
 			"sick": _card("Sickness", "%d more of the crew are sick and cannot stand a watch." % e.count)
-			"death": _card("A death aboard", "%d lost. They are given to the sea with what words we have." % e.count)
+			"death": _card("A death aboard", "%s. Given to the sea with what words we have.%s" % [_who(e), _role_note(e)])
 			"bail_held": _card("The storm passes", "You kept her afloat through the night. No fix, but the hull is whole.")
-			"overboard": _card("Man overboard", "A wave took one of the crew over the side. %s" % ("They were lost in the dark." if e.lost else "We got a line to them and hauled them back."))
+			"overboard": _card("Overboard", "A wave took one of the crew over the side. %s" % (("%s was lost in the dark.%s" % [_who(e), _role_note(e)]) if e.lost else "We got a line to them and hauled them back."))
 			"animal_died": _card("An animal died", "With no fodder, a %s died. Starve the bull, lose the trade good." % ("head of cattle" if e.kind == "cattle" else "sheep"))
 			"drift":
 				pass
@@ -95,6 +98,23 @@ func _handle_events(evs: Array) -> void:
 			"day_end":
 				if v.state == "sailing":
 					_begin_day()
+
+func _who(e: Dictionary) -> String:
+	var names: Array = e.get("names", [])
+	if names.is_empty():
+		return "%d lost" % int(e.get("count", 1))
+	return " and ".join(names)
+
+## What a lost role means for the rest of the voyage.
+func _role_note(_e: Dictionary) -> String:
+	var notes: Array = []
+	if not v.crew.has_role("pilot"):
+		notes.append("No pilot left: the sky will be harder to read.")
+	if not v.crew.has_role("skipper"):
+		notes.append("No skipper: she sails slower.")
+	if not v.crew.has_role("shipwright"):
+		notes.append("No shipwright: no repairs at landfall.")
+	return ("\n" + " ".join(notes)) if not notes.is_empty() else ""
 
 func _end(won: bool, reason: String = "") -> void:
 	if not _logged:

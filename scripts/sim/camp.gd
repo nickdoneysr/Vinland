@@ -41,6 +41,9 @@ var rain := false              # wet day: rain in summer, snow in winter
 var assign := {"build": 8, "fish": 6, "hunt": 0, "forage": 4, "dry": 0, "timber": 2, "hay": 0, "tend": 0}
 var hunt_far := false          # hunters range to the far grounds: more caribou, and fear can rise
 var fish_net := false          # when you fish yourself: the net from the boat instead of the hand line (F14)
+var outfit := ""               # F22, carried ashore from the voyage
+var crew := Crew.new()         # F23
+var smith_days := 0
 var nets := 1
 var fear := 0.0                # Goodwill / fear clock (F19): read by the market when it comes
 var hides := 0                 # trade goods from the hunt
@@ -73,6 +76,7 @@ func setup(knobs: Dictionary, seed: int = 0) -> void:
 		rng.randomize()
 	food = 1.0
 	nets = int(n("nets_carried", 1))
+	crew.build({"roles": {"skipper": 1, "pilot": 1, "shipwright": 1, "smith": 1, "healer": 1, "householder": 1, "hunter": 1}}, people, rng)
 	cloth_strips = 20    # the default HoldCheck load carries two units of trade goods: cloth and iron
 	iron_blades = 5
 	_roll_weather()
@@ -95,9 +99,28 @@ func from_voyage(v: Voyage) -> void:
 	iron_blades = int(n("iron_blades_per_trade_unit", 5)) * v.iron_units
 	morale = v.morale
 	ration = v.ration
+	outfit = v.outfit
+	nets = v.nets
+	crew.from_array(v.crew.to_array())
 	default_assignments()
 
 # ------------------------------------------------------------------ calendar
+## An outfit's multiplier from the Assumptions sheet, or the fallback.
+func om(key: String, fallback: float = 1.0) -> float:
+	if outfit == "":
+		return fallback
+	return float(k.get(outfit + "_" + key, fallback))
+
+## How long a new sickness lasts: a healer saves a day.
+func sick_days() -> int:
+	var d := int(n("days_a_sick_person_stays_sick", 5))
+	if crew.has_role("healer"):
+		d -= int(n("role_sick_days_saved_by_a_healer", 1))
+	return maxi(1, d)
+
+func byre_need() -> float:
+	return n("work_to_raise_the_byre", 160) * om("byre_work_multiplier")
+
 func season() -> String:
 	var d := day_of_year
 	if d >= int(n("first_snow", 305)) or d < int(n("spring_thaw", 110)):
@@ -184,7 +207,7 @@ func hall_done() -> bool:
 	return longhouse >= n("work_to_raise_the_longhouse", 540)
 
 func byre_done() -> bool:
-	return byre >= n("work_to_raise_the_byre", 160)
+	return byre >= byre_need()
 
 func sheltered() -> int:
 	var per := float(n("people_sheltered_per_booth", 8))
@@ -207,7 +230,7 @@ func food_days() -> float:
 ## Hay units the herd eats per winter day.
 func hay_per_day() -> float:
 	var head := cattle + sheep * n("sheep_fodder_as_share_of_a_cow", 0.25)
-	var need := head * n("hay_per_head_of_cattle_per_winter_day", 0.06)
+	var need := head * n("hay_per_head_of_cattle_per_winter_day", 0.06) / om("fodder_and_hay_go_further")
 	if not byre_done():
 		need *= n("hay_needed_without_a_byre", 1.5)
 	return need
@@ -264,14 +287,14 @@ func work_day(player: Dictionary = {}) -> Dictionary:
 			tally.lines.append("Your log split; that day's work is lost.")
 	if winter:
 		j_gain *= n("winter_building_factor", 0.5)
-	_build(j_gain, tally)
+	_build(j_gain * om("building_multiplier"), tally)
 	# Fish
 	var fishers := mini(int(assign.fish), hooks)
 	var fish_pd := 0.0
 	var auto_fishers := fishers - (1 if pjob == "fish" and fishers > 0 else 0)
 	var fish_factor := n("winter_shore_fishing_factor", 0.3) if winter else 1.0
 	for i in auto_fishers:
-		fish_pd += n("shore_fishing_per_worker_day", 6) * rng.randf_range(0.5, 1.5) * fish_factor
+		fish_pd += n("shore_fishing_per_worker_day", 6) * rng.randf_range(0.5, 1.5) * fish_factor * om("shore_fishing_multiplier")
 	if pjob == "fish" and fishers > 0:
 		var mine := float(player.get("person_days", 0.0)) * fish_factor
 		fish_pd += mine
@@ -285,7 +308,8 @@ func work_day(player: Dictionary = {}) -> Dictionary:
 	var hunters := int(assign.hunt)
 	var auto_hunters := hunters - (1 if pjob == "hunt" and hunters > 0 else 0)
 	var meat := 0.0
-	var kill_p := n("hunt_kill_chance_per_hunter_day", 0.2) * (n("far_grounds_kill_bonus", 1.4) if hunt_far else 1.0) * (n("winter_hunting_factor", 0.7) if winter else 1.0)
+	var kill_p := n("hunt_kill_chance_per_hunter_day", 0.2) * (n("far_grounds_kill_bonus", 1.4) if hunt_far else 1.0) * (n("winter_hunting_factor", 0.7) if winter else 1.0) \
+		* (n("role_kill_chance_multiplier_with_a_hunter", 1.15) if crew.has_role("hunter") else 1.0)
 	var kills := 0
 	for i in auto_hunters:
 		if rng.randf() < kill_p:
@@ -316,7 +340,7 @@ func work_day(player: Dictionary = {}) -> Dictionary:
 	if job_open("forage"):
 		var foragers := int(assign.forage)
 		var auto_foragers := foragers - (1 if pjob == "forage" and foragers > 0 else 0)
-		forage_pd = auto_foragers * n("forage_per_worker_day", 4) * rng.randf_range(0.6, 1.4) * patch_health
+		forage_pd = auto_foragers * n("forage_per_worker_day", 4) * rng.randf_range(0.6, 1.4) * patch_health * om("forage_multiplier")
 		if pjob == "forage" and foragers > 0:
 			history.forage_played += 1
 			forage_pd += float(player.get("person_days", 0.0))
@@ -326,12 +350,12 @@ func work_day(player: Dictionary = {}) -> Dictionary:
 				tally.lines.append("The patches are thinner for the stripping (%d%% left this season)." % roundi(patch_health * 100))
 	var cows := maxi(0, cattle - 1)            # one of the cattle is the bull
 	var fed := not winter or hay > 0.0
-	var milk_pd := cows * n("milk_per_fed_cow_per_day", 2) * (n("winter_milk_factor", 0.3) if winter else 1.0) * (1.0 if fed else 0.0)
+	var milk_pd := cows * milk_per_cow() * (n("winter_milk_factor", 0.3) if winter else 1.0) * (1.0 if fed else 0.0)
 	if forage_pd + milk_pd > 0.5:
 		fresh.append([forage_pd + milk_pd, 1])  # eaten today or tomorrow
 		tally.lines.append("Forage and milk: %d person-days." % roundi(forage_pd + milk_pd))
 	# Timber and hay
-	var t_gain := int(assign.timber) * n("timber_felled_per_worker_day", 0.05)
+	var t_gain := int(assign.timber) * n("timber_felled_per_worker_day", 0.05) * om("timber_felled_multiplier")
 	timber += t_gain
 	if t_gain > 0:
 		tally.lines.append("Timber: %.2f units felled (%.1f stacked for the return)." % [t_gain, timber])
@@ -420,7 +444,7 @@ func work_day(player: Dictionary = {}) -> Dictionary:
 		var chance := base * (2.0 if rain else 1.0) * (exposed_mult if exposed else 1.0) * (n("starvation_sickness_multiplier", 15) if starving else 1.0)
 		if rng.randf() < chance:
 			new_sick += 1
-			sick.append(int(n("days_a_sick_person_stays_sick", 5)))
+			sick.append(sick_days())
 	if new_sick > 0:
 		tally.lines.append("%d fell sick%s." % [new_sick, " (no roof over them)" if unsheltered > 0 else ""])
 	var deaths := 0
@@ -448,7 +472,9 @@ func work_day(player: Dictionary = {}) -> Dictionary:
 		people -= deaths
 		dead += deaths
 		morale = clampf(morale + deaths * n("morale_change_a_death", -10), 0, 100)
-		tally.lines.append("%d died. A cairn goes up above the shore." % deaths)
+		var names := crew.sync_to(people, rng)
+		tally.lines.append("%s died. A cairn goes up above the shore." % (", ".join(names) if not names.is_empty() else "%d" % deaths))
+	_smith(tally)
 	var parts := str(k.get("morale_change_per_day_full_half_bare_rations", "1 / -2 / -5")).split("/")
 	morale = clampf(morale + float(parts[["full", "half", "bare"].find(ration)]), 0, 100)
 	if held_back != "":
@@ -513,12 +539,12 @@ func roll_market() -> bool:
 	return true
 
 func pelt_price() -> float:
-	return maxf(0.8, n("trade_value_for_one_pelt", 2.0) * (1.0 - goodwill * n("price_discount_per_point_of_goodwill", 0.05)))
+	return maxf(0.8, n("trade_value_for_one_pelt", 2.0) * om("pelt_price_multiplier") * (1.0 - goodwill * n("price_discount_per_point_of_goodwill", 0.05)))
 
 ## Most milk the camp can spare for one market: about five days of the cows' milk.
 func milk_to_spare() -> int:
 	var cows := maxi(0, cattle - 1)
-	var cap := cows * n("milk_per_fed_cow_per_day", 2) * 5.0
+	var cap := cows * milk_per_cow() * 5.0
 	return int(minf(cap, food * n("food_unit_feeds", 168)))
 
 func offer_value(cloth: int, milk_pd: int) -> float:
@@ -562,6 +588,7 @@ func do_trade(cloth: int, milk_pd: int, bull_penned: bool) -> Dictionary:
 	var gw := 1.0
 	if got > 0 and value >= got * pelt_price() * 1.3:
 		gw = 2.0
+	gw *= om("goodwill_gain_multiplier")
 	goodwill = minf(n("goodwill_cap", 10), goodwill + gw)
 	out.goodwill = gw
 	out.lines.append("Trade at the shore: %d strips of red cloth and %d person-days of milk for %d pelts." % [cloth, milk_pd, got])
@@ -603,10 +630,29 @@ func _fear_week(tally: Dictionary) -> void:
 					cattle -= 1
 				tally.lines.append("In the night, animals were driven off from the edge of the camp. Trade is broken.")
 			else:
-				sick.append(int(n("days_a_sick_person_stays_sick", 5)))
+				sick.append(sick_days())
 				tally.lines.append("A clash at the brook: one of the crew is hurt. Trade is broken.")
 		elif fear > 0.0:
 			fear = maxf(0.0, fear - n("fear_eased_per_quiet_week", 0.5))
+
+## Milk a fed cow gives a day: more with a householder at the dairy, more again for a farm household.
+func milk_per_cow() -> float:
+	return n("milk_per_fed_cow_per_day", 2) * om("milk_multiplier") \
+		* (n("role_milk_multiplier_with_a_householder", 1.2) if crew.has_role("householder") else 1.0)
+
+## The smith works a blade of trade iron into hooks once a week when hooks run short.
+func _smith(tally: Dictionary) -> void:
+	smith_days += 1
+	if smith_days < 7:
+		return
+	smith_days = 0
+	if crew.has_role("smith") and iron_blades > 0 and hooks < int(n("role_hooks_the_camp_keeps_before_the_smith_works_iron", 6)):
+		iron_blades -= 1
+		var made := int(n("role_hooks_a_smith_makes_from_one_iron_blade", 4))
+		hooks += made
+		history.hooks_made = int(history.get("hooks_made", 0)) + made
+		var who: String = str(crew.holders("smith")[0].name).split(" ")[0]
+		tally.lines.append("%s the smith beat a blade of trade iron into %d hooks." % [who, made])
 
 func trade_broken() -> bool:
 	return fear >= n("fear_cap", 5)
@@ -619,7 +665,7 @@ func _build(work: float, tally: Dictionary) -> void:
 	var per_booth := n("work_to_raise_a_booth", 16)
 	var plots := int(n("booth_plots_at_the_camp", 3))
 	var hall := n("work_to_raise_the_longhouse", 540)
-	var byre_need := n("work_to_raise_the_byre", 160)
+	var byre_need := byre_need()
 	while work > 0.0 and booths < plots:
 		var need := per_booth - joints
 		var put := minf(need, work)
@@ -658,7 +704,7 @@ func building_target() -> String:
 	if not hall_done():
 		return "longhouse (%d%%)" % roundi(longhouse / n("work_to_raise_the_longhouse", 540) * 100.0)
 	if not byre_done():
-		return "byre (%d%%)" % roundi(byre / n("work_to_raise_the_byre", 160) * 100.0)
+		return "byre (%d%%)" % roundi(byre / byre_need() * 100.0)
 	return "all built"
 
 func build_short() -> String:
@@ -674,10 +720,10 @@ func build_short() -> String:
 const SAVE_FIELDS := ["day", "year", "day_of_year", "people", "dead", "cattle", "sheep", "fodderless_days", "food", "fresh", "hooks",
 	"trade", "timber", "hay", "booths", "longhouse", "byre", "joints", "morale", "ration", "rain", "assign", "player_job", "state",
 	"end_reason", "history", "hunt_far", "fish_net", "nets", "fear", "hides", "patch_health", "goodwill", "cloth_strips", "iron_blades", "pelts",
-	"market_today", "market_pelts", "weapon_request", "penned_today", "quiet_days"]
+	"market_today", "market_pelts", "weapon_request", "penned_today", "quiet_days", "outfit", "smith_days"]
 
 func to_dict() -> Dictionary:
-	var d := {"sick": Array(sick), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
+	var d := {"sick": Array(sick), "rng_seed": str(rng.seed), "rng_state": str(rng.state), "crew": crew.to_array()}
 	for f in SAVE_FIELDS:
 		d[f] = get(f)
 	return d
@@ -690,6 +736,8 @@ func from_dict(knobs: Dictionary, d: Dictionary) -> void:
 			if typeof(get(f)) == TYPE_INT and typeof(v) == TYPE_FLOAT:
 				v = int(v)
 			set(f, v)
+	if d.has("crew"):
+		crew.from_array(d.crew)
 	sick.clear()
 	for s in d.get("sick", []):
 		sick.append(int(s))

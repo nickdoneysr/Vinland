@@ -415,6 +415,8 @@ func _draw_board() -> void:
 	var panel := Color(0.1, 0.09, 0.07, 0.86)
 	draw_rect(Rect2(24, 20, 800, 120), panel)
 	draw_rect(Rect2(24, 140, 800, 60), panel)
+	draw_rect(Rect2(24, 200, 800, 66), panel)
+	draw_multiline_string(_font, Vector2(44, 224), "Crew: " + camp.crew.roles_line(), HORIZONTAL_ALIGNMENT_LEFT, 770, 17, -1, Color(ink, 0.75))
 	var wx := ("snow" if camp.is_winter() else "rain") if camp.rain else "fair"
 	draw_string(_font, Vector2(44, 62), "%s, year %d  ·  %s  ·  %s" % [camp.date_text(), camp.year, camp.season(), wx], HORIZONTAL_ALIGNMENT_LEFT, -1, 30, ink)
 	draw_string(_font, Vector2(44, 100), "%d people, %d sick · %d of %d under a roof · cattle %d, sheep %d" % [camp.people, camp.sick.size(), camp.sheltered_total(), camp.people, camp.cattle, camp.sheep],

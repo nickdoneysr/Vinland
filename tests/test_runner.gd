@@ -21,6 +21,7 @@ func _ready() -> void:
 	load("res://tests/test_save.gd").run(self)
 	load("res://tests/test_loadout.gd").run(self)
 	load("res://tests/test_options.gd").run(self)
+	load("res://tests/test_outfits.gd").run(self)
 	await load("res://tests/test_work_games.gd").run(self)
 	load("res://tests/test_work_games.gd").voyage(self)
 	await load("res://tests/test_voyage_scene.gd").run_slice(self)
