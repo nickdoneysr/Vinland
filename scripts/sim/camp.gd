@@ -456,7 +456,7 @@ const SAVE_FIELDS := ["day", "year", "day_of_year", "people", "dead", "cattle", 
 	"end_reason", "history"]
 
 func to_dict() -> Dictionary:
-	var d := {"sick": Array(sick), "rng_seed": rng.seed, "rng_state": rng.state}
+	var d := {"sick": Array(sick), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
 	for f in SAVE_FIELDS:
 		d[f] = get(f)
 	return d
@@ -472,8 +472,8 @@ func from_dict(knobs: Dictionary, d: Dictionary) -> void:
 	sick.clear()
 	for s in d.get("sick", []):
 		sick.append(int(s))
-	rng.seed = int(d.get("rng_seed", 1))
-	rng.state = int(d.get("rng_state", 0))
+	rng.seed = str(d.get("rng_seed", "1")).to_int()     # stored as text: JSON numbers cannot hold 64 bits
+	rng.state = str(d.get("rng_state", "0")).to_int()
 
 func _log(tally: Dictionary) -> void:
 	log_rows.append([day, year, date_text(), season(), rain, assign.build, assign.fish, assign.forage, assign.dry, assign.timber, assign.hay, assign.tend,

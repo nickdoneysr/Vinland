@@ -394,3 +394,35 @@ func write_log(path: String) -> void:
 	f.store_line(LOG_HEADER)
 	for r in log_rows:
 		f.store_line(",".join(r.map(func(x): return str(x))))
+
+# ------------------------------------------------------------------ save (F50)
+const SAVE_FIELDS := ["day", "day_of_year", "watch", "leg_i", "leg_left", "sailed_nm", "drift_nm_total", "state", "loss_reason",
+	"people", "dead", "cattle", "sheep", "fodderless_days", "food", "fresh_fish", "drink", "fodder", "trade", "hooks", "timber",
+	"ration", "animal_ration", "pace", "morale", "hull", "sail_torn", "sail_strain", "weather", "deck", "fix_today", "fished_today",
+	"day_nm", "starving_days", "animals_lost", "fixes"]
+
+func to_dict() -> Dictionary:
+	var d := {"sick": Array(sick), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}
+	for f in SAVE_FIELDS:
+		d[f] = get(f)
+	return d
+
+func from_dict(knobs: Dictionary, legs_data: Dictionary, d: Dictionary) -> void:
+	k = knobs
+	legs = legs_data.legs
+	wx = legs_data.weather
+	for f in SAVE_FIELDS:
+		if d.has(f):
+			var v = d[f]
+			if typeof(get(f)) == TYPE_INT and typeof(v) == TYPE_FLOAT:
+				v = int(v)
+			set(f, v)
+	var fx: Array = []
+	for x in fixes:
+		fx.append(int(x))
+	fixes = fx
+	sick.clear()
+	for s in d.get("sick", []):
+		sick.append(int(s))
+	rng.seed = str(d.get("rng_seed", "1")).to_int()     # stored as text: JSON numbers cannot hold 64 bits
+	rng.state = str(d.get("rng_state", "0")).to_int()

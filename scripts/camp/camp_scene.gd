@@ -17,10 +17,16 @@ var t := 0.0
 var _font: Font
 var _stick_ready := true
 var _logged := false
+var autosave_off := false        # tests turn this off
 
 func _ready() -> void:
 	_font = ThemeDB.fallback_font
 	voyage = Game.voyage
+	if Game.loaded_stage == "camp" and Game.camp != null:
+		camp = Game.camp
+		Game.loaded_stage = ""
+		_card("Continuing at the Strait", "%s, year %d, %s.\n%s" % [camp.date_text(), camp.year, camp.season(), _stores_line()])
+		return
 	if voyage != null:
 		camp.from_voyage(voyage)
 	else:
@@ -73,6 +79,7 @@ func _finish_day(player: Dictionary) -> void:
 	var body := "\n".join(tally.lines) if tally.lines.size() > 0 else "A quiet day."
 	body += "\n" + _stores_line()
 	_card(head, body)
+	_autosave()
 	_check_end()
 
 func _work_week() -> void:
@@ -90,7 +97,17 @@ func _work_week() -> void:
 		lines = lines.slice(lines.size() - 9)
 	lines.append(_stores_line() + " Building: %s." % camp.building_target())
 	_card("A week of work, %s to %s" % [start, camp.date_text()], "\n".join(lines))
+	_autosave()
 	_check_end()
+
+## Day-level autosave in camp (Release: Save). A finished or lost camp clears its saves.
+func _autosave() -> void:
+	if autosave_off:
+		return
+	if camp.state == "camp":
+		Game.save_game("camp")
+	else:
+		Game.clear_saves()
 
 func _stores_line() -> String:
 	var s := "Stores: %.0f days of food" % camp.food_days()

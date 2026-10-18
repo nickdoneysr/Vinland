@@ -26,6 +26,7 @@ var line: Node = null
 var _font: Font
 var _stick_ready := true
 var _logged := false
+var autosave_off := false        # tests turn this off
 
 func _ready() -> void:
 	_font = ThemeDB.fallback_font
@@ -34,8 +35,14 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--seed="):
 			seed = int(a.trim_prefix("--seed="))
+	if Game.loaded_stage == "voyage" and Game.voyage != null:
+		v = Game.voyage
+		Game.loaded_stage = ""
+		_card("Continuing the voyage", "%s, day %d. %s\n%s" % [v.date_text(), v.day + 1, v.weather_info().name, _leg_line()])
+		return
 	v.setup(Knobs._v, legs_data, seed)
 	Game.voyage = v
+	Game.camp = null
 	_card("Eriksfjord, %s" % v.date_text(),
 		"The knarr is loaded to the gunwales: %d people, %d cattle, %d sheep, %d food, %d drink, %d fodder, %d trade goods.\nThe hold is %.1f of %d units. Leave after the ice; be ashore before October." % [
 		v.people, v.cattle, v.sheep, int(v.food), int(v.drink), int(v.fodder), v.trade, v.hold_load(), int(v.hold_capacity())], "start")
@@ -116,6 +123,8 @@ func _sail_one() -> void:
 	if v.state != "sailing":
 		return
 	_handle_events(v.sail_watch())
+	if v.state == "sailing" and not autosave_off:
+		Game.save_game("voyage")    # watch-level autosave at sea (Release: Save)
 	if mode != "card" and mode != "end":
 		mode = "sail"
 

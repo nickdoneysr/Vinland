@@ -5,6 +5,7 @@ static func run(t) -> void:
 	var tree: SceneTree = t.get_tree()
 	for seed in [11, 12, 13]:
 		var scene: Node = load("res://scenes/voyage.tscn").instantiate()
+		scene.autosave_off = true
 		t.add_child(scene)
 		var v: Voyage = scene.v
 		var press := InputEventAction.new()
@@ -46,6 +47,7 @@ static func run_slice(t) -> void:
 	var press := InputEventAction.new()
 	press.action = "commit"; press.pressed = true
 	var vs: Node = load("res://scenes/voyage.tscn").instantiate()
+	vs.autosave_off = true
 	t.add_child(vs)
 	var v: Voyage = vs.v
 	var guard := 0
@@ -66,6 +68,7 @@ static func run_slice(t) -> void:
 	vs.queue_free()
 	await tree.process_frame
 	var cs: Node = load("res://scenes/camp.tscn").instantiate()
+	cs.autosave_off = true
 	t.add_child(cs)
 	var camp: Camp = cs.camp
 	var played := 0

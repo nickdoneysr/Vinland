@@ -24,9 +24,13 @@ func _ready() -> void:
 	if "--smoke" in OS.get_cmdline_user_args():
 		_smoke()
 
+var save: Dictionary = {}
+
 func _refresh() -> void:
-	info.text = ("Vertical slice build  ·  slice art in place %d%%\n\n" % int(Art.coverage("Vertical slice") * 100)) + \
-		"A / Enter: play the slice from Eriksfjord\n" + \
+	save = Game.latest_save()
+	var cont := ("Start / Tab: continue  (%s)\n" % save.get("where", "saved game")) if not save.is_empty() else ""
+	info.text = ("Production build  ·  slice art in place %d%%\n\n" % int(Art.coverage("Vertical slice") * 100)) + cont + \
+		"A / Enter: new voyage from Eriksfjord\n" + \
 		"Y / F: star ring practice      1: hand line practice      2: joint practice\n\n" + \
 		"Difficulty:  ‹ %s ›   (D-pad or Z / C to change)\n" % Game.DIFFICULTY_NAMES[Game.settings.difficulty] + \
 		{"forgiving": "Wide windows, steadier hands, clear prompts. Start here.",
@@ -46,7 +50,13 @@ func _unhandled_input(e: InputEvent) -> void:
 	if e.is_action_pressed("ui_left_pad"):
 		_cycle(-1)
 		return
+	if e.is_action_pressed("menu") and not save.is_empty():
+		get_tree().change_scene_to_file(Game.load_game(save))
+		return
 	if e.is_action_pressed("commit"):
+		Game.voyage = null
+		Game.camp = null
+		Game.loaded_stage = ""
 		get_tree().change_scene_to_file("res://scenes/voyage.tscn")
 	elif e.is_action_pressed("alt"):
 		get_tree().change_scene_to_file("res://scenes/star_ring.tscn")
