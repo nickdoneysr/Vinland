@@ -46,7 +46,7 @@ func ring(n: Node) -> Array:
 	var o := see(dt, {"star": star, "ring": n.ring, "bar": bar_y, "hz": horizon, "reading": n.reading,
 		"seat": n.rule.seat_held, "seat_time": n.rule.seat_time, "vis": n._star_visible(star)})
 	var ls := Vector2(stick(o.star.x - o.ring.x, 160.0, 14.0), stick(o.hz - o.bar, 90.0, 8.0))
-	var want := (o.bar - o.star.y) / n.K
+	var want: float = (o.bar - o.star.y) / n.K
 	var trig := stick(want - o.reading, 2.0, 0.4)
 	var commit := false
 	if o.seat >= o.seat_time:
@@ -86,7 +86,7 @@ func joint(n: Node) -> Array:
 		if not memo.has("aim"):
 			var lo := float(o.best[0]); var hi := float(o.best[1])
 			memo.aim = clampf((lo + hi) / 2.0 + rng.randf_range(-0.14, 0.14), 0.2, 1.0)
-		var patient := o.load < 0.6
+		var patient: bool = o.load < 0.6
 		if memo.get("pulling", false):
 			if o.pull >= memo.aim:
 				memo.pulling = false               # lets go (the release itself lands a reaction late)
