@@ -104,14 +104,14 @@
   "_note": "Overrides per difficulty. Forgiving is the default for new players; Hard is the original tuning the expert bots were built on.",
   "forgiving": {
    "ring": {
-    "seat_radius_deg": 2.6,
+    "seat_radius_deg": 3.0,
     "seat_seconds": 0.6,
     "clean_err": 0.8,
     "partial_err": 2.2,
     "sway_scale": 0.45,
     "assist_level": 0.6,
     "move_speed": 340.0,
-    "cloud_scale": 0.55,
+    "cloud_scale": 0.45,
     "seat_decay": 0.0
    },
    "hand_line": {

@@ -256,6 +256,9 @@ func _draw_sky() -> void:
 	var tw_flicker := 0.85 + 0.15 * sin(t * 7.0)
 	draw_circle(s, 7.0, Color(1, 1, 0.9, 0.12 * sa))
 	draw_circle(s, 3.4, Color(1, 1, 0.92, sa * tw_flicker))
+	if Game.settings.difficulty != "hard" and _star_visible(s):
+		draw_arc(s, 22, 0, TAU, 32, Color(0.91, 0.76, 0.35, 0.55), 2.0)
+		draw_string(_font, s + Vector2(28, 6), "Pole Star", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(0.91, 0.76, 0.35, 0.8))
 	# clouds and fog
 	for c in clouds:
 		for k in 4:
