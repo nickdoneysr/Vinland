@@ -142,6 +142,25 @@
     "window_seconds": 0.22,
     "wave_water": 0.1,
     "leak_rate": 0.015
+   },
+   "hunt": {
+    "alert_watch": 0.25,
+    "alert_graze": 0.006,
+    "scent_per_second": 0.004,
+    "sway_deg": 0.7,
+    "vitals_deg": [
+     2.2,
+     1.3
+    ],
+    "draw_seconds": 0.7,
+    "range_m": 55,
+    "banner": true
+   },
+   "forage": {
+    "strip_rate": 0.5,
+    "pick_radius": 80.0,
+    "banner": true,
+    "magnet_radius": 220.0
    }
   },
   "standard": {
@@ -184,6 +203,24 @@
     "window_seconds": 0.11,
     "wave_water": 0.17,
     "leak_rate": 0.018
+   },
+   "hunt": {
+    "alert_watch": 0.38,
+    "alert_graze": 0.009,
+    "scent_per_second": 0.006,
+    "sway_deg": 0.9,
+    "vitals_deg": [
+     1.8,
+     1.0
+    ],
+    "range_m": 50,
+    "banner": true
+   },
+   "forage": {
+    "strip_rate": 0.7,
+    "pick_radius": 70.0,
+    "banner": true,
+    "magnet_radius": 150.0
    }
   },
   "hard": {
@@ -195,7 +232,9 @@
    "joint": {
     "stress_cap_mult": 1.0
    },
-   "storm_bail": {}
+   "storm_bail": {},
+   "hunt": {},
+   "forage": {}
   }
  },
  "storm_bail": {
@@ -217,5 +256,74 @@
   "waves_per_set": 3,
   "wave_gap": 0.9,
   "start_water": 0.15
+ },
+ "hunt": {
+  "session_seconds": 90,
+  "start_distance_m": [
+   80,
+   110
+  ],
+  "range_m": 45,
+  "best_range_m": [
+   20,
+   35
+  ],
+  "walk_mps": 2.0,
+  "fast_mult": 2.0,
+  "crouch_mult": 0.45,
+  "noise_walk": 1.0,
+  "noise_fast": 2.6,
+  "noise_crouch": 0.3,
+  "graze_seconds": [
+   3.0,
+   6.0
+  ],
+  "watch_seconds": [
+   1.2,
+   2.2
+  ],
+  "alert_graze": 0.012,
+  "alert_watch": 0.5,
+  "alert_decay": 0.04,
+  "scent_per_second": 0.008,
+  "draw_seconds": 0.9,
+  "sway_deg": 1.2,
+  "sway_growth_after": 3.0,
+  "sway_growth": 0.8,
+  "aim_speed_deg": 6.0,
+  "vitals_deg": [
+   1.4,
+   0.8
+  ],
+  "person_days": [
+   60,
+   90
+  ],
+  "far_fear_tick": 0.35,
+  "far_animals_bonus": 0.4,
+  "banner": false
+ },
+ "forage": {
+  "session_seconds": 45,
+  "clumps": 18,
+  "cursor_speed": 380.0,
+  "take_rate": 1.5,
+  "ripe_value_pd": 1.0,
+  "unripe_value_pd": 0.05,
+  "ripe_per_clump": [
+   2.0,
+   5.0
+  ],
+  "unripe_per_clump": [
+   1.0,
+   3.0
+  ],
+  "strip_rate": 0.9,
+  "basket_pd": 24.0,
+  "bird_noise_per_second": 0.0,
+  "pick_radius": 60.0,
+  "banner": false,
+  "pass_health": 0.85,
+  "magnet_radius": 0.0
  }
 }

@@ -137,3 +137,49 @@ func bail(n: Node) -> Array:
 		memo.k += 1
 		memo.next_press = memo.k * c + memo.offset + rng.randf_range(-0.09, 0.09)
 	return [0.0, false, press]
+
+# ------------------------------------------------------------------ hunt
+## Sees the head come up a reaction late, walks while it grazes, draws in range, steadies the sight and looses.
+func hunt(n: Node) -> Array:
+	var dt := 1.0 / 60.0
+	var r: Hunt = n.rules
+	var o := see(dt, {"phase": r.phase, "watch": r.watching, "dist": r.dist, "alert": r.alert, "err": r.aim_error(),
+		"aim": r.aim, "drawn": r.draw_t >= float(n._cfg.draw_seconds), "w": r.vitals_window(), "inr": r.in_range()})
+	if o.phase == Hunt.Phase.STALK:
+		var close: bool = o.inr and o.dist <= float(n._cfg.range_m) - 3.0
+		var move := 0.0 if o.watch or close else 1.0
+		var crouch := false
+		if o.alert > 0.5 and not r.crouched:
+			crouch = true                        # gets low when the alarm climbs
+		elif o.alert < 0.3 and r.crouched:
+			crouch = true                        # and stands again once it settles
+		var bow: bool = close and o.inr and rng.randf() < 0.05
+		return [move, false, crouch, bow, 0.0, false, false]
+	var aim_y := stick(-o.err, 1.5, 0.3) * (0.6 if keyboard else 1.0)
+	var loose: bool = o.drawn and absf(o.err) < o.w * 0.5 and rng.randf() < 0.08
+	return [0.0, false, false, false, aim_y, loose, false]
+
+# ------------------------------------------------------------------ forage
+## Heads for a clump that looks ripe, holds the trigger, and lets go a reaction late once the ripe fruit is gone.
+func forage(n: Node) -> Array:
+	var dt := 1.0 / 60.0
+	var f: Forage = n.rules
+	var o := see(dt, {"cur": f.cursor, "near": f.nearest(), "ripe_near": (f.clumps[f.nearest()].ripe if f.nearest() >= 0 else 0.0)})
+	if memo.get("target", -1) < 0 or f.clumps[memo.target].ripe <= 0.05 and o.ripe_near <= 0.0:
+		var best := -1; var bd := 1e9
+		for i in f.clumps.size():
+			if f.clumps[i].ripe > 0.3:
+				var d: float = f.cursor.distance_to(f.clumps[i].p)
+				if d < bd:
+					bd = d; best = i
+		memo.target = best
+	if memo.target < 0:
+		return [Vector2.ZERO, false]
+	var to: Vector2 = f.clumps[memo.target].p - o.cur
+	var reach: float = maxf(float(n._cfg.pick_radius) * 0.6, float(n._cfg.get("magnet_radius", 0.0)) * 0.7)
+	if to.length() > reach:
+		var st := to.normalized()
+		if keyboard:
+			st = Vector2(signf(st.x) if absf(st.x) > 0.38 else 0.0, signf(st.y) if absf(st.y) > 0.38 else 0.0)
+		return [st, false]
+	return [Vector2.ZERO, o.ripe_near > 0.0 or rng.randf() < 0.5]
