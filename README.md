@@ -22,3 +22,13 @@ All numbers come from the plan's Assumptions sheet. After changing the plan, run
 
 ## Checks
     godot --headless --path . -- --smoke      # prints SMOKE ... result=PASS
+
+## What plays today
+- **Voyage** (title screen, A): Eriksfjord to the Strait, six legs, weather card each dawn, pace / rations / animal ration,
+  coastal fishing (Y), the star ring every clear night, landfalls, loss on the season clock, a daily run log.
+- **Star ring practice** (title screen, Y): five sky conditions on keys 1–5.
+
+## Tests
+    godot --headless --path . res://tests/test_runner.tscn
+Runs the ring rules, bot nights, voyage rules, a 1,200-voyage balance sweep with four captains, and three full
+playthroughs of the voyage screen. Run logs land in the Godot user folder under runlog/.

@@ -9,6 +9,7 @@ var settings := {"haptics": true, "text_scale": 1.0}
 var day := 0            # days since departure
 var watch := 0          # 0..5, six four-hour watches a day
 var hold := {}          # cargo kind -> count
+var voyage: Voyage = null  # the live voyage, when one is running
 
 func new_run() -> void:
 	day = 0

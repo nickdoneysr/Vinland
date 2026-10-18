@@ -17,7 +17,7 @@ func _ready() -> void:
 	var info := Label.new()
 	info.add_theme_font_size_override("font_size", 26)
 	info.position = Vector2(146, 460)
-	info.text = "Preproduction build  ·  hold %s of %s units  ·  slice art in place %d%%\nPress A or Enter for the star ring prototype" % [
+	info.text = "Vertical slice build  ·  hold %s of %s units  ·  slice art in place %d%%\nA / Enter: sail from Eriksfjord      Y / F: star ring practice" % [
 		Game.hold_load(), Game.hold_capacity(), int(Art.coverage("Vertical slice") * 100)]
 	add_child(info)
 	if "--smoke" in OS.get_cmdline_user_args():
@@ -25,6 +25,8 @@ func _ready() -> void:
 
 func _unhandled_input(e: InputEvent) -> void:
 	if e.is_action_pressed("commit"):
+		get_tree().change_scene_to_file("res://scenes/voyage.tscn")
+	elif e.is_action_pressed("alt"):
 		get_tree().change_scene_to_file("res://scenes/star_ring.tscn")
 
 func _smoke() -> void:

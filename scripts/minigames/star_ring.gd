@@ -6,6 +6,9 @@ extends Node2D
 ## Draws procedurally until real art (SKY-07, NAV-01 ...) is saved at its listed path.
 
 signal finished(result: Dictionary)
+signal closed
+
+var embedded := false   # true when the voyage opens the ring for one night
 
 const K := 11.0                       # screen pixels per degree of altitude
 const HORIZON_Y := 960.0
@@ -184,6 +187,11 @@ func _log(r: Dictionary) -> void:
 		cond.sea, cond.cloud, cond.fog, cond.twilight, r.true_lat, r.estimate, r.error, RingFix.result_name(r.result), r.time, r.seat_held])
 
 func _unhandled_input(e: InputEvent) -> void:
+	if embedded:
+		if not outcome.is_empty() and e.is_action_pressed("commit"):
+			get_viewport().set_input_as_handled()
+			closed.emit()
+		return
 	if e is InputEventKey and e.pressed and not e.echo:
 		var map := {KEY_1: "clear", KEY_2: "clouded", KEY_3: "twilight", KEY_4: "fog", KEY_5: "storm"}
 		if map.has(e.physical_keycode):
@@ -270,7 +278,8 @@ func _draw_hud() -> void:
 	draw_string(_font, Vector2(40, 54), "STAR RING  ·  %s" % cond.label, HORIZONTAL_ALIGNMENT_LEFT, -1, 26, ink)
 	draw_string(_font, Vector2(40, 90), "LS hold the ring   RS fine seat   RT raise   LT lower   A take the fix   B abort",
 		HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(ink, 0.75))
-	draw_string(_font, Vector2(40, 122), "Keys: WASD / arrows / Space / Shift / Enter / Esc   ·   1-5 conditions   R new night",
+	if not embedded:
+		draw_string(_font, Vector2(40, 122), "Keys: WASD / arrows / Space / Shift / Enter / Esc   ·   1-5 conditions   R new night",
 		HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(ink, 0.5))
 	# the watch burning down: six notches
 	for i in 6:
@@ -289,4 +298,4 @@ func _draw_hud() -> void:
 		draw_string(_font, Vector2(600, 500), line, HORIZONTAL_ALIGNMENT_LEFT, -1, 34, ink)
 		var detail := "Latitude by the ring: %.1f°   ·   true: %.1f°" % [outcome.estimate, outcome.true_lat] if not is_nan(outcome.estimate) else "The star never held in the sight."
 		draw_string(_font, Vector2(600, 550), detail, HORIZONTAL_ALIGNMENT_LEFT, -1, 24, Color(ink, 0.8))
-		draw_string(_font, Vector2(600, 610), "A: next night", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(ink, 0.6))
+		draw_string(_font, Vector2(600, 610), "A: back to the ship" if embedded else "A: next night", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(ink, 0.6))

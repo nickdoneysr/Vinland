@@ -10,8 +10,12 @@ func check(name: String, ok: bool, info := "") -> void:
 		fails += 1
 
 func _ready() -> void:
+	# Watchdog: a script error must never leave the run hanging.
+	get_tree().create_timer(280.0).timeout.connect(func(): print("RESULT FAIL (watchdog timeout)"); get_tree().quit(2))
 	_rules()
 	await _bot_nights()
+	load("res://tests/test_voyage.gd").run(self)
+	await load("res://tests/test_voyage_scene.gd").run(self)
 	print("RESULT %s (%d failures)" % ["PASS" if fails == 0 else "FAIL", fails])
 	get_tree().quit(1 if fails else 0)
 

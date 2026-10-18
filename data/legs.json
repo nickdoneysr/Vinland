@@ -1,0 +1,188 @@
+{
+ "_note": "Leg chain from the Systems sheet. 'share' splits the coastal distance (route minus the open-water leg) between coastal legs. Weather weights pick the cards in each leg's deck. 'drift_mult' scales drift on that leg: open water without a fix costs double.",
+ "legs": [
+  {
+   "id": "eriksfjord",
+   "name": "Eriksfjord",
+   "coastal": true,
+   "share": 0.06,
+   "open_water": false,
+   "art": "CST-01",
+   "weather": {
+    "fair": 4,
+    "calm": 2,
+    "fog": 2,
+    "low_cloud": 1,
+    "drift_ice": 1
+   },
+   "drift_mult": 1.0
+  },
+  {
+   "id": "labrador_sea",
+   "name": "Labrador Sea",
+   "coastal": false,
+   "share": 0.0,
+   "open_water": true,
+   "art": "",
+   "weather": {
+    "fair": 3,
+    "fog": 2,
+    "low_cloud": 2,
+    "following_gale": 2,
+    "beam_sea": 2,
+    "storm": 1,
+    "calm": 1
+   },
+   "drift_mult": 2.0
+  },
+  {
+   "id": "helluland",
+   "name": "Helluland",
+   "coastal": true,
+   "share": 0.24,
+   "open_water": false,
+   "art": "CST-03",
+   "weather": {
+    "fair": 3,
+    "fog": 2,
+    "drift_ice": 2,
+    "low_cloud": 1,
+    "beam_sea": 1,
+    "calm": 1
+   },
+   "drift_mult": 1.0
+  },
+  {
+   "id": "markland",
+   "name": "Markland",
+   "coastal": true,
+   "share": 0.3,
+   "open_water": false,
+   "art": "CST-05",
+   "weather": {
+    "fair": 4,
+    "fog": 2,
+    "low_cloud": 1,
+    "following_gale": 1,
+    "beam_sea": 1,
+    "storm": 1,
+    "calm": 1
+   },
+   "drift_mult": 1.0
+  },
+  {
+   "id": "furdustrandir",
+   "name": "Furðustrandir",
+   "coastal": true,
+   "share": 0.26,
+   "open_water": false,
+   "art": "CST-07",
+   "weather": {
+    "fair": 4,
+    "fog": 1,
+    "low_cloud": 1,
+    "following_gale": 1,
+    "calm": 2
+   },
+   "drift_mult": 1.0
+  },
+  {
+   "id": "strait",
+   "name": "The Strait",
+   "coastal": true,
+   "share": 0.14,
+   "open_water": false,
+   "art": "CST-09",
+   "weather": {
+    "fair": 3,
+    "fog": 2,
+    "low_cloud": 1,
+    "beam_sea": 1,
+    "calm": 1
+   },
+   "drift_mult": 1.0
+  }
+ ],
+ "weather": {
+  "fair": {
+   "name": "Fair wind",
+   "speed": 1.0,
+   "drift": 1.0,
+   "rough": false,
+   "wet": false,
+   "ring": "clear",
+   "art": "",
+   "line": "A fair wind and a clear horizon."
+  },
+  "calm": {
+   "name": "Calm",
+   "speed": 0.3,
+   "drift": 0.5,
+   "rough": false,
+   "wet": false,
+   "ring": "clear",
+   "art": "EVT-07",
+   "line": "The sail hangs slack. Oars, or patience."
+  },
+  "fog": {
+   "name": "Fog",
+   "speed": 0.9,
+   "drift": 1.0,
+   "rough": false,
+   "wet": true,
+   "ring": "fog",
+   "art": "EVT-01",
+   "line": "White fog. The horizon you see may not be the real one."
+  },
+  "low_cloud": {
+   "name": "Low cloud",
+   "speed": 1.0,
+   "drift": 1.0,
+   "rough": false,
+   "wet": true,
+   "ring": "clouded",
+   "art": "EVT-02",
+   "line": "Scud racing low. Stars only through the gaps tonight."
+  },
+  "following_gale": {
+   "name": "Following gale",
+   "speed": 1.5,
+   "drift": 1.5,
+   "rough": true,
+   "wet": true,
+   "ring": "storm",
+   "art": "EVT-03",
+   "line": "Running fast before a gale. The sail is working hard."
+  },
+  "beam_sea": {
+   "name": "Beam sea",
+   "speed": 0.8,
+   "drift": 1.3,
+   "rough": true,
+   "wet": true,
+   "ring": "storm",
+   "art": "EVT-04",
+   "line": "Seas on the beam. Green water over the lee gunwale."
+  },
+  "storm": {
+   "name": "Storm",
+   "speed": 0.5,
+   "drift": 2.0,
+   "rough": true,
+   "wet": true,
+   "ring": "",
+   "art": "EVT-05",
+   "line": "Storm. No sky tonight. A knarr does not fight a storm."
+  },
+  "drift_ice": {
+   "name": "Drift ice",
+   "speed": 0.6,
+   "drift": 1.0,
+   "rough": false,
+   "wet": false,
+   "ring": "clear",
+   "art": "EVT-06",
+   "line": "Floes all round the hull. Fend off and go slow."
+  }
+ }
+}
