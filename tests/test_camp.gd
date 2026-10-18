@@ -91,6 +91,7 @@ static func run(t) -> void:
 	fg.day_of_year = 109
 	fg.work_day()
 	t.check("camp forage: the patches recover at the thaw", fg.patch_health == 1.0)
+	_market(t)
 	# whole-year sweeps
 	var res := {}
 	for policy in ["planner", "summer_only", "no_hay"]:
@@ -110,3 +111,100 @@ static func run(t) -> void:
 	t.check("camp year: a planning camp reaches the second spring with few deaths (< 3)", res.planner.ended >= 0.95 and res.planner.deaths < 3.0, "%.1f deaths" % res.planner.deaths)
 	t.check("camp year: a summer-only camp loses people over the winter (3+)", res.summer_only.deaths >= 3.0, "%.1f deaths" % res.summer_only.deaths)
 	t.check("camp year: forgetting hay costs the herd", res.no_hay.animals >= 3.0 and res.planner.animals < 1.0, "%.1f vs %.1f" % [res.no_hay.animals, res.planner.animals])
+
+## A camp with visitors at the shore today.
+static func market_camp(seed: int) -> Camp:
+	var c := make(seed)
+	c.day = 30
+	c.cattle = 5
+	c.cloth_strips = 20
+	c.iron_blades = 5
+	c.food = 2.0
+	c.market_today = true
+	c.market_pelts = 8
+	return c
+
+static func _market(t) -> void:
+	# how often they come
+	var seen := 0; var winter_seen := 0; var early := 0
+	for s in 400:
+		var c := make(700 + s)
+		c.day = 30
+		if c.roll_market(): seen += 1
+		var w := make(700 + s); w.day = 200; w.day_of_year = 320
+		if w.roll_market(): winter_seen += 1
+		var e := make(700 + s); e.day = 3
+		if e.roll_market(): early += 1
+	t.check("market: visitors come now and then (about 6% of summer days)", seen >= 12 and seen <= 40, "%d of 400" % seen)
+	t.check("market: no visitors in winter or in the first days", winter_seen == 0 and early == 0, "%d / %d" % [winter_seen, early])
+	# a fair trade
+	var m := market_camp(1)
+	var r := m.do_trade(4, 20, true)
+	t.check("market: 4 strips and 20 days of milk (value 6) buy 3 pelts at price 2", r.pelts == 3 and m.pelts == 3 and m.cloth_strips == 16, "%d pelts" % r.pelts)
+	t.check("market: a trade earns goodwill", m.goodwill >= 1.0, "%.1f" % m.goodwill)
+	# goodwill lowers the price and brings them more often
+	var g := market_camp(2)
+	g.goodwill = 6.0
+	t.check("market: goodwill lowers the pelt price", g.pelt_price() < market_camp(2).pelt_price(), "%.2f" % g.pelt_price())
+	# sending them away
+	var sa := market_camp(3)
+	sa.goodwill = 2.0
+	sa.do_trade(0, 0, true)
+	t.check("market: sending them away with nothing costs goodwill", sa.goodwill == 1.0)
+	# the bull: penned or loose, with and without the byre
+	var loose := 0; var penned := 0; var byre_loose := 0
+	for s in 200:
+		var a := market_camp(800 + s)
+		a.do_trade(4, 0, false)
+		loose += a.history.bull_loose
+		var b := market_camp(800 + s)
+		b.do_trade(4, 0, true)
+		penned += b.history.bull_loose
+		var c := market_camp(800 + s)
+		c.byre = c.n("work_to_raise_the_byre", 160) + 1.0
+		if c.byre_done():
+			c.do_trade(4, 0, false)
+			byre_loose += c.history.bull_loose
+	t.check("market: an unpenned bull sometimes breaks loose (about 1 in 4)", loose >= 30 and loose <= 75, "%d of 200" % loose)
+	t.check("market: a penned bull, or one in the byre, never does", penned == 0 and byre_loose == 0, "%d / %d" % [penned, byre_loose])
+	var pd := market_camp(4)
+	pd.do_trade(4, 0, true)
+	var before_build: float = pd.assign.build
+	pd.work_day()
+	t.check("market: penning the bull keeps one of the crew from work that day", pd.penned_today == false and pd.assign.build == before_build, "build %d" % pd.assign.build)
+	# weapons
+	var ws := market_camp(5)
+	ws.do_trade(4, 0, true)
+	ws.weapon_request = true
+	var wr := ws.answer_weapon_request(true)
+	t.check("market: trading two blades brings 6 pelts and raises fear by 2", wr.pelts == 6 and ws.iron_blades == 3 and ws.fear == 2.0, "%d pelts, fear %.1f" % [wr.pelts, ws.fear])
+	var rf := market_camp(6)
+	rf.goodwill = 3.0
+	rf.weapon_request = true
+	rf.answer_weapon_request(false)
+	t.check("market: refusing the blades costs a little goodwill and no fear", rf.goodwill == 2.5 and rf.fear == 0.0)
+	# the fear cap
+	var fc := market_camp(7)
+	fc.fear = fc.n("fear_cap", 5)
+	var any := false
+	for i in 50:
+		fc.day = 30 + i
+		if fc.roll_market(): any = true
+	t.check("market: at the fear cap no one comes to trade", not any and fc.trade_broken())
+	var raids := 0
+	for s in 50:
+		var rc := market_camp(900 + s)
+		rc.fear = rc.n("fear_cap", 5)
+		for i in 28: rc.work_day()
+		raids += rc.history.raids
+	t.check("market: at the fear cap the camp is raided now and then", raids >= 15, "%d raids in 50 months" % raids)
+	var calm := market_camp(10)
+	calm.fear = 2.0
+	for i in 14: calm.work_day()
+	t.check("market: fear fades over quiet weeks", calm.fear == 1.0, "%.1f" % calm.fear)
+	# save round trip keeps the market
+	var sv := market_camp(11)
+	sv.do_trade(4, 10, true)
+	var back := Camp.new()
+	back.from_dict(Knobs._v, JSON.parse_string(JSON.stringify(sv.to_dict())))
+	t.check("market: goodwill, pelts, cloth and blades survive a save", back.goodwill == sv.goodwill and back.pelts == sv.pelts and back.cloth_strips == sv.cloth_strips and back.iron_blades == sv.iron_blades)

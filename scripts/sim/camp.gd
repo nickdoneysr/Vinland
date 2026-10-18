@@ -43,11 +43,21 @@ var hunt_far := false          # hunters range to the far grounds: more caribou,
 var fear := 0.0                # Goodwill / fear clock (F19): read by the market when it comes
 var hides := 0                 # trade goods from the hunt
 var patch_health := 1.0        # forage patches this season; greedy picking thins them until spring
+# The market (F19-F21). Visitors are neutral placeholders until the cultural review (F59).
+var goodwill := 0.0
+var cloth_strips := 0          # madder-red cloth, cut into strips for trade
+var iron_blades := 0
+var pelts := 0                 # furs from the market: return cargo
+var market_today := false
+var market_pelts := 0          # pelts the visitors brought today
+var weapon_request := false
+var penned_today := false
+var quiet_days := 0
 var player_job := "build"
 var state := "camp"            # camp | ended | lost
 var end_reason := ""
 var history := {"joints_seated": 0, "joints_split": 0, "fish_watches": 0, "fish_pd": 0.0, "dried_pd": 0.0, "animals_lost": 0,
-	"kills": 0, "hunts_played": 0, "forage_played": 0}
+	"kills": 0, "hunts_played": 0, "forage_played": 0, "markets": 0, "weapon_sales": 0, "bull_loose": 0, "raids": 0}
 var log_rows: Array = []
 
 func n(key: String, fallback: float = 0.0) -> float:
@@ -60,6 +70,8 @@ func setup(knobs: Dictionary, seed: int = 0) -> void:
 	else:
 		rng.randomize()
 	food = 1.0
+	cloth_strips = 20    # the default HoldCheck load carries two units of trade goods: cloth and iron
+	iron_blades = 5
 	_roll_weather()
 
 ## Carry the ship's company ashore. The hold empties into the camp stores.
@@ -76,6 +88,8 @@ func from_voyage(v: Voyage) -> void:
 		fresh.append([f[0], f[1]])
 	hooks = v.hooks
 	trade = v.trade
+	cloth_strips = int(n("red_cloth_strips_per_trade_unit", 20)) * ceili(v.trade / 2.0)
+	iron_blades = int(n("iron_blades_per_trade_unit", 5)) * floori(v.trade / 2.0)
 	morale = v.morale
 	ration = v.ration
 	default_assignments()
@@ -145,7 +159,7 @@ func default_assignments() -> void:
 			assign[j] = 0
 		if not job_open(j):
 			assign[j] = 0
-	for key in ["kills", "hunts_played", "forage_played"]:
+	for key in ["kills", "hunts_played", "forage_played", "markets", "weapon_sales", "bull_loose", "raids"]:
 		if not history.has(key):
 			history[key] = 0
 	assign.fish = mini(int(assign.fish), hooks)
@@ -216,6 +230,13 @@ func _roll_weather() -> void:
 ## player = {"job": "build"|"fish"|"", "seated": bool, "person_days": float, "hooks_lost": int}; {} = crew only.
 func work_day(player: Dictionary = {}) -> Dictionary:
 	default_assignments()
+	var held_back := ""
+	if penned_today:
+		for j in ["build", "timber", "forage", "hunt", "fish", "dry", "hay"]:
+			if int(assign[j]) > 0:
+				assign[j] -= 1
+				held_back = j
+				break
 	var winter := is_winter()
 	var tally := {"day": day + 1, "date": date_text(), "season": season(), "rain": rain, "lines": [], "events": []}
 	var pjob: String = player.get("job", "")
@@ -411,6 +432,13 @@ func work_day(player: Dictionary = {}) -> Dictionary:
 		tally.lines.append("%d died. A cairn goes up above the shore." % deaths)
 	var parts := str(k.get("morale_change_per_day_full_half_bare_rations", "1 / -2 / -5")).split("/")
 	morale = clampf(morale + float(parts[["full", "half", "bare"].find(ration)]), 0, 100)
+	if held_back != "":
+		assign[held_back] += 1
+		tally.lines.append("One of the crew stayed with the bull all day.")
+	penned_today = false
+	market_today = false
+	weapon_request = false
+	_fear_week(tally)
 	tally.idle = idle()
 	_log(tally)
 	_advance_calendar(tally)
@@ -439,6 +467,121 @@ func _advance_calendar(tally: Dictionary) -> void:
 	elif year >= 2 and day_of_year >= int(n("camp_build_ends", 145)) and day_of_year < int(n("first_snow", 305)):
 		state = "ended"
 		end_reason = "Spring"
+
+# ------------------------------------------------------------------ the market (F19, F20, F21)
+## Morning check: do visitors come to the shore today? Sets market_today and what they bring.
+func roll_market() -> bool:
+	market_today = false
+	weapon_request = false
+	if is_winter() or day < int(n("first_market", 15)) or fear >= n("fear_cap", 5):
+		return false
+	var chance := n("market_chance_per_day", 0.06) + goodwill * n("market_chance_per_point_of_goodwill", 0.01)
+	if rng.randf() >= chance:
+		return false
+	market_today = true
+	var span := str(k.get("pelts_the_visitors_bring", "3 to 8")).split(" to ")
+	market_pelts = rng.randi_range(int(span[0]), int(span[-1]))
+	weapon_request = goodwill >= 2.0 and iron_blades > 0 and rng.randf() < n("weapon_request_chance_per_market", 0.25)
+	return true
+
+func pelt_price() -> float:
+	return maxf(0.8, n("trade_value_for_one_pelt", 2.0) * (1.0 - goodwill * n("price_discount_per_point_of_goodwill", 0.05)))
+
+## Most milk the camp can spare for one market: about five days of the cows' milk.
+func milk_to_spare() -> int:
+	var cows := maxi(0, cattle - 1)
+	var cap := cows * n("milk_per_fed_cow_per_day", 2) * 5.0
+	return int(minf(cap, food * n("food_unit_feeds", 168)))
+
+func offer_value(cloth: int, milk_pd: int) -> float:
+	return float(cloth) + float(milk_pd) / n("milk_per_trade_value", 10)
+
+func pelts_for(cloth: int, milk_pd: int) -> int:
+	return mini(market_pelts, floori(offer_value(cloth, milk_pd) / pelt_price() + 0.0001))
+
+## Resolve a market. cloth = strips offered, milk_pd = person-days of milk offered.
+func do_trade(cloth: int, milk_pd: int, bull_penned: bool) -> Dictionary:
+	var out := {"pelts": 0, "goodwill": 0.0, "fear": 0.0, "lines": []}
+	if not market_today:
+		return out
+	history.markets += 1
+	cloth = clampi(cloth, 0, cloth_strips)
+	milk_pd = clampi(milk_pd, 0, milk_to_spare())
+	penned_today = bull_penned and not byre_done()
+	# the bull (F21)
+	if not byre_done() and not bull_penned and cattle > 0 and rng.randf() < n("bull_breaks_loose_chance", 0.25):
+		history.bull_loose += 1
+		fear += n("fear_from_the_bull", 2)
+		goodwill = maxf(0.0, goodwill - 1.0)
+		out.fear += n("fear_from_the_bull", 2)
+		out.lines.append("The bull broke loose and charged out bellowing. The visitors scattered to their boats.")
+		quiet_days = 0
+		fear = clampf(fear, 0.0, n("fear_cap", 5))
+		market_today = false
+		return out
+	var value := offer_value(cloth, milk_pd)
+	if value <= 0.0:
+		goodwill = maxf(0.0, goodwill - 1.0)
+		out.goodwill = -1.0
+		out.lines.append("We sent them away with nothing. They will remember it.")
+		market_today = false
+		return out
+	var got := pelts_for(cloth, milk_pd)
+	cloth_strips -= cloth
+	food = maxf(0.0, food - float(milk_pd) / n("food_unit_feeds", 168))
+	pelts += got
+	out.pelts = got
+	var gw := 1.0
+	if got > 0 and value >= got * pelt_price() * 1.3:
+		gw = 2.0
+	goodwill = minf(n("goodwill_cap", 10), goodwill + gw)
+	out.goodwill = gw
+	out.lines.append("Trade at the shore: %d strips of red cloth and %d person-days of milk for %d pelts." % [cloth, milk_pd, got])
+	if gw >= 2.0:
+		out.lines.append("They went away pleased with the bargain.")
+	return out
+
+## The visitors ask for iron blades (F21). Selling caps fear; refusing costs a little goodwill.
+func answer_weapon_request(sell: bool) -> Dictionary:
+	var out := {"pelts": 0, "lines": []}
+	weapon_request = false
+	if sell and iron_blades > 0:
+		var blades := mini(2, iron_blades)
+		iron_blades -= blades
+		var extra := roundi(blades * n("weapon_sale_pelt_multiplier", 3.0))
+		pelts += extra
+		out.pelts = extra
+		history.weapon_sales += 1
+		fear = clampf(fear + n("fear_from_a_weapon_sale", 2), 0.0, n("fear_cap", 5))
+		quiet_days = 0
+		out.lines.append("You traded %d iron blades for %d pelts. Word of it spreads; fear rises." % [blades, extra])
+	else:
+		goodwill = maxf(0.0, goodwill - 0.5)
+		out.lines.append("You refused the blades, as Karlsefni did. They were disappointed, but the peace holds.")
+	market_today = false
+	return out
+
+## Fear fades over quiet weeks; at the cap, trade breaks and the camp is at risk.
+func _fear_week(tally: Dictionary) -> void:
+	quiet_days += 1
+	if quiet_days >= 7:
+		quiet_days = 0
+		if fear >= n("fear_cap", 5) and rng.randf() < n("raid_chance_per_week_at_the_fear_cap", 0.3):
+			history.raids += 1
+			if sheep > 0 or cattle > 0:
+				if sheep > 0:
+					sheep -= 1
+				else:
+					cattle -= 1
+				tally.lines.append("In the night, animals were driven off from the edge of the camp. Trade is broken.")
+			else:
+				sick.append(int(n("days_a_sick_person_stays_sick", 5)))
+				tally.lines.append("A clash at the brook: one of the crew is hurt. Trade is broken.")
+		elif fear > 0.0:
+			fear = maxf(0.0, fear - n("fear_eased_per_quiet_week", 0.5))
+
+func trade_broken() -> bool:
+	return fear >= n("fear_cap", 5)
 
 # ------------------------------------------------------------------ building
 ## Build queue: booths until every plot is roofed, then the longhouse, then the byre.
@@ -502,7 +645,8 @@ func build_short() -> String:
 # ------------------------------------------------------------------ save and log
 const SAVE_FIELDS := ["day", "year", "day_of_year", "people", "dead", "cattle", "sheep", "fodderless_days", "food", "fresh", "hooks",
 	"trade", "timber", "hay", "booths", "longhouse", "byre", "joints", "morale", "ration", "rain", "assign", "player_job", "state",
-	"end_reason", "history", "hunt_far", "fear", "hides", "patch_health"]
+	"end_reason", "history", "hunt_far", "fear", "hides", "patch_health", "goodwill", "cloth_strips", "iron_blades", "pelts",
+	"market_today", "market_pelts", "weapon_request", "penned_today", "quiet_days"]
 
 func to_dict() -> Dictionary:
 	var d := {"sick": Array(sick), "rng_seed": str(rng.seed), "rng_state": str(rng.state)}

@@ -22,6 +22,11 @@ func _ready() -> void:
 	if a.has("clear"):
 		n.cards.clear()
 		n.mode = a.get("mode", "morning")
+	if a.has("market"):
+		n.camp.market_today = true
+		n.camp.market_pelts = 7
+		n.offer = {"cloth": mini(n.camp.cloth_strips, 4), "milk": mini(n.camp.milk_to_spare(), 20), "pen": true}
+		n.mode = "market"
 	for i in int(a.get("frames", "60")):
 		await get_tree().process_frame
 	await RenderingServer.frame_post_draw

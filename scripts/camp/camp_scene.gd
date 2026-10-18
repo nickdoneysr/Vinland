@@ -11,7 +11,11 @@ const FORAGE_SCENE := preload("res://scenes/forage.tscn")
 
 var camp := Camp.new()
 var voyage: Voyage = null
-var mode := "morning"          # morning | minigame | card
+var mode := "morning"          # morning | market | minigame | card
+var market_done := false       # today's market has been met (or there was none)
+var offer := {"cloth": 0, "milk": 0, "pen": true}
+var mfocus := 0
+var after_cards := ""          # what to do when the cards are dismissed: "" or "work"
 var cards: Array = []
 var focus := 0
 var child: Node = null
@@ -46,6 +50,16 @@ func _card(title: String, body: String, kind: String = "") -> void:
 
 # ------------------------------------------------------------------ the day
 func _start_day() -> void:
+	if not market_done:
+		market_done = true
+		if camp.roll_market():
+			offer = {"cloth": mini(camp.cloth_strips, 4), "milk": mini(camp.milk_to_spare(), 20), "pen": not camp.byre_done()}
+			mfocus = 0
+			mode = "market"
+			return
+	_start_work()
+
+func _start_work() -> void:
 	camp.default_assignments()
 	var job := camp.player_job
 	if job != "" and int(camp.assign[job]) > 0:
@@ -88,6 +102,7 @@ func _close_minigame() -> void:
 		"forage": _finish_day({"job": "forage", "person_days": float(r.get("person_days", 0.0)), "patch_health": float(r.get("patch_health", 1.0))})
 
 func _finish_day(player: Dictionary) -> void:
+	market_done = false
 	var tally := camp.work_day(player)
 	var head := "Evening, %s  ·  %s%s" % [tally.date, tally.season, ("  ·  snow" if tally.season == "winter" else "  ·  rain") if tally.rain else ""]
 	var body := "\n".join(tally.lines) if tally.lines.size() > 0 else "A quiet day."
@@ -102,6 +117,13 @@ func _work_week() -> void:
 	for i in 7:
 		if camp.state != "camp":
 			break
+		if camp.roll_market():
+			var auto := camp.do_trade(mini(camp.cloth_strips, 4), mini(camp.milk_to_spare(), 20), not camp.byre_done())
+			for l in auto.lines:
+				lines.append("%s: %s" % [camp.date_text(), l])
+			if camp.weapon_request:
+				for l in camp.answer_weapon_request(false).lines:
+					lines.append("%s: %s" % [camp.date_text(), l])
 		var tally := camp.work_day({})
 		for l in tally.lines:
 			if l.begins_with("A booth") or l.begins_with("The longhouse") or l.begins_with("The byre") or l.begins_with("First snow") or l.begins_with("The thaw") \
@@ -174,10 +196,24 @@ func _change(d: int) -> void:
 func _unhandled_input(e: InputEvent) -> void:
 	if mode == "minigame":
 		return
+	if mode == "market":
+		_market_input(e)
+		return
+	if mode == "card" and not cards.is_empty() and cards[0].get("kind", "") == "weapon":
+		if e.is_action_pressed("commit") or e.is_action_pressed("alt"):
+			get_viewport().set_input_as_handled()
+			cards.pop_front()
+			var res := camp.answer_weapon_request(e.is_action_pressed("alt"))
+			_card("The blades", "\n".join(res.lines), "to_work")
+		return
 	if mode == "card":
 		if e.is_action_pressed("commit"):
 			get_viewport().set_input_as_handled()
 			var c: Dictionary = cards.pop_front()
+			if c.get("kind", "") == "to_work":
+				if cards.is_empty():
+					_start_work()
+				return
 			if c.get("kind", "") == "end":
 				get_tree().change_scene_to_file("res://scenes/boot.tscn")
 				return
@@ -203,14 +239,66 @@ func _unhandled_input(e: InputEvent) -> void:
 	elif e.is_action_pressed("commit"):
 		_start_day()
 
+func _market_input(e: InputEvent) -> void:
+	var rows := 3 if not camp.byre_done() else 2
+	if e.is_action_pressed("tool_next") or (e is InputEventKey and e.pressed and e.physical_keycode == KEY_S):
+		mfocus = (mfocus + 1) % rows
+	elif e.is_action_pressed("tool_prev") or (e is InputEventKey and e.pressed and e.physical_keycode == KEY_W):
+		mfocus = (mfocus + rows - 1) % rows
+	elif e.is_action_pressed("ui_right_pad") or e.is_action_pressed("ui_left_pad"):
+		var d := 1 if e.is_action_pressed("ui_right_pad") else -1
+		match mfocus:
+			0: offer.cloth = clampi(offer.cloth + d, 0, camp.cloth_strips)
+			1: offer.milk = clampi(offer.milk + d * 5, 0, camp.milk_to_spare())
+			2: offer.pen = not offer.pen
+	elif e.is_action_pressed("commit") or e.is_action_pressed("drop"):
+		get_viewport().set_input_as_handled()
+		var send_away := e.is_action_pressed("drop")
+		var res := camp.do_trade(0 if send_away else offer.cloth, 0 if send_away else offer.milk, offer.pen)
+		var weapon := camp.weapon_request and not send_away and camp.market_today == true
+		_card("Market at the shore", "\n".join(res.lines) + "\nGoodwill %d of %d · fear %d of %d · %d pelts in the store." % [
+			int(camp.goodwill), int(camp.n("goodwill_cap", 10)), int(camp.fear), int(camp.n("fear_cap", 5)), camp.pelts], "" if weapon else "to_work")
+		if weapon:
+			_card("They ask for iron", "One of the visitors points at the iron blades in the trade chest and holds up a bundle of furs, then another.\nKarlsefni forbade the sale of weapons. A: refuse   Y: trade two blades", "weapon")
+
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
 	if mode == "minigame":
 		return
 	_draw_world()
 	_draw_board()
+	if mode == "market":
+		_draw_market()
 	if mode == "card":
 		_draw_card()
+
+func _draw_market() -> void:
+	var ink := Color("ede3cc")
+	# neutral placeholder visitors and their boats at the shore (art waits on the cultural review, F59)
+	for i in 3:
+		draw_colored_polygon(PackedVector2Array([Vector2(1700 + i * 60, 700 + i * 40), Vector2(1800 + i * 60, 700 + i * 40), Vector2(1780 + i * 60, 716 + i * 40), Vector2(1720 + i * 60, 716 + i * 40)]), Color("6b5a44"))
+	for i in camp.market_pelts:
+		draw_rect(Rect2(1560 + (i % 4) * 34, 760 + (i / 4) * 60, 18, 50), Color("8a8a8a"))
+	var r := Rect2(360, 230, 1160, 560)
+	draw_rect(r, Color("2a2119"))
+	draw_rect(Rect2(r.position, Vector2(r.size.x, 10)), Color("c9a55a"))
+	draw_string(_font, r.position + Vector2(40, 70), "Visitors at the shore", HORIZONTAL_ALIGNMENT_LEFT, -1, 34, ink)
+	draw_multiline_string(_font, r.position + Vector2(40, 116), "Skin boats came in on the morning tide. They have brought %d pelts and look at the cattle and the red cloth.\nThe price today is %.1f trade value a pelt (goodwill lowers it). A strip of cloth is worth 1; ten person-days of milk are worth 1." % [camp.market_pelts, camp.pelt_price()],
+		HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 80, 22, -1, Color(ink, 0.85))
+	var rows := [["Red cloth strips", "‹ %d ›  of %d" % [offer.cloth, camp.cloth_strips]], ["Milk (person-days)", "‹ %d ›  of %d" % [offer.milk, camp.milk_to_spare()]]]
+	if not camp.byre_done():
+		rows.append(["Pen the bull (one of the crew stays with him)", "‹ %s ›" % ("yes" if offer.pen else "no")])
+	for i in rows.size():
+		var y := r.position.y + 270 + i * 64
+		if i == mfocus:
+			draw_rect(Rect2(r.position.x + 30, y - 40, r.size.x - 60, 56), Color("c9a55a", 0.25))
+		draw_string(_font, Vector2(r.position.x + 50, y), rows[i][0], HORIZONTAL_ALIGNMENT_LEFT, -1, 26, ink)
+		draw_string(_font, Vector2(r.position.x + 760, y), rows[i][1], HORIZONTAL_ALIGNMENT_LEFT, -1, 26, ink)
+	var got := camp.pelts_for(offer.cloth, offer.milk)
+	draw_string(_font, Vector2(r.position.x + 50, r.position.y + 480), "This offer buys %d of their %d pelts." % [got, camp.market_pelts], HORIZONTAL_ALIGNMENT_LEFT, -1, 26, Color("e8c35a"))
+	var kb := Controls.keyboard
+	draw_string(_font, Vector2(r.position.x + 50, r.position.y + 530), ("Q/E or W/S choose · Z/C change · Enter trade · Esc send them away" if kb else "LB/RB choose · D-pad change · A trade · B send them away"),
+		HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(ink, 0.7))
 
 func _draw_world() -> void:
 	var winter := camp.is_winter()
@@ -306,15 +394,15 @@ func _draw_world() -> void:
 func _draw_board() -> void:
 	var ink := Color("ede3cc")
 	var panel := Color(0.1, 0.09, 0.07, 0.86)
-	draw_rect(Rect2(24, 20, 640, 120), panel)
-	draw_rect(Rect2(24, 140, 640, 60), panel)
+	draw_rect(Rect2(24, 20, 800, 120), panel)
+	draw_rect(Rect2(24, 140, 800, 60), panel)
 	var wx := ("snow" if camp.is_winter() else "rain") if camp.rain else "fair"
 	draw_string(_font, Vector2(44, 62), "%s, year %d  ·  %s  ·  %s" % [camp.date_text(), camp.year, camp.season(), wx], HORIZONTAL_ALIGNMENT_LEFT, -1, 30, ink)
 	draw_string(_font, Vector2(44, 100), "%d people, %d sick · %d of %d under a roof · cattle %d, sheep %d" % [camp.people, camp.sick.size(), camp.sheltered_total(), camp.people, camp.cattle, camp.sheep],
 		HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(ink, 0.85))
 	var food_col := ink if camp.is_winter() or camp.food_days() >= camp.winter_days_left() else Color("e8c35a")
 	draw_string(_font, Vector2(44, 132), "Food %.0f days · hay %.0f days · winter %d days" % [camp.food_days(), minf(camp.hay_days(), 999.0), camp.winter_days_left()], HORIZONTAL_ALIGNMENT_LEFT, -1, 22, food_col)
-	draw_string(_font, Vector2(44, 168), "Building %s · timber %.1f · hooks %d · hides %d · fear %d/%d%s" % [camp.building_target(), camp.timber, camp.hooks, camp.hides, int(camp.fear), int(camp.n("fear_cap", 5)), "" if camp.is_winter() else " · %d days to snow" % camp.days_to_snow()],
+	draw_string(_font, Vector2(44, 168), "Building %s · timber %.1f · hides %d · pelts %d · goodwill %d · fear %d/%d%s" % [camp.building_target(), camp.timber, camp.hides, camp.pelts, int(camp.goodwill), int(camp.fear), int(camp.n("fear_cap", 5)), " · trade broken" if camp.trade_broken() else ""],
 		HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(ink, 0.75))
 	# job board
 	var bx := 1340.0; var by := 20.0
@@ -353,4 +441,4 @@ func _draw_card() -> void:
 	draw_rect(r, Color("8a6d4e"), false, 4.0)
 	draw_string(_font, r.position + Vector2(40, 74), c.title, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 80, 34, ink)
 	draw_multiline_string(_font, r.position + Vector2(40, 130), c.body, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 80, 24, -1, Color(ink, 0.88))
-	draw_string(_font, r.position + Vector2(40, r.size.y - 30), "A: continue" if c.get("kind", "") != "end" else "A: back to the title", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(ink, 0.6))
+	draw_string(_font, r.position + Vector2(40, r.size.y - 30), {"end": "A: back to the title", "weapon": "A: refuse   ·   Y: trade two blades"}.get(c.get("kind", ""), "A: continue"), HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(ink, 0.6))
