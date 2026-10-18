@@ -15,6 +15,7 @@ Knobs="*res://scripts/autoload/knobs.gd"
 Art="*res://scripts/autoload/art.gd"
 Controls="*res://scripts/autoload/controls.gd"
 Game="*res://scripts/autoload/game.gd"
+Pause="*res://scripts/autoload/pause.gd"
 
 [display]
 

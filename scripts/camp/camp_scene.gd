@@ -27,6 +27,7 @@ var autosave_off := false        # tests turn this off
 
 func _ready() -> void:
 	_font = ThemeDB.fallback_font
+	add_to_group("camp_screen")
 	voyage = Game.voyage
 	if Game.loaded_stage == "camp" and Game.camp != null:
 		camp = Game.camp

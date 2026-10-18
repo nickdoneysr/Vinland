@@ -140,7 +140,7 @@ func _draw() -> void:
 		step = "The hull holds. Dawn comes up grey."
 	else:
 		step = "Swamped."
-	draw_string(_font, Vector2(44, 100), step, HORIZONTAL_ALIGNMENT_LEFT, 920, 22, Color("e8c35a") if Game.settings.difficulty != "hard" else ink)
+	draw_string(_font, Vector2(44, 100), step, HORIZONTAL_ALIGNMENT_LEFT, 920, 22, Color("e8c35a") if Game.prompts_on() else ink)
 	draw_string(_font, Vector2(44, 150), "Water %d%%   ·   rhythm %d   ·   %ds to dawn" % [roundi(rules.water * 100), rules.combo, maxi(0, ceili(float(_cfg.session_seconds) - (rules.t if rules.phase == StormBail.Phase.BAIL else 0.0)))],
 		HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(ink, 0.85))
 	if not result.is_empty():

@@ -4,7 +4,34 @@ extends Node
 signal hold_changed
 signal day_advanced(day: int)
 
-var settings := {"haptics": true, "text_scale": 1.0, "difficulty": "forgiving"}
+var settings := {"haptics": true, "text_scale": 1.0, "difficulty": "forgiving", "prompts": "auto"}
+const PROMPTS := ["auto", "on", "off"]
+const SETTINGS_PATH := "user://settings.json"
+
+func _ready() -> void:
+	load_settings()
+
+## Settings live in their own file so they hold across runs and new voyages (F51).
+func save_settings() -> void:
+	var f := FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
+	if f:
+		f.store_string(JSON.stringify(settings))
+
+func load_settings() -> void:
+	if not FileAccess.file_exists(SETTINGS_PATH):
+		return
+	var d = JSON.parse_string(FileAccess.get_file_as_string(SETTINGS_PATH))
+	if d is Dictionary:
+		for key in d:
+			if settings.has(key):
+				settings[key] = d[key]
+
+## On-screen prompts (step hints, bite and stalk banners, the Pole Star label). Auto: on unless Hard.
+func prompts_on() -> bool:
+	match str(settings.get("prompts", "auto")):
+		"on": return true
+		"off": return false
+	return settings.difficulty != "hard"
 const DIFFICULTIES := ["forgiving", "standard", "hard"]
 const DIFFICULTY_NAMES := {"forgiving": "Forgiving", "standard": "Standard", "hard": "Hard"}
 
@@ -19,6 +46,9 @@ func tuning(game: String, difficulty: String = "") -> Dictionary:
 	var over: Dictionary = _mg.difficulty.get(d, {}).get(game, {})
 	for key in over:
 		out[key] = over[key]
+	if str(settings.get("prompts", "auto")) != "auto":
+		for key in ["banner", "bite_banner"]:
+			out[key] = prompts_on()
 	return out
 
 var day := 0            # days since departure
@@ -111,9 +141,8 @@ func latest_save() -> Dictionary:
 ## Rebuild the run from a save. Returns the scene to open.
 func load_game(d: Dictionary) -> String:
 	var legs_data: Dictionary = JSON.parse_string(FileAccess.open("res://data/legs.json", FileAccess.READ).get_as_text())
-	if d.has("settings"):
-		for key in d.settings:
-			settings[key] = d.settings[key]
+	if d.has("settings") and d.settings.has("difficulty"):
+		settings.difficulty = d.settings.difficulty      # a run keeps its difficulty; vibration and prompts are the player's
 	voyage = null
 	camp = null
 	if d.has("voyage"):

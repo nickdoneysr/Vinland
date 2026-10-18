@@ -31,6 +31,7 @@ func _ready() -> void:
 	_button("tool_prev", JOY_BUTTON_LEFT_SHOULDER, KEY_Q)
 	_button("menu", JOY_BUTTON_START, KEY_TAB)
 	_button("alt", JOY_BUTTON_Y, KEY_F)          # secondary verb on voyage screens (fish)
+	_button("pause", JOY_BUTTON_BACK, KEY_P)      # pause and options (F51)
 	_button("ui_left_pad", JOY_BUTTON_DPAD_LEFT, KEY_Z)
 	_button("ui_right_pad", JOY_BUTTON_DPAD_RIGHT, KEY_C)
 

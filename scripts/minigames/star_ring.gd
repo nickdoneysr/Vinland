@@ -259,7 +259,7 @@ func _draw_sky() -> void:
 	var tw_flicker := 0.85 + 0.15 * sin(t * 7.0)
 	draw_circle(s, 7.0, Color(1, 1, 0.9, 0.12 * sa))
 	draw_circle(s, 3.4, Color(1, 1, 0.92, sa * tw_flicker))
-	if Game.settings.difficulty != "hard" and _star_visible(s):
+	if Game.prompts_on() and _star_visible(s):
 		draw_arc(s, 22, 0, TAU, 32, Color(0.91, 0.76, 0.35, 0.55), 2.0)
 		draw_string(_font, s + Vector2(28, 6), "Pole Star", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(0.91, 0.76, 0.35, 0.8))
 	# clouds and fog
@@ -303,7 +303,7 @@ func _draw_hud() -> void:
 	var ink := Color("ede3cc")
 	draw_string(_font, Vector2(40, 54), "STAR RING  ·  %s" % cond.label, HORIZONTAL_ALIGNMENT_LEFT, -1, 26, ink)
 	var help := "WASD move the ring · Space raise the sight · Shift lower · arrows fine · Enter take the fix · Esc abort" if Controls.keyboard else "LS hold the ring   RS fine seat   RT raise   LT lower   A take the fix   B abort"
-	if Game.settings.difficulty != "hard" and outcome.is_empty():
+	if Game.prompts_on() and outcome.is_empty():
 		var step := "1  Put the ring's bottom bar on the horizon line"
 		var bar_y := ring.y + BAR_OFFSET
 		if absf(horizon_y_at(ring.x) - bar_y) < 14.0:

@@ -31,6 +31,7 @@ var autosave_off := false        # tests turn this off
 
 func _ready() -> void:
 	_font = ThemeDB.fallback_font
+	add_to_group("voyage_screen")
 	var legs_data: Dictionary = JSON.parse_string(FileAccess.open("res://data/legs.json", FileAccess.READ).get_as_text())
 	var seed := 0
 	for a in OS.get_cmdline_user_args():

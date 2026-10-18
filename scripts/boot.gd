@@ -36,11 +36,13 @@ func _refresh() -> void:
 		{"forgiving": "Wide windows, steadier hands, clear prompts. Start here.",
 		 "standard": "Tighter windows. The prompts stay on.",
 		 "hard": "The original tuning: small windows, no prompts. Made for a gamepad."}[Game.settings.difficulty] + \
-		"\n\nKeyboard: WASD left stick · arrows right stick · Space right trigger · Shift left trigger · Enter A · Esc B · F Y · Q/E bumpers"
+		"\n\nBack / P in play: pause and options." + \
+		"\nKeyboard: WASD left stick · arrows right stick · Space right trigger · Shift left trigger · Enter A · Esc B · F Y · Q/E bumpers"
 
 func _cycle(d: int) -> void:
 	var i := Game.DIFFICULTIES.find(Game.settings.difficulty)
 	Game.settings.difficulty = Game.DIFFICULTIES[clampi(i + d, 0, Game.DIFFICULTIES.size() - 1)]
+	Game.save_settings()
 	_refresh()
 
 func _unhandled_input(e: InputEvent) -> void:
