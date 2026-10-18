@@ -51,6 +51,12 @@ func _ready() -> void:
 		n.camp.market_pelts = 7
 		n.offer = {"cloth": mini(n.camp.cloth_strips, 4), "milk": mini(n.camp.milk_to_spare(), 20), "pen": true}
 		n.mode = "market"
+	if a.has("hop"):
+		var c: Camp = n.camp
+		c.year = 2; c.day_of_year = 160; c.second_spring = true
+		c.booths = 3; c.longhouse = 540.0; c.byre = 200.0; c.shed = 80.0; c.timber = 12.0
+		n.cards.clear(); n.mode = "morning"
+		n.open_hop()
 	if a.has("return"):
 		var c: Camp = n.camp
 		c.year = 2; c.day_of_year = 200; c.second_spring = true

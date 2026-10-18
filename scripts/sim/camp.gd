@@ -68,6 +68,9 @@ var timber_winter := 0.0       # timber felled in winter seasons better (F25 gra
 var sailed := 0                # times the knarr has sailed home from here
 var knarr_here := true         # the knarr is drawn up at the camp (false while she is away)
 var relief_came := false       # the relief has reached the camp (F30)
+var hop := {}                  # F27: the party away at Hóp {people, crew, days_left}
+var hop_done := false
+var vines := 0.0               # cargo units of vines and grapes from Hóp
 var end_reason := ""
 var history := {"joints_seated": 0, "joints_split": 0, "fish_watches": 0, "fish_pd": 0.0, "dried_pd": 0.0, "animals_lost": 0,
 	"kills": 0, "hunts_played": 0, "forage_played": 0, "markets": 0, "weapon_sales": 0, "bull_loose": 0, "raids": 0}
@@ -492,6 +495,7 @@ func work_day(player: Dictionary = {}) -> Dictionary:
 	if held_back != "":
 		assign[held_back] += 1
 		tally.lines.append("One of the crew stayed with the bull all day.")
+	_hop_day(tally)
 	penned_today = false
 	market_today = false
 	weapon_request = false
@@ -773,6 +777,81 @@ func return_gate() -> Array:
 		why.append("She needs a skipper or a pilot and %d hands." % int(n("role_fewest_crew_to_sail_a_knarr_home", 10)))
 	return why
 
+# ------------------------------------------------------------------ the Hóp push (F27)
+## What stands in the way of a push south to Hóp this summer. Empty means the knarr can go.
+func hop_gate(party: int = -1) -> Array:
+	var why: Array = []
+	if party < 0:
+		party = int(n("hop_smallest_party", 10))
+	if hop_done or not hop.is_empty():
+		why.append("The knarr has been to Hóp already.")
+		return why
+	if year < 2 or is_winter() or day_of_year < int(n("hop_earliest_start", 152)) or day_of_year > int(n("hop_latest_start", 205)):
+		why.append("Hóp is a second-summer push: from 1 June to 24 July.")
+	if not knarr_here:
+		why.append("The knarr is away.")
+	if hull > 1:
+		why.append("The hull must be mended first.")
+	if party < int(n("hop_smallest_party", 10)):
+		why.append("She needs at least %d to sail south." % int(n("hop_smallest_party", 10)))
+	if people - party < 4:
+		why.append("Leave at least four to keep the camp.")
+	return why
+
+## Who goes to Hóp: the same order as the voyage home (skipper and pilot first; the camp keeps its healer and smith).
+func hop_party(count: int) -> Array:
+	var out: Array = []
+	for role in ReturnPlan.SAIL_ORDER:
+		for m in crew.alive():
+			if out.size() >= count:
+				return out
+			if m.role == role:
+				out.append(m)
+	return out
+
+func start_hop(count: int) -> bool:
+	if not hop_gate(count).is_empty():
+		return false
+	var party := hop_party(count)
+	if not party.any(func(m): return m.role in ["skipper", "pilot"]):
+		return false
+	hop = {"people": party.size(), "crew": party.map(func(m): return m.duplicate()), "days_left": int(n("hop_days_away", 30))}
+	for m in party:
+		m.away = true
+	crew.members = crew.members.filter(func(m): return not m.get("away", false))
+	people -= party.size()
+	knarr_here = false
+	hop_done = true
+	history.hop = true
+	return true
+
+func _hop_day(tally: Dictionary) -> void:
+	if hop.is_empty():
+		return
+	hop.days_left = int(hop.days_left) - 1
+	if int(hop.days_left) > 0:
+		return
+	var p := int(hop.people)
+	var got_vines := p * n("hop_vines_and_grapes_per_person", 0.25)
+	var got_wheat := p * n("hop_self_sown_wheat_per_person", 0.08)
+	var got_salmon := p * n("hop_salmon_per_person", 20) / n("food_unit_feeds", 168)
+	vines += got_vines
+	food += got_wheat + got_salmon
+	people += p
+	for m in hop.crew:
+		crew.add(str(m.name), str(m.role), bool(m.female))
+	knarr_here = true
+	tally.lines.append("The knarr is back from Hóp with %.1f units of vines and grapes, self-sown wheat and dried salmon (%d days of food)." % [got_vines, roundi((got_wheat + got_salmon) * n("food_unit_feeds", 168) / maxf(1.0, people))])
+	var chance := maxf(0.0, n("hop_chance_fear_rises", 0.35) - goodwill * n("hop_fear_chance_taken_off_per_point_of_goodwill", 0.03))
+	if rng.randf() < chance:
+		fear = clampf(fear + n("hop_fear_added", 2), 0.0, n("fear_cap", 5))
+		quiet_days = 0
+		tally.lines.append("Many people live at Hóp, and the meeting there went badly. Fear rises (%d of %d)." % [int(fear), int(n("fear_cap", 5))])
+	if rng.randf() < n("hop_chance_the_hull_is_strained", 0.2):
+		hull = mini(3, hull + 1)
+		tally.lines.append("She came back strained from the southern shoals.")
+	hop = {}
+
 ## While you are away the camp runs itself (F30): a sensible plan by season, scaled to who is left.
 func auto_plan() -> void:
 	var s := season()
@@ -886,7 +965,7 @@ const SAVE_FIELDS := ["day", "year", "day_of_year", "people", "dead", "cattle", 
 	"trade", "timber", "hay", "booths", "longhouse", "byre", "joints", "morale", "ration", "rain", "assign", "player_job", "state",
 	"end_reason", "history", "hunt_far", "fish_net", "nets", "fear", "hides", "patch_health", "goodwill", "cloth_strips", "iron_blades", "pelts",
 	"market_today", "market_pelts", "weapon_request", "penned_today", "quiet_days", "outfit", "smith_days",
-	"second_spring", "hull", "shed", "timber_felled", "timber_winter", "sailed", "knarr_here", "relief_came"]
+	"second_spring", "hull", "shed", "timber_felled", "timber_winter", "sailed", "knarr_here", "relief_came", "hop", "hop_done", "vines"]
 
 func to_dict() -> Dictionary:
 	var d := {"sick": Array(sick), "rng_seed": str(rng.seed), "rng_state": str(rng.state), "crew": crew.to_array()}

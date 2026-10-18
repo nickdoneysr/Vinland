@@ -13,6 +13,8 @@ var pelts := 0
 var grade := "sound"           # rough | sound | prime
 var timber_silver := 0.0
 var pelt_silver := 0.0
+var vines := 0
+var vine_silver := 0.0
 var story := 0.0
 var story_lines: Array = []
 var volunteers := 0
@@ -25,6 +27,8 @@ var crew: Array = []           # who came home (named)
 var year := 2
 var cargoes := 1               # cargoes delivered this run
 var timber_total := 0          # timber delivered over the run
+var cargo_value := 0.0         # marks the cargoes fetched over the run
+var vines_total := 0
 var sea_dead := 0              # lost on voyages home
 var relief_came := false
 var camp_alive := 0            # people at the camp at the end
@@ -45,6 +49,8 @@ func setup(knobs: Dictionary, v: Voyage, camp: Camp, outfit_data: Dictionary, pr
 		silver_start = ph.left()          # what is left after last winter's hull, hires and relief stores
 		cargoes = ph.cargoes + 1
 		timber_total = ph.timber_total
+		cargo_value = ph.cargo_value
+		vines_total = ph.vines_total
 		sea_dead = ph.sea_dead
 	timber_total += v.timber
 	sea_dead += v.dead
@@ -62,6 +68,10 @@ func setup(knobs: Dictionary, v: Voyage, camp: Camp, outfit_data: Dictionary, pr
 	grade = timber_grade(winter_share, outfit == "shipwright_s_kin")
 	timber_silver = timber * n("silver_per_timber_unit_sound_grade", 3) * grade_multiplier(grade)
 	pelt_silver = pelts * n("silver_per_pelt", 0.25)
+	vines = v.vines
+	vine_silver = vines * n("silver_per_unit_of_vines", 6)
+	cargo_value += timber_silver + pelt_silver + vine_silver
+	vines_total += vines
 	_weigh_story(camp)
 	volunteers = mini(int(n("most_volunteers_in_a_winter", 30)), floori(story * n("volunteers_per_point_of_story", 0.5)))
 
@@ -89,18 +99,21 @@ func _weigh_story(camp: Camp) -> void:
 	var p_build := buildings * n("story_points_per_building_raised", 2)
 	var p_dead := -dead * n("story_points_lost_per_death", 1)
 	var p_good := camp.goodwill * n("story_points_per_point_of_goodwill", 0.5)
-	story = maxf(0.0, p_alive + p_build + p_dead + p_good)
+	var p_hop := n("story_points_for_the_voyage_to_hop", 3) if camp.history.get("hop", false) else 0.0
+	story = maxf(0.0, p_alive + p_build + p_dead + p_good + p_hop)
 	story_lines.append("%d alive (%d home, %d at the camp): %+d" % [alive, came_home, at_camp, roundi(p_alive)])
 	story_lines.append("%d buildings raised at the Strait: %+d" % [buildings, roundi(p_build)])
 	if dead > 0:
 		story_lines.append("%d dead since Eriksfjord: %+d" % [dead, roundi(p_dead)])
 	if camp.goodwill > 0.0:
 		story_lines.append("Peace and trade with the people of the land: %+d" % roundi(p_good))
+	if p_hop > 0.0:
+		story_lines.append("They have seen Hóp, where the vines grow wild: %+d" % roundi(p_hop))
 	if at_camp <= 0:
 		story_lines.append("No one is left at the camp: a tale of a place, not of a home.")
 
 func silver() -> float:
-	return silver_start + timber_silver + pelt_silver
+	return silver_start + timber_silver + pelt_silver + vine_silver
 
 func hull_price() -> float:
 	return n("second_hull_price", 40)
@@ -151,14 +164,14 @@ func is_final() -> bool:
 	return cargoes >= int(n("cargoes_for_the_full_win", 2)) or year >= int(n("full_game_length", 3))
 
 func score() -> Dictionary:
-	return Score.compute(k, {"timber": timber_total, "cargoes": cargoes, "relief": relief_came, "camp_alive": camp_alive,
+	return Score.compute(k, {"timber": timber_total, "vines": vines_total, "cargo_value": cargo_value, "cargoes": cargoes, "relief": relief_came, "camp_alive": camp_alive,
 		"home_alive": came_home, "goodwill": goodwill, "dead": dead})
 
 func to_dict() -> Dictionary:
 	return {"outfit": outfit, "silver_start": silver_start, "timber": timber, "winter_share": winter_share, "pelts": pelts, "grade": grade,
-		"timber_silver": timber_silver, "pelt_silver": pelt_silver, "story": story, "story_lines": story_lines, "volunteers": volunteers,
+		"timber_silver": timber_silver, "pelt_silver": pelt_silver, "vines": vines, "vine_silver": vine_silver, "story": story, "story_lines": story_lines, "volunteers": volunteers,
 		"buy_hull": buy_hull, "hires": hires, "came_home": came_home, "at_camp": at_camp, "dead": dead, "crew": crew, "year": year, "cargoes": cargoes,
-		"timber_total": timber_total, "sea_dead": sea_dead, "relief_came": relief_came, "camp_alive": camp_alive, "goodwill": goodwill, "relief_spent": relief_spent}
+		"timber_total": timber_total, "cargo_value": cargo_value, "vines_total": vines_total, "sea_dead": sea_dead, "relief_came": relief_came, "camp_alive": camp_alive, "goodwill": goodwill, "relief_spent": relief_spent}
 
 func from_dict(knobs: Dictionary, d: Dictionary) -> void:
 	k = knobs

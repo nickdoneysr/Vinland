@@ -10,8 +10,9 @@ static func compute(k: Dictionary, d: Dictionary) -> Dictionary:
 	var total := 0.0
 	var add := func(label: String, pts: float) -> void:
 		lines.append("%s   %+d" % [label, roundi(pts)])
-	var t: float = d.get("timber", 0) * n.call("score_per_timber_unit_delivered", 2)
-	add.call("%d units of timber delivered" % int(d.get("timber", 0)), t); total += t
+	var value: float = float(d.get("cargo_value", float(d.get("timber", 0)) * n.call("silver_per_timber_unit_sound_grade", 3)))
+	var t: float = value * n.call("score_per_mark_of_cargo_sold", 0.65)
+	add.call("Cargo sold at Eriksfjord: %d units of timber%s, %.0f marks" % [int(d.get("timber", 0)), (", %d of vines" % int(d.get("vines", 0))) if int(d.get("vines", 0)) > 0 else "", value], t); total += t
 	var cg: float = d.get("cargoes", 0) * n.call("score_per_cargo_home", 10)
 	add.call("%d cargo%s home" % [int(d.get("cargoes", 0)), "" if int(d.get("cargoes", 0)) == 1 else "es"], cg); total += cg
 	var alive: int = int(d.get("camp_alive", 0)) + int(d.get("home_alive", 0))

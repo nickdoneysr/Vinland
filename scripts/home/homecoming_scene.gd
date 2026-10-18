@@ -97,6 +97,7 @@ func _draw() -> void:
 				"%d%% of the camp's timber was felled in winter.%s" % [roundi(home.winter_share * 100), "  The shipwright's kin chose the trees." if home.outfit == "shipwright_s_kin" else ""],
 				"Timber:   %d units x %.1f marks x %.1f   =   %.1f marks of silver" % [home.timber, home.n("silver_per_timber_unit_sound_grade", 3), home.grade_multiplier(home.grade), home.timber_silver],
 				"Pelts:    %d pelts x %.2f marks   =   %.1f marks" % [home.pelts, home.n("silver_per_pelt", 0.25), home.pelt_silver],
+				("Vines and grapes from Hóp:   %d units x %.1f marks   =   %.1f marks" % [home.vines, home.n("silver_per_unit_of_vines", 6), home.vine_silver]) if home.vines > 0 else "",
 				"Silver the household had before:   %.1f marks" % home.silver_start,
 				"",
 				"In hand:   %.1f marks of silver" % home.silver()]

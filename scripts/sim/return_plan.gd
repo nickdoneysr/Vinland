@@ -4,8 +4,8 @@ extends RefCounted
 ## timber and how many pelts, and the stores for the crossing, against the same 24-unit hull.
 ## Whoever does not sail winters at the camp. Everyone sailing abandons the camp (the saga ending, P8).
 
-const ROWS := ["sailors", "timber", "pelts", "food", "drink"]
-const LABELS := {"sailors": "Who sails home", "timber": "Timber (units)", "pelts": "Pelts (bales of ten)", "food": "Food (units)", "drink": "Drink (casks of whey and water)"}
+const ROWS := ["sailors", "timber", "vines", "pelts", "food", "drink"]
+const LABELS := {"sailors": "Who sails home", "timber": "Timber (units)", "vines": "Vines and grapes from Hóp (units)", "pelts": "Pelts (bales of ten)", "food": "Food (units)", "drink": "Drink (casks of whey and water)"}
 ## Who goes first: the ship needs a skipper and a pilot; the camp keeps its healer, smith, householder and hunter longest.
 const SAIL_ORDER := ["skipper", "pilot", "hand", "shipwright", "hunter", "householder", "smith", "healer"]
 
@@ -33,8 +33,10 @@ func reset() -> void:
 	var d := crossing_days()
 	c.food = mini(int(floor(camp.food)), ceili(c.sailors * d / n("food_unit_feeds", 168)))
 	c.drink = ceili(c.sailors * d / n("drink_unit_covers", 120))
-	c.timber = 0; c.pelts = 0
+	c.timber = 0; c.pelts = 0; c.vines = 0
 	var room := capacity() - hold_load()
+	c.vines = mini(int(floor(camp.vines)), int(floor(room)))          # the vines are worth twice the timber: they go first
+	room = capacity() - hold_load()
 	c.timber = mini(int(floor(camp.timber)), int(floor(room)))
 	room = capacity() - hold_load()
 	c.pelts = mini(pelt_bales(), int(floor(room)))
@@ -43,6 +45,7 @@ func limits(row: String) -> Array:
 	match row:
 		"sailors": return [1, camp.people]
 		"timber": return [0, int(floor(camp.timber))]
+		"vines": return [0, int(floor(camp.vines))]
 		"pelts": return [0, pelt_bales()]
 		"food": return [0, int(floor(camp.food))]
 		"drink": return [0, 6]
@@ -53,7 +56,7 @@ func change(row: String, d: int) -> void:
 	c[row] = clampi(int(c[row]) + d, lim[0], lim[1])
 
 func hold_load() -> float:
-	return snappedf(c.sailors * n("cargo_units_per_person", 0.4) + c.timber * n("cargo_units_per_timber_unit", 1) + c.pelts + c.food + c.drink, 0.1)
+	return snappedf(c.sailors * n("cargo_units_per_person", 0.4) + c.timber * n("cargo_units_per_timber_unit", 1) + c.vines + c.pelts + c.food + c.drink, 0.1)
 
 func capacity() -> float:
 	return n("knarr_cargo_units", 24)
@@ -88,6 +91,7 @@ func readout(row: String) -> String:
 				return "everyone: the camp is left empty"
 			return "%.1f units · %d stay to winter the camp" % [c.sailors * n("cargo_units_per_person", 0.4), stayers()]
 		"timber": return "%d of %.1f stacked · %d%% felled in winter" % [c.timber, camp.timber, roundi(camp.winter_share() * 100)]
+		"vines": return "%d of %.1f units brought back from Hóp" % [c.vines, camp.vines]
 		"pelts": return "%d of %d pelts" % [mini(c.pelts * int(n("pelts_per_cargo_unit", 10)), camp.pelts), camp.pelts]
 		"food", "drink": return "%d days at full rations" % floori(days_of(row))
 	return ""
@@ -131,6 +135,8 @@ func launch(legs_data: Dictionary, seed: int = 0) -> Voyage:
 	camp.people -= v.people
 	v.timber = int(c.timber)
 	camp.timber -= c.timber
+	v.vines = int(c.vines)
+	camp.vines -= c.vines
 	var pelts_taken := mini(int(c.pelts) * int(n("pelts_per_cargo_unit", 10)), camp.pelts)
 	v.pelts = pelts_taken
 	v.pelt_bales = int(c.pelts)

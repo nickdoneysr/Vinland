@@ -5,7 +5,7 @@ extends RefCounted
 ##          little drying, average captain, sails home some weeks late, buys nothing extra for the relief.
 ## careless: summer-only camp (no hay, no rack), reckless captain, sails home late.
 
-const CAPTAIN := {"planner": "careful", "average": "average", "careless": "reckless"}
+const CAPTAIN := {"planner": "careful", "planner_hop": "careful", "average": "average", "careless": "reckless"}
 
 static func legs_data() -> Dictionary:
 	return JSON.parse_string(FileAccess.open("res://data/legs.json", FileAccess.READ).get_as_text())
@@ -29,7 +29,7 @@ static func sail(v: Voyage, policy: String) -> void:
 ## One camp day as the model would play it.
 static func camp_day(c: Camp, policy: String, rng: RandomNumberGenerator) -> void:
 	match policy:
-		"planner":
+		"planner", "planner_hop":
 			c.auto_plan()
 			if c.second_spring and not c.shed_done():
 				c.assign.build = maxi(int(c.assign.build), 6); c.default_assignments()
@@ -66,11 +66,13 @@ static func camp_day(c: Camp, policy: String, rng: RandomNumberGenerator) -> voi
 
 ## Play the camp until the model sails home (or the camp ends). Returns false when no voyage home happens.
 static func camp_until_sail(c: Camp, policy: String, rng: RandomNumberGenerator) -> bool:
-	var delay := 0 if policy == "planner" else (rng.randi_range(10, 50) if policy == "average" else rng.randi_range(30, 90))
+	var delay := 0 if policy.begins_with("planner") else (rng.randi_range(10, 50) if policy == "average" else rng.randi_range(30, 90))
 	var waited := 0
 	var g := 0
 	while c.state == "camp" and g < 1100:
 		g += 1
+		if policy == "planner_hop" and c.hop_gate(10).is_empty():
+			c.start_hop(10)
 		if c.second_spring and c.return_gate().is_empty():
 			if waited >= delay or c.late_in_the_year():
 				return true
@@ -102,9 +104,9 @@ static func whole_run(outfit: String, policy: String, seed: int) -> Dictionary:
 	h.setup(Knobs._v, hv, c, Game.outfit_table()[outfit])
 	row.silver = h.silver()
 	h.set_hull(policy != "careless")
-	h.set_hires(100 if policy == "planner" else (h.max_hires() / 2 if policy == "average" else 0))
+	h.set_hires(100 if policy.begins_with("planner") else (h.max_hires() / 2 if policy == "average" else 0))
 	var rl := Relief.new(); rl.setup(Knobs._v, h)
-	if policy == "planner":
+	if policy.begins_with("planner"):
 		while rl.cost() + 3.0 <= rl.silver() and rl.hold_load() + 2.0 <= rl.capacity() and rl.c.cattle < 3:
 			rl.change("cattle", 1); rl.change("fodder", 1)
 		while rl.cost() + 1.0 <= rl.silver() and rl.hold_load() + 1.0 <= rl.capacity() and rl.c.food < rl.free.food + 4:
@@ -116,14 +118,14 @@ static func whole_run(outfit: String, policy: String, seed: int) -> Dictionary:
 	sail(rv, policy)
 	if rv.state != "arrived":
 		row.end = "relief lost"; row.dead = c.dead + hv.dead + rv.dead
-		var sc0 := Score.compute(Knobs._v, {"timber": hv.timber, "cargoes": 1, "relief": false, "camp_alive": 0, "home_alive": hv.people, "goodwill": 0, "dead": row.dead})
+		var sc0 := Score.compute(Knobs._v, {"timber": hv.timber, "cargo_value": h.cargo_value, "cargoes": 1, "relief": false, "camp_alive": 0, "home_alive": hv.people, "goodwill": 0, "dead": row.dead})
 		row.score = sc0.total; row.title = sc0.title; row.cargoes = 1; row.timber = hv.timber
 		return row
 	c.reunite(rv)
 	var ok2 := camp_until_sail(c, policy, rng)
 	if not ok2:
 		row.end = "no second cargo (%s)" % c.state; row.dead = c.dead + h.sea_dead
-		var sc1 := Score.compute(Knobs._v, {"timber": h.timber_total, "cargoes": 1, "relief": true, "camp_alive": c.people if c.state == "camp" else 0, "home_alive": 0, "goodwill": c.goodwill, "dead": row.dead})
+		var sc1 := Score.compute(Knobs._v, {"timber": h.timber_total, "cargo_value": h.cargo_value, "cargoes": 1, "relief": true, "camp_alive": c.people if c.state == "camp" else 0, "home_alive": 0, "goodwill": c.goodwill, "dead": row.dead})
 		row.score = sc1.total; row.title = sc1.title; row.cargoes = 1; row.timber = h.timber_total
 		return row
 	var p2 := ReturnPlan.new(); p2.setup(Knobs._v, c)
@@ -131,7 +133,7 @@ static func whole_run(outfit: String, policy: String, seed: int) -> Dictionary:
 	sail(hv2, policy)
 	if hv2.state != "arrived":
 		row.end = "lost with the second cargo"; row.dead = c.dead + h.sea_dead + hv2.dead
-		var sc2 := Score.compute(Knobs._v, {"timber": h.timber_total, "cargoes": 1, "relief": true, "camp_alive": c.people, "home_alive": 0, "goodwill": c.goodwill, "dead": row.dead})
+		var sc2 := Score.compute(Knobs._v, {"timber": h.timber_total, "cargo_value": h.cargo_value, "cargoes": 1, "relief": true, "camp_alive": c.people, "home_alive": 0, "goodwill": c.goodwill, "dead": row.dead})
 		row.score = sc2.total; row.title = sc2.title; row.cargoes = 1; row.timber = h.timber_total
 		return row
 	var h2 := Home.new()

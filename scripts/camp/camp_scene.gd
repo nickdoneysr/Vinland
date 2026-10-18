@@ -13,7 +13,8 @@ const RACK_SCENE := preload("res://scenes/smoke_rack.tscn")
 
 var camp := Camp.new()
 var voyage: Voyage = null
-var mode := "morning"          # morning | market | return | minigame | card
+var mode := "morning"          # morning | market | return | hop | minigame | card
+var hop_count := 10
 var plan: ReturnPlan = null    # the voyage home being loaded (F24)
 var rfocus := 0
 var market_done := false       # today's market has been met (or there was none)
@@ -203,7 +204,7 @@ func _check_end() -> void:
 		var h := Home.new()
 		h.k = Knobs._v
 		var prev: Dictionary = Game.home
-		var sc := Score.compute(Knobs._v, {"timber": int(prev.get("timber_total", 0)), "cargoes": int(prev.get("cargoes", 0)), "relief": camp.relief_came,
+		var sc := Score.compute(Knobs._v, {"timber": int(prev.get("timber_total", 0)), "cargo_value": float(prev.get("cargo_value", 0.0)), "cargoes": int(prev.get("cargoes", 0)), "relief": camp.relief_came,
 			"camp_alive": camp.people, "home_alive": 0, "goodwill": camp.goodwill, "dead": camp.dead})
 		_card(str(sc.title), camp.end_reason + "\n" + str(sc.line) + "\n" + "\n".join(sc.lines) + "\nScore: %d" % int(sc.total), "end")
 		return
@@ -253,6 +254,9 @@ func _unhandled_input(e: InputEvent) -> void:
 	if mode == "return":
 		_return_input(e)
 		return
+	if mode == "hop":
+		_hop_input(e)
+		return
 	if mode == "card" and not cards.is_empty() and cards[0].get("kind", "") == "weapon":
 		if e.is_action_pressed("commit") or e.is_action_pressed("alt"):
 			get_viewport().set_input_as_handled()
@@ -284,6 +288,8 @@ func _unhandled_input(e: InputEvent) -> void:
 		_change(-1)
 	elif e.is_action_pressed("alt") and focus >= Camp.JOBS.size():
 		open_return()
+	elif e.is_action_pressed("drop") and focus >= Camp.JOBS.size():
+		open_hop()
 	elif e.is_action_pressed("alt"):
 		var job: String = Camp.JOBS[focus]
 		if Camp.PLAYABLE.has(job):
@@ -308,6 +314,46 @@ func open_return() -> void:
 	plan.setup(Knobs._v, camp)
 	rfocus = 0
 	mode = "return"
+
+## B on the knarr row: plan a push south to Hóp (F27).
+func open_hop() -> void:
+	hop_count = int(camp.n("hop_smallest_party", 10))
+	var why := camp.hop_gate(hop_count)
+	if not why.is_empty():
+		_card("No voyage to Hóp now", "\n".join(why))
+		return
+	mode = "hop"
+
+func _hop_input(e: InputEvent) -> void:
+	if e.is_action_pressed("ui_right_pad") or e.is_action_pressed("ui_right"):
+		hop_count = mini(hop_count + 1, camp.people - 4)
+	elif e.is_action_pressed("ui_left_pad") or e.is_action_pressed("ui_left"):
+		hop_count = maxi(int(camp.n("hop_smallest_party", 10)), hop_count - 1)
+	elif e.is_action_pressed("drop"):
+		get_viewport().set_input_as_handled()
+		mode = "morning"
+	elif e.is_action_pressed("commit"):
+		get_viewport().set_input_as_handled()
+		if camp.start_hop(hop_count):
+			_card("South to Hóp", "%d sail south in the knarr. They will be gone about %d days; the camp works on without them.\nThe knarr cannot sail home until she is back." % [hop_count, int(camp.n("hop_days_away", 30))])
+			_autosave()
+		else:
+			mode = "morning"
+
+func _draw_hop() -> void:
+	var ink := Color("ede3cc")
+	var r := Rect2(420, 260, 1080, 470)
+	draw_rect(r, Color("2a2119"))
+	draw_rect(Rect2(r.position, Vector2(r.size.x, 10)), Color("c9a55a"))
+	draw_string(_font, r.position + Vector2(40, 64), "THE PUSH SOUTH TO HÓP", HORIZONTAL_ALIGNMENT_LEFT, -1, 30, ink)
+	var p := hop_count
+	var body := "South along the coast to Hóp, where the saga says the vines grow wild, wheat sows itself and the rivers are full of salmon. About %d days away.\n\nThey should bring back about %.1f units of vines and grapes (worth %d marks a unit at home, twice the timber), self-sown wheat and dried salmon.\nMany people live at Hóp: fear may rise (less with goodwill). The shoals may strain the hull. The knarr is gone while they are." % [
+		int(camp.n("hop_days_away", 30)), p * camp.n("hop_vines_and_grapes_per_person", 0.25), int(camp.n("silver_per_unit_of_vines", 6))]
+	draw_multiline_string(_font, r.position + Vector2(40, 110), body, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 80, 21, -1, Color(ink, 0.9))
+	draw_string(_font, r.position + Vector2(40, 360), "Party:  ‹ %d ›   (%d stay at the camp)" % [p, camp.people - p], HORIZONTAL_ALIGNMENT_LEFT, -1, 26, Color("e8c35a"))
+	var names: Array = camp.hop_party(p).map(func(m): return str(m.name).split(" ")[0])
+	draw_string(_font, r.position + Vector2(40, 400), "Sailing: " + ", ".join(names), HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 80, 18, Color(ink, 0.7))
+	draw_string(_font, r.position + Vector2(40, 446), ("Z/C party size · Enter sail south · Esc not now" if Controls.keyboard else "D-pad party size · A sail south · B not now"), HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(ink, 0.7))
 
 func _return_input(e: InputEvent) -> void:
 	var rows := ReturnPlan.ROWS.size()
@@ -404,6 +450,8 @@ func _draw() -> void:
 		_draw_market()
 	if mode == "return":
 		_draw_return()
+	if mode == "hop":
+		_draw_hop()
 	if mode == "card":
 		_draw_card()
 
@@ -566,8 +614,12 @@ func _draw_board() -> void:
 	if focus == Camp.JOBS.size() and mode == "morning":
 		draw_rect(Rect2(bx + 10, ky - 34, 536, 50), Color("c9a55a", 0.25))
 	var gate := camp.return_gate()
-	draw_string(_font, Vector2(bx + 24, ky), "The knarr: " + ("ready to sail home (Y)" if gate.is_empty() else "not ready (Y: why)"), HORIZONTAL_ALIGNMENT_LEFT, 520, 22,
-		Color("9ec27a") if gate.is_empty() else Color(ink, 0.7))
+	var kl := "The knarr: " + ("ready to sail home (Y)" if gate.is_empty() else "not ready (Y: why)")
+	if not camp.hop.is_empty():
+		kl = "The knarr: at Hóp, back in %d days" % int(camp.hop.days_left)
+	elif camp.hop_gate().is_empty():
+		kl += " · B: Hóp"
+	draw_string(_font, Vector2(bx + 24, ky), kl, HORIZONTAL_ALIGNMENT_LEFT, 520, 22, Color("9ec27a") if gate.is_empty() else Color(ink, 0.7))
 	draw_string(_font, Vector2(bx + 20, by + 608), "Y: work this job yourself", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(ink, 0.65))
 	draw_string(_font, Vector2(bx + 20, by + 634), "B: fish with line or net · hunt near or far", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(ink, 0.65))
 	if mode == "morning":

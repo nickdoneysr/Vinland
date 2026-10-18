@@ -3,13 +3,15 @@
 Usage: python3 tools/export_knobs.py docs/Vinland_Game_Development_Plan.xlsx
 The game reads tuning values from data/knobs.json, never from code literals (Backlog F01, Risk R2).
 """
-import json, re, sys, pathlib, datetime
+import json, re, sys, pathlib, datetime, unicodedata
 import openpyxl
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 def key(label):
     k = re.sub(r'\(.*?\)', '', str(label)).lower()
+    k = k.replace('ð', 'd').replace('þ', 'th').replace('æ', 'ae')
+    k = unicodedata.normalize('NFKD', k).encode('ascii', 'ignore').decode()   # Hóp -> hop
     k = re.sub(r"[^a-z0-9]+", '_', k).strip('_')
     return k
 

@@ -49,6 +49,7 @@ var relief := false          # F30: the relief sailing west in the third summer
 var hulls := 1
 var year := 1
 var pelts := 0               # pelts aboard (cargo)
+var vines := 0               # vines and grapes from Hóp (cargo units)
 var pelt_bales := 0          # cargo units they take
 var jettisoned := 0.0        # timber thrown over to save her
 var iron_units := 1
@@ -177,7 +178,7 @@ func is_coastal() -> bool:
 func hold_load() -> float:
 	var u := people * n("cargo_units_per_person", 0.4) + cattle * n("cargo_units_per_head_of_cattle", 1.5) \
 		+ sheep * n("cargo_units_per_sheep_or_goat", 0.4) + ceilf(food) + ceilf(drink) + ceilf(fodder) + trade \
-		+ timber * n("cargo_units_per_timber_unit", 1.0) + spare_sail + pelt_bales
+		+ timber * n("cargo_units_per_timber_unit", 1.0) + spare_sail + pelt_bales + vines
 	return snappedf(u, 0.1)
 
 func hold_capacity() -> float:
@@ -538,7 +539,7 @@ func write_log(path: String) -> void:
 const SAVE_FIELDS := ["day", "day_of_year", "watch", "leg_i", "leg_left", "sailed_nm", "drift_nm_total", "state", "loss_reason",
 	"people", "dead", "cattle", "sheep", "fodderless_days", "food", "fresh_fish", "drink", "fodder", "trade", "cloth_units", "iron_units", "hooks", "timber",
 	"ration", "animal_ration", "pace", "morale", "hull", "sail_torn", "sail_strain", "weather", "deck", "fix_today", "fished_today",
-	"day_nm", "starving_days", "animals_lost", "fixes", "storm_bailed", "sun_today", "sun_noon", "sun_fixes", "outfit", "spare_sail", "nets", "homeward", "pelts", "pelt_bales", "jettisoned", "relief", "hulls", "year"]
+	"day_nm", "starving_days", "animals_lost", "fixes", "storm_bailed", "sun_today", "sun_noon", "sun_fixes", "outfit", "spare_sail", "nets", "homeward", "pelts", "pelt_bales", "jettisoned", "relief", "hulls", "year", "vines"]
 
 func to_dict() -> Dictionary:
 	var d := {"sick": Array(sick), "rng_seed": str(rng.seed), "rng_state": str(rng.state), "crew": crew.to_array()}
