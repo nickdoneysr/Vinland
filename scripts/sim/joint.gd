@@ -20,6 +20,7 @@ var set_held := 0.0
 var depth := 0.0             # 0..1 driven
 var stress := 0.0            # grain load; split above the cap
 var blows := 0
+var _last_force := -1.0
 var _rt_peak := 0.0
 var _rt_down := false
 var _noise := FastNoiseLite.new()
@@ -38,7 +39,7 @@ func setup(cfg: Dictionary, seed: int = 0, is_rain: bool = false) -> void:
 	peg_angle = hole_angle + rng.randf_range(20.0, 35.0) * (1.0 if rng.randf() < 0.5 else -1.0)
 
 func cap() -> float:
-	return float(c.stress_cap_rain if rain else c.stress_cap_dry)
+	return float(c.stress_cap_rain if rain else c.stress_cap_dry) * float(c.get("stress_cap_mult", 1.0))
 
 func misalign() -> float:
 	return absf(peg_angle - hole_angle)
@@ -86,6 +87,7 @@ func _blow_detect(rt: float) -> void:
 
 func _blow(force: float) -> void:
 	blows += 1
+	_last_force = force
 	var gain := float(c.depth_per_blow_at_full) * force
 	var best_min := float(c.best_force[0])
 	if force < best_min:

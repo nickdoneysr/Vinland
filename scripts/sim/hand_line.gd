@@ -98,6 +98,8 @@ func step(dt: float, stick_y: float, rt_pressed: bool, cut: bool) -> Array:
 					nibbles_left = rng.randi_range(int(c.nibbles[0]), int(c.nibbles[1]))
 					_next_after_nibbles()
 		Phase.NIBBLE, Phase.TUG1, Phase.GAP, Phase.TUG2, Phase.EASE:
+			if rt_pressed and phase == Phase.NIBBLE and not bool(c.get("nibble_spooks", true)):
+				rt_pressed = false          # forgiving: a strike at a nibble just misses, the fish stays
 			if rt_pressed:
 				if phase == Phase.EASE:
 					phase = Phase.HOOKED

@@ -14,6 +14,8 @@ const HOOK_X := 980.0
 var embedded := false
 var hook_stock := 6
 var autopilot := false
+var bot_input: Callable          # tests: a novice model returns [stick, rt_held, cut]
+var difficulty := ""
 var rules := HandLine.new()
 var t := 0.0
 var result: Dictionary = {}
@@ -26,11 +28,12 @@ var _bot_cd := 0.0
 
 func _ready() -> void:
 	_font = ThemeDB.fallback_font
-	_cfg = JSON.parse_string(FileAccess.open("res://data/minigames.json", FileAccess.READ).get_as_text()).hand_line
+	_cfg = Game.tuning("hand_line", difficulty)
 	if not embedded:
 		start(false, 0.3)
 
 func start(fog: bool, current: float, seed: int = 0) -> void:
+	_cfg = Game.tuning("hand_line", difficulty)
 	rules = HandLine.new()
 	rules.setup(_cfg, seed, hook_stock)
 	rules.fog = fog
@@ -48,6 +51,9 @@ func _process(delta: float) -> void:
 		if autopilot:
 			var b := _bot()
 			stick = b[0]; rt = b[1]; cut = false
+		elif bot_input.is_valid():
+			var b2: Array = bot_input.call(self)
+			stick = b2[0]; rt = b2[1]; cut = b2[2]
 		var pressed := rt and not _rt_was
 		_rt_was = rt
 		for e in rules.step(delta, stick, pressed, cut):
@@ -174,6 +180,25 @@ func _draw() -> void:
 		var snap_y := 340.0 - 300.0 / 1.4
 		draw_line(Vector2(tx - 10, snap_y), Vector2(tx + 50, snap_y), Color("9e3a2e"), 3.0)
 		draw_string(_font, Vector2(tx - 30, 380), "line strain", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, ink)
+	if bool(_cfg.get("bite_banner", false)) and result.is_empty():
+		var banner := ""
+		var bcol := ink
+		match rules.phase:
+			HandLine.Phase.NIBBLE: banner = "nibble... wait"
+			HandLine.Phase.TUG1, HandLine.Phase.GAP: banner = "TUG"
+			HandLine.Phase.TUG2: banner = "TUG TUG"
+			HandLine.Phase.EASE:
+				banner = "NOW!  pull RT"
+				bcol = Color("e8c35a")
+			HandLine.Phase.HOOKED:
+				banner = "Haul (LS up) · ease off (LS down) when the strain goes red"
+		if banner != "":
+			draw_rect(Rect2(1080, 400, 760, 90), Color(0.08, 0.07, 0.06, 0.8))
+			draw_string(_font, Vector2(1110, 460), banner, HORIZONTAL_ALIGNMENT_LEFT, 720, 40 if rules.phase != HandLine.Phase.HOOKED else 24, bcol)
+		elif rules.phase == HandLine.Phase.WAITING and rules.bait:
+			var hint := "Let out line (LS down) to the deep water: cod are 20-30 m down" if rules.depth < 16.0 else "Wait for the bite..."
+			draw_rect(Rect2(1080, 400, 760, 70), Color(0.08, 0.07, 0.06, 0.6))
+			draw_string(_font, Vector2(1110, 446), hint, HORIZONTAL_ALIGNMENT_LEFT, 720, 22, Color(ink, 0.85))
 	if flash > 0.0:
 		draw_string(_font, Vector2(1100, 210), flash_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 30, Color(ink, minf(1.0, flash)))
 	if not result.is_empty():

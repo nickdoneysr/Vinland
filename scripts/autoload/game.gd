@@ -4,7 +4,22 @@ extends Node
 signal hold_changed
 signal day_advanced(day: int)
 
-var settings := {"haptics": true, "text_scale": 1.0}
+var settings := {"haptics": true, "text_scale": 1.0, "difficulty": "forgiving"}
+const DIFFICULTIES := ["forgiving", "standard", "hard"]
+const DIFFICULTY_NAMES := {"forgiving": "Forgiving", "standard": "Standard", "hard": "Hard"}
+
+var _mg: Dictionary = {}
+
+## Mini-game feel tuning for one game, with the chosen difficulty's overrides applied.
+func tuning(game: String, difficulty: String = "") -> Dictionary:
+	if _mg.is_empty():
+		_mg = JSON.parse_string(FileAccess.open("res://data/minigames.json", FileAccess.READ).get_as_text())
+	var d := difficulty if difficulty != "" else str(settings.difficulty)
+	var out: Dictionary = (_mg[game] as Dictionary).duplicate(true)
+	var over: Dictionary = _mg.difficulty.get(d, {}).get(game, {})
+	for key in over:
+		out[key] = over[key]
+	return out
 
 var day := 0            # days since departure
 var watch := 0          # 0..5, six four-hour watches a day

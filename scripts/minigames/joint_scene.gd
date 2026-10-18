@@ -8,6 +8,12 @@ signal closed
 
 var embedded := false
 var autopilot := false
+var bot_input: Callable          # tests: a novice model returns [ls, rs, rt]
+var difficulty := ""
+var keyboard_charge := false     # tests can force the keyboard model
+var _charge := 0.0               # keyboard: holding the drive key winds up the blow
+var _pull := 0.0                 # what the gauge shows: current pull or wind-up
+var _last_force := -1.0
 var rules := Joint.new()
 var _cfg: Dictionary
 var _font: Font
@@ -18,11 +24,12 @@ var _bot_cycle := 0.0
 
 func _ready() -> void:
 	_font = ThemeDB.fallback_font
-	_cfg = JSON.parse_string(FileAccess.open("res://data/minigames.json", FileAccess.READ).get_as_text()).joint
+	_cfg = Game.tuning("joint", difficulty)
 	if not embedded:
 		start(false)
 
 func start(rain: bool, seed: int = 0) -> void:
+	_cfg = Game.tuning("joint", difficulty)
 	rules = Joint.new()
 	rules.setup(_cfg, seed, rain)
 	result = {}
@@ -35,6 +42,26 @@ func _process(delta: float) -> void:
 		var ls := Controls.left_stick().x
 		var rs := Controls.right_stick().x
 		var rt := Input.get_action_strength("rt")
+		# Keyboard: a key is all or nothing, so holding it winds the blow up over 0.8 s and
+		# letting go strikes at the wound-up force. A pad trigger strikes at how far it was pulled.
+		if (Controls.keyboard or keyboard_charge) and not autopilot and not bot_input.is_valid():
+			if rt > 0.5:
+				_charge = minf(1.0, _charge + delta / 0.8)
+				rt = maxf(0.16, _charge)
+			else:
+				_charge = 0.0
+				rt = 0.0
+		if bot_input.is_valid():
+			var b: Array = bot_input.call(self)
+			ls = b[0]; rs = b[1]; rt = b[2]
+			if keyboard_charge:
+				if rt > 0.5:
+					_charge = minf(1.0, _charge + delta / 0.8)
+					rt = maxf(0.16, _charge)
+				else:
+					_charge = 0.0
+					rt = 0.0
+		_pull = rt
 		if autopilot:
 			ls = clampf(rules.wobble * 3.0, -1, 1)
 			rs = clampf((rules.hole_angle - rules.peg_angle) / 8.0, -1, 1)
@@ -44,6 +71,7 @@ func _process(delta: float) -> void:
 			match e:
 				"blow":
 					strike = 1.0
+					_last_force = rules._last_force
 					Controls.pulse(0.3 + rules.grain_load() * 0.5, 0.2 + rules.grain_load() * 0.8, 0.1)
 				"split": Controls.pulse(1.0, 1.0, 0.35)
 				"seated": Controls.pulse(0.4, 0.4, 0.15)
@@ -128,12 +156,31 @@ func _draw() -> void:
 	_meter(Vector2(1520, 40), "brace", 1.0 - clampf(absf(rules.wobble) / 0.6, 0, 1), rules.braced())
 	_meter(Vector2(1600, 40), "peg", 1.0 - clampf(rules.misalign() / 30.0, 0, 1), aligned)
 	_meter(Vector2(1680, 40), "grain", 1.0 - load, load < 0.6)
+	if rules.phase == Joint.Phase.DRIVE:
+		_force_gauge(Vector2(1780, 40))
 	if not result.is_empty():
 		draw_rect(Rect2(560, 820, 800, 180), Color(0.08, 0.07, 0.06, 0.9))
 		draw_rect(Rect2(560, 820, 800, 8), Color("6e8a4e") if result.seated else Color("9e3a2e"))
 		var line := "Seated in %d blows. The day counts." % result.blows if result.seated else ("Split log. The day is lost." if rules.phase == Joint.Phase.SPLIT else "Not home before dark. The day is lost.")
 		draw_string(_font, Vector2(600, 890), line, HORIZONTAL_ALIGNMENT_LEFT, -1, 30, ink)
 		draw_string(_font, Vector2(600, 950), "A: back" if embedded else "A: next timber", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(ink, 0.6))
+
+## The blow gauge: how hard the next blow will land, with the band that drives with the grain.
+func _force_gauge(at: Vector2) -> void:
+	var ink := Color("ede3cc")
+	var h := 220.0
+	var best: Array = _cfg.best_force
+	draw_rect(Rect2(at, Vector2(56, h)), Color(0.1, 0.09, 0.07, 0.82))
+	var lo := float(best[0]); var hi := float(best[1])
+	draw_rect(Rect2(at + Vector2(0, h - h * hi), Vector2(56, h * (hi - lo))), Color("6e8a4e", 0.55))
+	draw_rect(Rect2(at + Vector2(0, 0), Vector2(56, h - h * hi)), Color("9e3a2e", 0.35))
+	draw_rect(Rect2(at + Vector2(8, h - h * _pull), Vector2(40, h * _pull)), Color("e8c35a"))
+	if _last_force >= 0.0:
+		var y := at.y + h - h * _last_force
+		draw_line(Vector2(at.x - 6, y), Vector2(at.x + 62, y), ink, 3.0)
+	draw_string(_font, at + Vector2(-14, h + 30), "blow", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, ink)
+	var tip := "Hold Space, let go in the green" if Controls.keyboard else "Pull RT into the green, release"
+	draw_string(_font, Vector2(1180, 330), tip, HORIZONTAL_ALIGNMENT_LEFT, 700, 22, ink)
 
 func _meter(at: Vector2, label: String, v: float, ok: bool) -> void:
 	draw_rect(Rect2(at, Vector2(40, 220)), Color(0.1, 0.09, 0.07, 0.82))

@@ -43,6 +43,10 @@ var _pulse_cd := 0.0
 var _rng := RandomNumberGenerator.new()
 var _font: Font
 var autopilot := false          # test bot: steers like a skilled player (tests only)
+var bot_input: Callable          # tests: a novice model returns [ls, rs, trig, commit]; replaces pad input
+var cfg: Dictionary = {}
+var difficulty := ""
+var _vel := Vector2.ZERO
 var autopilot_level_bias := 0.0  # degrees the bot mislevels by, to test grading
 
 func _ready() -> void:
@@ -52,11 +56,14 @@ func _ready() -> void:
 	new_night(preset_name)
 
 func new_night(name: String) -> void:
+	cfg = Game.tuning("ring", difficulty)
+	rule.configure(cfg)
 	preset_name = name
 	cond = PRESETS[name]
 	_rng.randomize()
 	_noise.seed = _rng.randi()
 	rule.reset(_rng.randf_range(58.5, 64.5))
+	_vel = Vector2.ZERO
 	t = 0.0
 	watch_left = WATCH_SECONDS
 	ring_base = Vector2(960 + _rng.randf_range(-120, 120), HORIZON_Y - BAR_OFFSET + _rng.randf_range(-60, 60))
@@ -97,7 +104,7 @@ func star_world() -> Vector2:
 	return Vector2(960 + 40, HORIZON_Y - rule.true_lat * K)
 
 func sway() -> Vector2:
-	var s: float = (5.4 * cond.sea + 0.5) * K   # hand and ship motion, in degrees of sky
+	var s: float = (5.4 * cond.sea + 0.5) * K * float(cfg.get("sway_scale", 1.0))   # hand and ship motion, in degrees of sky
 	return Vector2(_noise.get_noise_1d(t * 1.3 + 50.0), _noise.get_noise_1d(t * 1.1 + 90.0)) * s
 
 # ---------------------------------------------------------------- loop
@@ -116,10 +123,22 @@ func _play(delta: float) -> void:
 	var ls: Vector2 = Controls.left_stick()
 	var rs: Vector2 = Controls.right_stick()
 	var trig := Input.get_action_strength("rt") - Input.get_action_strength("lt")
+	var want_commit := Input.is_action_just_pressed("commit")
 	if autopilot:
 		var bot := _bot_inputs()
 		ls = bot[0]; rs = bot[1]; trig = bot[2]
-	ring_base += ls * 520.0 * delta + Vector2(rs.x * 70.0, 0) * delta
+	elif bot_input.is_valid():
+		var b: Array = bot_input.call(self)
+		ls = b[0]; rs = b[1]; trig = b[2]; want_commit = b[3]
+	# Eased movement: keys and flicks never jump the ring; the stick's speed builds over a moment.
+	var speed := float(cfg.get("move_speed", 520.0))
+	_vel = _vel.lerp(ls * speed, clampf(delta * (14.0 if autopilot else 7.0), 0.0, 1.0))
+	ring_base += _vel * delta + Vector2(rs.x * 70.0, 0) * delta
+	# Forgiving modes: the hands settle the bar toward the true horizon on their own.
+	var assist := float(cfg.get("assist_level", 0.0))
+	if assist > 0.0:
+		var level_gap := horizon_y_at(ring_base.x) - (ring_base.y + BAR_OFFSET)
+		ring_base.y += level_gap * assist * delta * 2.5
 	ring_base = ring_base.clamp(Vector2(400, 300), Vector2(1520, 900))
 	ring = ring_base + sway()
 	reading += trig * 7.0 * delta
@@ -131,14 +150,15 @@ func _play(delta: float) -> void:
 	var visible := _star_visible(star)
 	var aim_err := sight.distance_to(star) / K
 	var level_err := (horizon_y_at(ring.x) - bar_y) / K
-	quality = rule.step(delta, reading, level_err, aim_err, visible)
+	var measured := (bar_y - star.y) / K
+	quality = rule.step(delta, reading, level_err, aim_err, visible, measured)
 	_haptics(delta)
-	if Input.is_action_just_pressed("commit"):
+	if want_commit:
 		_finish(rule.commit())
 	elif Input.is_action_just_pressed("drop"):
 		_finish(rule.abort())
 	elif watch_left <= 0.0:
-		_finish(rule.commit() if rule.seat_held >= RingFix.SEAT_TIME else rule.abort())
+		_finish(rule.commit() if rule.seat_held >= rule.seat_time else rule.abort())
 
 ## Test bot: levels the bar on the true horizon (plus a bias) and walks the sight onto the star,
 ## with stick values limited to -1..1 like a real pad.
@@ -285,7 +305,7 @@ func _draw_hud() -> void:
 	for i in 6:
 		var lit := watch_left > (5 - i) * WATCH_SECONDS / 6.0
 		draw_rect(Rect2(1600 + i * 46, 40, 36, 14), Color(ink, 0.85 if lit else 0.15))
-	var seat := clampf(rule.seat_held / RingFix.SEAT_TIME, 0, 1)
+	var seat := clampf(rule.seat_held / rule.seat_time, 0, 1)
 	draw_rect(Rect2(1600, 66, 266, 10), Color(ink, 0.15))
 	draw_rect(Rect2(1600, 66, 266 * seat, 10), Color("c9a55a"))
 	draw_string(_font, Vector2(1600, 100), "seat held" if seat >= 1.0 else "seating", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(ink, 0.6))

@@ -5,6 +5,15 @@ extends Node
 
 const DEADZONE := 0.18
 
+## True when the last input came from the keyboard: digital keys get gentler handling (charged blows, eased sticks).
+var keyboard := false
+
+func _input(e: InputEvent) -> void:
+	if e is InputEventKey:
+		keyboard = true
+	elif e is InputEventJoypadButton or (e is InputEventJoypadMotion and absf(e.axis_value) > 0.3):
+		keyboard = false
+
 func _ready() -> void:
 	_axis("ls_left", JOY_AXIS_LEFT_X, -1.0, KEY_A)
 	_axis("ls_right", JOY_AXIS_LEFT_X, 1.0, KEY_D)

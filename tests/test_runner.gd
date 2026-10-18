@@ -11,7 +11,7 @@ func check(name: String, ok: bool, info := "") -> void:
 
 func _ready() -> void:
 	# Watchdog: a script error must never leave the run hanging.
-	get_tree().create_timer(280.0).timeout.connect(func(): print("RESULT FAIL (watchdog timeout)"); get_tree().quit(2))
+	get_tree().create_timer(900.0).timeout.connect(func(): print("RESULT FAIL (watchdog timeout)"); get_tree().quit(2))
 	_rules()
 	await _bot_nights()
 	load("res://tests/test_voyage.gd").run(self)
@@ -19,6 +19,7 @@ func _ready() -> void:
 	load("res://tests/test_minigames.gd").run(self)
 	load("res://tests/test_camp.gd").run(self)
 	await load("res://tests/test_voyage_scene.gd").run_slice(self)
+	await load("res://tests/test_novice.gd").run(self)
 	print("RESULT %s (%d failures)" % ["PASS" if fails == 0 else "FAIL", fails])
 	get_tree().quit(1 if fails else 0)
 
@@ -55,6 +56,7 @@ func _bot_nights() -> void:
 		check("star ring scene loads", n.has_method("new_night"))
 		if not n.has_method("new_night"):
 			return
+		n.difficulty = "hard"
 		n.new_night(spec[0])
 		n.autopilot = true
 		n.autopilot_level_bias = spec[1]
