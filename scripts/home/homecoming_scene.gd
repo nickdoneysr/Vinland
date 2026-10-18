@@ -2,7 +2,7 @@ extends Node2D
 ## Eriksfjord homecoming (Backlog F25 appraisal and sale, F26 recruitment and a second hull).
 ## A steps through the pages; on the recruitment page LB/RB choose a row, D-pad changes it.
 
-const PAGES := ["arrival", "appraisal", "recruit", "winter"]
+var PAGES := ["arrival", "appraisal", "recruit", "winter"]
 
 var home := Home.new()
 var page := 0
@@ -18,7 +18,9 @@ func _ready() -> void:
 		page = PAGES.find("winter")
 		return
 	if Game.voyage != null and Game.camp != null:
-		home.setup(Knobs._v, Game.voyage, Game.camp, Game.outfit_table().get(Game.voyage.outfit, {}))
+		home.setup(Knobs._v, Game.voyage, Game.camp, Game.outfit_table().get(Game.voyage.outfit, {}), Game.home)
+	if home.is_final():
+		PAGES = ["arrival", "appraisal", "saga"]
 
 func _unhandled_input(e: InputEvent) -> void:
 	var pg: String = PAGES[page]
@@ -41,7 +43,8 @@ func _unhandled_input(e: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		advance()
 
-## Next page; the last page saves the winter at home and returns to the title.
+## Next page. After recruitment the winter at home is saved; from the winter page the relief is loaded.
+## A final homecoming ends in the saga and the score.
 func advance() -> void:
 	if PAGES[page] == "recruit":
 		Game.home = home.to_dict()
@@ -49,9 +52,14 @@ func advance() -> void:
 			Game.save_game("home")
 	if page < PAGES.size() - 1:
 		page += 1
+		if PAGES[page] == "saga":
+			Game.home = home.to_dict()
+			if not autosave_off:
+				Game.clear_saves()
 		return
+	var next := "res://scenes/boot.tscn" if PAGES[page] == "saga" else "res://scenes/relief.tscn"
 	if is_inside_tree() and not get_tree().root.has_meta("no_scene_change"):
-		get_tree().change_scene_to_file("res://scenes/boot.tscn")
+		get_tree().change_scene_to_file(next)
 
 func _draw() -> void:
 	var ink := Color("ede3cc")
@@ -74,7 +82,7 @@ func _draw() -> void:
 	var y := r.position.y + 76
 	match PAGES[page]:
 		"arrival":
-			draw_string(_font, Vector2(x0, y), "HOME AT ERIKSFJORD  ·  autumn, year %d" % home.year, HORIZONTAL_ALIGNMENT_LEFT, -1, 34, ink)
+			draw_string(_font, Vector2(x0, y), "HOME AT ERIKSFJORD  ·  year %d  ·  cargo %d" % [home.year, home.cargoes], HORIZONTAL_ALIGNMENT_LEFT, -1, 34, ink)
 			var names: Array = home.crew.map(func(m): return str(m.name).split(" ")[0])
 			var body := "%d came home: %s.\n\n%s\n\nIn the hold: %d units of timber and %d pelts." % [home.came_home, ", ".join(names),
 				("%d wait at the Strait through another winter." % home.at_camp) if home.at_camp > 0 else "No one waits at the Strait. The booths stand empty.", home.timber, home.pelts]
@@ -116,6 +124,12 @@ func _draw() -> void:
 				("%d people are wintering at the Strait without you. Whether they are alive in spring is the next question." % home.at_camp) if home.at_camp > 0 else "No one waits at the Strait.",
 				home.cargoes]
 			draw_multiline_string(_font, Vector2(x0, y + 60), body2, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 100, 24, -1, Color(ink, 0.9))
-			draw_string(_font, Vector2(x0, y + 400), "The relief voyage and the second cargo are the next part of the build (Backlog F30). The run is saved here.", HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 100, 20, Color(ink, 0.6))
+			draw_string(_font, Vector2(x0, y + 400), "A: load the relief for the spring sailing.", HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 100, 22, Color(ink, 0.7))
+		"saga":
+			var sc := home.score()
+			draw_string(_font, Vector2(x0, y), str(sc.title).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 34, Color("e8c35a"))
+			draw_multiline_string(_font, Vector2(x0, y + 50), str(sc.line), HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 100, 24, -1, ink)
+			draw_multiline_string(_font, Vector2(x0, y + 170), "\n".join(sc.lines), HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 100, 24, -1, Color(ink, 0.9))
+			draw_string(_font, Vector2(x0, y + 520), "Score: %d" % int(sc.total), HORIZONTAL_ALIGNMENT_LEFT, -1, 40, Color("e8c35a"))
 	if PAGES[page] != "recruit":
-		draw_string(_font, Vector2(x0, r.end.y - 30), "A: continue" if page < PAGES.size() - 1 else "A: back to the title", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(ink, 0.6))
+		draw_string(_font, Vector2(x0, r.end.y - 30), "A: continue" if page < PAGES.size() - 1 else ("A: back to the title" if PAGES[page] == "saga" else "A: load the relief"), HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(ink, 0.6))

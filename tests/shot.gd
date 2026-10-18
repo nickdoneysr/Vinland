@@ -13,6 +13,24 @@ func _ready() -> void:
 		var pl := ReturnPlan.new(); pl.setup(Knobs._v, c)
 		Game.voyage = pl.launch(TR.legs_data(), 9)
 		Game.camp = c
+	var saga_home: Home = null
+	if a.has("fullrun"):
+		var TR = load("res://tests/test_return.gd")
+		var c: Camp = TR.ready_camp(9)
+		var pl := ReturnPlan.new(); pl.setup(Knobs._v, c)
+		var hv: Voyage = pl.launch(TR.legs_data(), 9)
+		TR.sail(hv)
+		var h := Home.new(); h.setup(Knobs._v, hv, c, Game.outfit_table().merchant)
+		h.set_hull(true); h.set_hires(8)
+		Game.home = h.to_dict()
+		if a.fullrun == "reunion":
+			var rl := Relief.new(); rl.setup(Knobs._v, h)
+			var rv := Voyage.new(); rv.setup(Knobs._v, TR.legs_data(), 10)
+			rl.apply_to(rv); rv.day_of_year = 183
+			Game.voyage = rv; Game.camp = c; Game.loaded_stage = "reunion"
+		if a.fullrun == "saga":
+			var r: Dictionary = load("res://tests/test_fullrun.gd").whole_run("merchant", 20000)
+			saga_home = r.home
 	var n = load(a.get("scene", "res://scenes/boot.tscn")).instantiate()
 	add_child(n)
 	if a.has("preset") and n.has_method("new_night"):
@@ -40,6 +58,10 @@ func _ready() -> void:
 		c.timber = 21.4; c.timber_felled = 24.0; c.timber_winter = 13.0; c.food = 3.0; c.pelts = 34
 		n.cards.clear(); n.mode = "morning"
 		n.open_return()
+	if saga_home != null:
+		n.home = saga_home
+		n.PAGES = ["arrival", "appraisal", "saga"]
+		n.page = 2
 	if a.has("home_page"):
 		n.autosave_off = true
 		for i in int(a.home_page): n.page += 1

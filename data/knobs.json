@@ -191,5 +191,19 @@
  "silver_to_hire_a_recruit": 1,
  "second_hull_price": 40,
  "most_volunteers_in_a_winter": 30,
- "most_people_a_relief_hull_carries": 30
+ "most_people_a_relief_hull_carries": 30,
+ "relief_price_food_unit": 1,
+ "relief_price_drink_unit": 0.5,
+ "relief_price_fodder_unit": 0.5,
+ "relief_price_head_of_cattle": 3,
+ "relief_price_sheep_or_goat": 0.5,
+ "relief_price_trade_unit": 2,
+ "score_per_timber_unit_delivered": 2,
+ "score_per_person_alive_at_the_end": 3,
+ "score_per_point_of_goodwill_left": 1,
+ "score_per_cargo_home": 10,
+ "score_for_a_relief_that_reached_the_camp": 10,
+ "score_for_a_living_camp_at_the_end": 25,
+ "score_per_death": 2,
+ "cargoes_for_the_full_win": 2
 }

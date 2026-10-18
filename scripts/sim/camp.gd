@@ -59,13 +59,15 @@ var weapon_request := false
 var penned_today := false
 var quiet_days := 0
 var player_job := "build"
-var state := "camp"            # camp | abandoned | lost
+var state := "camp"            # camp | abandoned | lost | stranded
 var second_spring := false     # the camp came through its first winter (the G1 milestone)
 var hull := 0                  # the knarr drawn up on the shingle: 0 sound .. 3 holed
 var shed := 0.0                # builder-days into the boat shed
 var timber_felled := 0.0
 var timber_winter := 0.0       # timber felled in winter seasons better (F25 grade)
 var sailed := 0                # times the knarr has sailed home from here
+var knarr_here := true         # the knarr is drawn up at the camp (false while she is away)
+var relief_came := false       # the relief has reached the camp (F30)
 var end_reason := ""
 var history := {"joints_seated": 0, "joints_split": 0, "fish_watches": 0, "fish_pd": 0.0, "dried_pd": 0.0, "animals_lost": 0,
 	"kills": 0, "hunts_played": 0, "forage_played": 0, "markets": 0, "weapon_sales": 0, "bull_loose": 0, "raids": 0}
@@ -528,6 +530,9 @@ func _advance_calendar(tally: Dictionary) -> void:
 	if people <= 0:
 		state = "lost"
 		end_reason = "No one is left at the camp."
+	elif year >= int(n("full_game_length", 3)) and sailed == 0 and day_of_year >= int(n("first_snow", 305)):
+		state = "stranded"
+		end_reason = "The third winter came, and no ship had gone home. A camp that only feeds itself is forgotten when its ship does not return."
 	elif year >= 2 and not second_spring and day_of_year >= int(n("camp_build_ends", 145)) and day_of_year < int(n("first_snow", 305)):
 		second_spring = true
 		tally.events.append("second_spring")
@@ -754,7 +759,9 @@ func winter_share() -> float:
 ## What still stands between the camp and the voyage home (F24). Empty means the return gate is open.
 func return_gate() -> Array:
 	var why: Array = []
-	if year < 2 or day_of_year < int(n("return_window_opens", 152)) or is_winter():
+	if not knarr_here:
+		why.append("The knarr is away at Eriksfjord. She comes back with the relief.")
+	elif year < 2 or day_of_year < int(n("return_window_opens", 152)) or is_winter():
 		why.append("The return window opens on 1 June of the second summer.")
 	if not shed_done():
 		why.append("Raise the boat shed (%d%%)." % roundi(shed / n("work_to_raise_the_boat_shed", 80) * 100.0))
@@ -766,6 +773,111 @@ func return_gate() -> Array:
 		why.append("She needs a skipper or a pilot and %d hands." % int(n("role_fewest_crew_to_sail_a_knarr_home", 10)))
 	return why
 
+## While you are away the camp runs itself (F30): a sensible plan by season, scaled to who is left.
+func auto_plan() -> void:
+	var s := season()
+	var a := {}
+	var herd := cattle + sheep * n("sheep_fodder_as_share_of_a_cow", 0.25)
+	if s == "winter":
+		a = {"build": 6, "fish": 6, "hunt": 0, "forage": 0, "dry": 0, "timber": 6, "hay": 0, "tend": 3}
+		ration = "full" if food_days() > winter_days_left() * 0.8 else "half"
+	elif job_open("hay"):
+		a = {"build": 5, "fish": 6, "hunt": 0, "forage": 2, "dry": 3, "timber": 1, "hay": 4 + (1 if herd > 4.0 else 0), "tend": 1}
+		ration = "full"
+	else:
+		a = {"build": 8, "fish": 6, "hunt": 0, "forage": 3, "dry": 3, "timber": 2, "hay": 0, "tend": 1}
+		ration = "full"
+	var total := 0
+	for j in a:
+		total += int(a[j])
+	var fit := people - sick.size()
+	var scale := float(fit) / float(total) if total > 0 else 0.0
+	for j in a:
+		a[j] = int(floor(int(a[j]) * scale))
+	if job_open("hay") and herd > 0.0:
+		# enough haymakers to put up the herd's winter feed before the season closes
+		var winter_len := 365 - int(n("first_snow", 305)) + int(n("spring_thaw", 110))
+		var need := maxf(0.0, hay_per_day() * winter_len - hay)
+		var days_left := maxi(1, int(n("forage_and_hay_season_ends", 290)) - day_of_year)
+		var want := ceili(need / (n("hay_cut_per_worker_day", 0.15) * days_left))
+		var hayers := clampi(want, int(a.hay), maxi(int(a.hay), fit / 2))
+		var extra := hayers - int(a.hay)
+		a.hay = hayers
+		for j in ["build", "timber", "forage", "fish"]:
+			var take := mini(extra, int(a[j]))
+			a[j] = int(a[j]) - take
+			extra -= take
+	var used := 0
+	for j in a:
+		used += int(a[j])
+	a.fish = int(a.fish) + maxi(0, fit - used)
+	assign = a
+	player_job = ""
+	default_assignments()
+	var spare := idle()
+	if spare > 0:                      # more fishers than hooks: the spare hands fell timber
+		assign.timber = int(assign.timber) + spare
+		default_assignments()
+
+## Run the camp on its own until a date (F30), trading at markets with the default offer and refusing weapons.
+## Returns the lines worth telling: deaths, buildings, seasons, losses.
+func catch_up(to_year: int, to_day: int) -> Array:
+	var lines: Array = []
+	var guard := 0
+	while state == "camp" and (year < to_year or (year == to_year and day_of_year < to_day)) and guard < 800:
+		guard += 1
+		auto_plan()
+		if roll_market():
+			var r := do_trade(mini(cloth_strips, 4), mini(milk_to_spare(), 20), not byre_done())
+			for l in r.lines:
+				if "bull" in l: lines.append("%s: %s" % [date_text(), l])
+			if weapon_request:
+				answer_weapon_request(false)
+		var tally := work_day()
+		for l in tally.lines:
+			if "died" in l or l.begins_with("A booth") or l.begins_with("The longhouse") or l.begins_with("The byre") or l.begins_with("The boat shed") \
+					or l.begins_with("First snow") or l.begins_with("The thaw") or l.begins_with("No hay") or "driven off" in l or "clash" in l or "starved" in l:
+				_tell(lines, tally.date, l)
+	return lines.map(func(e): return ("%s: %s" % [e[0], e[2]]) if e[0] == e[1] else ("%s to %s: %s" % [e[0], e[1], e[2]]))
+
+## Gather a told line; the same line on following days becomes one line over a span of dates.
+func _tell(lines: Array, date: String, text: String) -> void:
+	if not lines.is_empty() and lines[-1][2] == text:
+		lines[-1][1] = date
+	else:
+		lines.append([date, date, text])
+
+## The relief comes ashore (F30): first the camp's own months are lived out, then the newcomers join it.
+## Returns {lines, alive_before, alive_after, dead_while_away}.
+func reunite(v: Voyage) -> Dictionary:
+	var before := people
+	var dead_before := dead
+	var lines := catch_up(v.year, v.day_of_year)
+	var report := {"lines": lines, "alive_before": before, "alive_after": people if state == "camp" else 0,
+		"dead_while_away": dead - dead_before, "state_before": state}
+	year = v.year
+	day_of_year = v.day_of_year
+	if state != "camp":
+		state = "camp"            # the relief resettles an empty or lost camp
+		end_reason = ""
+	people += v.people
+	dead += v.dead
+	for m in v.crew.alive():
+		crew.add(str(m.name), str(m.role), bool(m.female))
+	cattle += v.cattle
+	sheep += v.sheep
+	food += v.food
+	for f in v.fresh_fish:
+		fresh.append([f[0], f[1]])
+	hooks += v.hooks
+	cloth_strips += int(n("red_cloth_strips_per_trade_unit", 20)) * v.cloth_units
+	iron_blades += int(n("iron_blades_per_trade_unit", 5)) * v.iron_units
+	hull = v.hull
+	knarr_here = true
+	relief_came = true
+	auto_plan()                    # a sensible board for the larger camp; the player changes it from here
+	return report
+
 func late_in_the_year() -> bool:
 	return day_of_year > int(n("last_sensible_day_to_sail_home", 245))
 
@@ -774,7 +886,7 @@ const SAVE_FIELDS := ["day", "year", "day_of_year", "people", "dead", "cattle", 
 	"trade", "timber", "hay", "booths", "longhouse", "byre", "joints", "morale", "ration", "rain", "assign", "player_job", "state",
 	"end_reason", "history", "hunt_far", "fish_net", "nets", "fear", "hides", "patch_health", "goodwill", "cloth_strips", "iron_blades", "pelts",
 	"market_today", "market_pelts", "weapon_request", "penned_today", "quiet_days", "outfit", "smith_days",
-	"second_spring", "hull", "shed", "timber_felled", "timber_winter", "sailed"]
+	"second_spring", "hull", "shed", "timber_felled", "timber_winter", "sailed", "knarr_here", "relief_came"]
 
 func to_dict() -> Dictionary:
 	var d := {"sick": Array(sick), "rng_seed": str(rng.seed), "rng_state": str(rng.state), "crew": crew.to_array()}

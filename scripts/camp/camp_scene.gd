@@ -33,6 +33,21 @@ func _ready() -> void:
 	_font = ThemeDB.fallback_font
 	add_to_group("camp_screen")
 	voyage = Game.voyage
+	if Game.loaded_stage == "reunion" and Game.camp != null and voyage != null:
+		camp = Game.camp
+		Game.loaded_stage = ""
+		var rep := camp.reunite(voyage)
+		var story := ""
+		if str(rep.state_before) != "camp":
+			story = "The booths stand empty. %s The relief takes up the camp again." % ("Everyone had sailed home." if str(rep.state_before) == "abandoned" else "No one survived the winter; the cairns above the shore say so.")
+		else:
+			story = "%d were waiting at the camp; %d came through to meet the relief%s." % [rep.alive_before, rep.alive_after,
+				(" (%d died while you were away)" % rep.dead_while_away) if rep.dead_while_away > 0 else ""]
+		var tail: Array = rep.lines.slice(maxi(0, rep.lines.size() - 7))
+		_card("The camp again, %s, year %d" % [camp.date_text(), camp.year], story + "\n" + "\n".join(tail) + "\n" + _stores_line() + \
+			"\nThe knarr is here. A second cargo of timber home before the autumn closes the full arc.")
+		_autosave()
+		return
 	if Game.loaded_stage == "camp" and Game.camp != null:
 		camp = Game.camp
 		Game.loaded_stage = ""
@@ -183,6 +198,14 @@ func _check_end() -> void:
 		camp.write_log("user://runlog/camp_%s.csv" % Time.get_datetime_string_from_system(true).replace(":", "-"))
 	if camp.state == "lost":
 		_card("The camp is lost", camp.end_reason, "end")
+		return
+	if camp.state == "stranded":
+		var h := Home.new()
+		h.k = Knobs._v
+		var prev: Dictionary = Game.home
+		var sc := Score.compute(Knobs._v, {"timber": int(prev.get("timber_total", 0)), "cargoes": int(prev.get("cargoes", 0)), "relief": camp.relief_came,
+			"camp_alive": camp.people, "home_alive": 0, "goodwill": camp.goodwill, "dead": camp.dead})
+		_card(str(sc.title), camp.end_reason + "\n" + str(sc.line) + "\n" + "\n".join(sc.lines) + "\nScore: %d" % int(sc.total), "end")
 		return
 
 ## The first winter is behind them: the G1 checklist, and what the second summer asks.

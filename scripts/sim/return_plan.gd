@@ -142,6 +142,7 @@ func launch(legs_data: Dictionary, seed: int = 0) -> Voyage:
 	v.hooks = hooks_taken
 	camp.hooks -= hooks_taken
 	camp.sailed += 1
+	camp.knarr_here = false
 	if camp.people <= 0:
 		camp.state = "abandoned"
 		camp.end_reason = "Everyone sailed home."

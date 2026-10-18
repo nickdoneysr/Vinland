@@ -45,6 +45,9 @@ var crew := Crew.new()       # F23: who they are
 var spare_sail := 0
 var nets := 1
 var homeward := false        # F24: the voyage home from the Strait, legs reversed, autumn bias
+var relief := false          # F30: the relief sailing west in the third summer
+var hulls := 1
+var year := 1
 var pelts := 0               # pelts aboard (cargo)
 var pelt_bales := 0          # cargo units they take
 var jettisoned := 0.0        # timber thrown over to save her
@@ -112,6 +115,7 @@ func setup_return(knobs: Dictionary, legs_data: Dictionary, seed: int, camp: Cam
 	else:
 		rng.randomize()
 	homeward = true
+	year = camp.year
 	outfit = camp.outfit
 	day_of_year = camp.day_of_year
 	cattle = 0; sheep = 0; fodder = 0.0
@@ -177,7 +181,7 @@ func hold_load() -> float:
 	return snappedf(u, 0.1)
 
 func hold_capacity() -> float:
-	return n("knarr_cargo_units", 24)
+	return n("knarr_cargo_units", 24) * hulls
 
 ## Days of food left at today's ration (fresh fish included).
 func food_days() -> float:
@@ -534,7 +538,7 @@ func write_log(path: String) -> void:
 const SAVE_FIELDS := ["day", "day_of_year", "watch", "leg_i", "leg_left", "sailed_nm", "drift_nm_total", "state", "loss_reason",
 	"people", "dead", "cattle", "sheep", "fodderless_days", "food", "fresh_fish", "drink", "fodder", "trade", "cloth_units", "iron_units", "hooks", "timber",
 	"ration", "animal_ration", "pace", "morale", "hull", "sail_torn", "sail_strain", "weather", "deck", "fix_today", "fished_today",
-	"day_nm", "starving_days", "animals_lost", "fixes", "storm_bailed", "sun_today", "sun_noon", "sun_fixes", "outfit", "spare_sail", "nets", "homeward", "pelts", "pelt_bales", "jettisoned"]
+	"day_nm", "starving_days", "animals_lost", "fixes", "storm_bailed", "sun_today", "sun_noon", "sun_fixes", "outfit", "spare_sail", "nets", "homeward", "pelts", "pelt_bales", "jettisoned", "relief", "hulls", "year"]
 
 func to_dict() -> Dictionary:
 	var d := {"sick": Array(sick), "rng_seed": str(rng.seed), "rng_state": str(rng.state), "crew": crew.to_array()}

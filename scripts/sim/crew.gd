@@ -88,6 +88,20 @@ func lose(n: int, rng: RandomNumberGenerator) -> Array:
 func add(name: String, role: String, female: bool) -> void:
 	members.append({"name": name, "role": role, "female": female, "alive": true})
 
+## New people join (recruits for the relief): hands with names not already in the company.
+func recruit(count: int, rng: RandomNumberGenerator) -> void:
+	var used := {}
+	for m in members:
+		used[m.name] = true
+	var men: Array = MEN.filter(func(x): return not used.has(x))
+	var women: Array = WOMEN.filter(func(x): return not used.has(x))
+	_shuffle(men, rng); _shuffle(women, rng)
+	for i in count:
+		var female := (members.size() % 5) in [1, 3]
+		var pool: Array = women if female else men
+		var nm: String = pool.pop_back() if not pool.is_empty() else "%s %d" % ["Thora" if female else "Thord", members.size()]
+		members.append({"name": nm, "role": "hand", "female": female, "alive": true})
+
 func title(m: Dictionary) -> String:
 	return m.name if m.role == "hand" else "%s, the %s" % [m.name, str(ROLE_NAMES[m.role]).to_lower()]
 

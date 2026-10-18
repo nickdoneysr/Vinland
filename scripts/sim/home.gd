@@ -24,21 +24,39 @@ var dead := 0
 var crew: Array = []           # who came home (named)
 var year := 2
 var cargoes := 1               # cargoes delivered this run
+var timber_total := 0          # timber delivered over the run
+var sea_dead := 0              # lost on voyages home
+var relief_came := false
+var camp_alive := 0            # people at the camp at the end
+var goodwill := 0.0
+var relief_spent := 0.0        # silver spent on the relief's stores and stock
 
 func n(key: String, fallback: float = 0.0) -> float:
 	return float(k.get(key, fallback))
 
-## Appraise and sell the cargo, and weigh the story the crew tells.
-func setup(knobs: Dictionary, v: Voyage, camp: Camp, outfit_data: Dictionary) -> void:
+## Appraise and sell the cargo, and weigh the story the crew tells. prev is the last homecoming, if any.
+func setup(knobs: Dictionary, v: Voyage, camp: Camp, outfit_data: Dictionary, prev: Dictionary = {}) -> void:
 	k = knobs
 	outfit = v.outfit
 	silver_start = n("starting_silver_" + str(outfit_data.get("silver", "Medium")).to_lower(), 6)
+	if not prev.is_empty():
+		var ph := Home.new()
+		ph.from_dict(knobs, prev)
+		silver_start = ph.left()          # what is left after last winter's hull, hires and relief stores
+		cargoes = ph.cargoes + 1
+		timber_total = ph.timber_total
+		sea_dead = ph.sea_dead
+	timber_total += v.timber
+	sea_dead += v.dead
+	relief_came = camp.relief_came
+	camp_alive = camp.people if camp.state == "camp" else 0
+	goodwill = camp.goodwill
 	timber = v.timber
 	pelts = v.pelts
 	came_home = v.people
 	crew = v.crew.to_array().filter(func(m): return m.alive)
 	at_camp = camp.people if camp.state == "camp" else 0
-	dead = camp.dead + v.dead
+	dead = camp.dead + sea_dead
 	year = camp.year
 	winter_share = camp.winter_share()
 	grade = timber_grade(winter_share, outfit == "shipwright_s_kin")
@@ -91,7 +109,7 @@ func hire_price() -> float:
 	return n("silver_to_hire_a_recruit", 1)
 
 func spent() -> float:
-	return (hull_price() if buy_hull else 0.0) + hires * hire_price()
+	return (hull_price() if buy_hull else 0.0) + hires * hire_price() + relief_spent
 
 func left() -> float:
 	return silver() - spent()
@@ -128,10 +146,19 @@ func relief_party() -> int:
 func hulls() -> int:
 	return 2 if buy_hull else 1
 
+## Is the run over? Two cargoes is the full arc; a homecoming in the last summer ends it too.
+func is_final() -> bool:
+	return cargoes >= int(n("cargoes_for_the_full_win", 2)) or year >= int(n("full_game_length", 3))
+
+func score() -> Dictionary:
+	return Score.compute(k, {"timber": timber_total, "cargoes": cargoes, "relief": relief_came, "camp_alive": camp_alive,
+		"home_alive": came_home, "goodwill": goodwill, "dead": dead})
+
 func to_dict() -> Dictionary:
 	return {"outfit": outfit, "silver_start": silver_start, "timber": timber, "winter_share": winter_share, "pelts": pelts, "grade": grade,
 		"timber_silver": timber_silver, "pelt_silver": pelt_silver, "story": story, "story_lines": story_lines, "volunteers": volunteers,
-		"buy_hull": buy_hull, "hires": hires, "came_home": came_home, "at_camp": at_camp, "dead": dead, "crew": crew, "year": year, "cargoes": cargoes}
+		"buy_hull": buy_hull, "hires": hires, "came_home": came_home, "at_camp": at_camp, "dead": dead, "crew": crew, "year": year, "cargoes": cargoes,
+		"timber_total": timber_total, "sea_dead": sea_dead, "relief_came": relief_came, "camp_alive": camp_alive, "goodwill": goodwill, "relief_spent": relief_spent}
 
 func from_dict(knobs: Dictionary, d: Dictionary) -> void:
 	k = knobs

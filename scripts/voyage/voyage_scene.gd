@@ -38,6 +38,14 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--seed="):
 			seed = int(a.trim_prefix("--seed="))
+	if Game.loaded_stage == "relief" and Game.voyage != null:
+		v = Game.voyage
+		Game.loaded_stage = ""
+		_card("The relief sails, %s, year %d" % [v.date_text(), v.year],
+			"%d people in %d hull%s: %d cattle, %d sheep, %d food, %d drink, %d fodder, %d trade goods.\nWest again, to the Strait and whoever is still there.\nAboard: %s." % [
+			v.people, v.hulls, "s" if v.hulls > 1 else "", v.cattle, v.sheep, int(v.food), int(v.drink), int(v.fodder), v.trade, v.crew.roles_line()], "")
+		_begin_day()
+		return
 	if Game.loaded_stage == "homeward" and Game.voyage != null:
 		v = Game.voyage
 		Game.loaded_stage = ""
@@ -135,6 +143,8 @@ func _end(won: bool, reason: String = "") -> void:
 	if won and v.homeward:
 		_card("Eriksfjord", "Home, %s. The knarr comes in past the skerries with %d units of timber%s.\n%s" % [
 			v.date_text(), v.timber, (" and %d pelts" % v.pelts) if v.pelts > 0 else "", summary], "home")
+	elif won and v.relief:
+		_card("The Strait again", "The relief comes in past the headland, %s. Smoke, or none, above the booths?\n%s" % [v.date_text(), summary], "camp")
 	elif won:
 		_card("Landfall at the Strait", "The camp site at last: a grassy terrace, a brook, a shingle shore.\n" + summary, "camp")
 	else:
@@ -239,6 +249,8 @@ func _unhandled_input(e: InputEvent) -> void:
 				get_tree().change_scene_to_file("res://scenes/boot.tscn")
 				return
 			if c.get("kind", "") == "camp":
+				if v.relief:
+					Game.loaded_stage = "reunion"
 				get_tree().change_scene_to_file("res://scenes/camp.tscn")
 				return
 			if c.get("kind", "") == "home":
