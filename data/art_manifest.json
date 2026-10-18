@@ -1,0 +1,3339 @@
+{
+ "STY-01": {
+  "path": "art_source/style/sty_01_sea_style_target_paintover.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "name": "Sea style target paintover",
+  "type": "Paintover",
+  "frames": "1",
+  "phase": "Preproduction",
+  "priority": "Must"
+ },
+ "STY-02": {
+  "path": "art_source/style/sty_02_camp_style_target_paintover.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "name": "Camp style target paintover",
+  "type": "Paintover",
+  "frames": "1",
+  "phase": "Preproduction",
+  "priority": "Must"
+ },
+ "STY-03": {
+  "path": "art_source/style/sty_03_ui_style_target_paintover.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "name": "UI style target paintover",
+  "type": "Paintover",
+  "frames": "1",
+  "phase": "Preproduction",
+  "priority": "Must"
+ },
+ "STY-04": {
+  "path": "art_source/style/sty_04_palette_swatch_sheet.png",
+  "size": [
+   1024,
+   512
+  ],
+  "name": "Palette swatch sheet",
+  "type": "Reference sheet",
+  "frames": "1",
+  "phase": "Preproduction",
+  "priority": "Must"
+ },
+ "STY-05": {
+  "path": "art_source/style/sty_05_character_scale_and_proportion_sheet.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "name": "Character scale and proportion sheet",
+  "type": "Reference sheet",
+  "frames": "1",
+  "phase": "Preproduction",
+  "priority": "Must"
+ },
+ "STY-06": {
+  "path": "art_source/style/sty_06_greyscale_readability_test.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "name": "Greyscale readability test",
+  "type": "Reference sheet",
+  "frames": "2",
+  "phase": "Preproduction",
+  "priority": "Should"
+ },
+ "SKY-01": {
+  "path": "res://art/sky/sky_01_sky_plate_clear_day.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Sky plate: clear day",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sky/sky_01_sky_plate_clear_day.png"
+ },
+ "SKY-02": {
+  "path": "res://art/sky/sky_02_sky_plate_overcast.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Sky plate: overcast",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sky/sky_02_sky_plate_overcast.png"
+ },
+ "SKY-03": {
+  "path": "res://art/sky/sky_03_sky_plate_fog.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Sky plate: fog",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sky/sky_03_sky_plate_fog.png"
+ },
+ "SKY-04": {
+  "path": "res://art/sky/sky_04_sky_plate_low_cloud.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Sky plate: low cloud",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sky/sky_04_sky_plate_low_cloud.png"
+ },
+ "SKY-05": {
+  "path": "res://art/sky/sky_05_sky_plate_dawn.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Sky plate: dawn",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/sky/sky_05_sky_plate_dawn.png"
+ },
+ "SKY-06": {
+  "path": "res://art/sky/sky_06_sky_plate_summer_twilight.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Sky plate: summer twilight",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sky/sky_06_sky_plate_summer_twilight.png"
+ },
+ "SKY-07": {
+  "path": "res://art/sky/sky_07_sky_plate_clear_night.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Sky plate: clear night",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sky/sky_07_sky_plate_clear_night.png"
+ },
+ "SKY-08": {
+  "path": "res://art/sky/sky_08_sky_plate_clouded_night.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Sky plate: clouded night",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sky/sky_08_sky_plate_clouded_night.png"
+ },
+ "SKY-09": {
+  "path": "res://art/sky/sky_09_sky_plate_storm.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Sky plate: storm",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sky/sky_09_sky_plate_storm.png"
+ },
+ "SKY-10": {
+  "path": "res://art/sky/sky_10_sky_plate_autumn_grey.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Sky plate: autumn grey",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Alpha",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sky/sky_10_sky_plate_autumn_grey.png"
+ },
+ "SKY-11": {
+  "path": "res://art/sky/sky_11_sky_plate_aurora_night.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Sky plate: aurora night",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Alpha",
+  "priority": "Could",
+  "placeholder": "res://art_placeholder/sky/sky_11_sky_plate_aurora_night.png"
+ },
+ "SKY-12": {
+  "path": "res://art/sky/sky_12_sky_plate_winter_camp.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Sky plate: winter camp",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sky/sky_12_sky_plate_winter_camp.png"
+ },
+ "SKY-13": {
+  "path": "res://art/sky/sky_13_sky_plate_camp_summer_and_autumn.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Sky plate: camp summer and autumn",
+  "type": "Background plate",
+  "frames": "2 variants",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sky/sky_13_sky_plate_camp_summer_and_autumn.png"
+ },
+ "SKY-14": {
+  "path": "res://art/sky/sky_14_sun_disc_with_glow.png",
+  "size": [
+   256,
+   256
+  ],
+  "name": "Sun disc with glow",
+  "type": "Sprite",
+  "frames": "2 variants",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sky/sky_14_sun_disc_with_glow.png"
+ },
+ "SKY-15": {
+  "path": "res://art/sky/sky_15_moon_phases_strip.png",
+  "size": [
+   128,
+   128
+  ],
+  "name": "Moon phases",
+  "type": "Sprite sheet",
+  "frames": "8 frames",
+  "phase": "Production",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/sky/sky_15_moon_phases_strip.png"
+ },
+ "SKY-16": {
+  "path": "res://art/sky/sky_16_voyage_night_star_field.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "name": "Voyage night star field",
+  "type": "Overlay",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sky/sky_16_voyage_night_star_field.png"
+ },
+ "CLD-01": {
+  "path": "res://art/clouds/cld_01_cloud_band_fair_weather.png",
+  "size": [
+   3840,
+   540
+  ],
+  "name": "Cloud band: fair weather",
+  "type": "Tileable layer",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/clouds/cld_01_cloud_band_fair_weather.png"
+ },
+ "CLD-02": {
+  "path": "res://art/clouds/cld_02_cloud_band_overcast_underside.png",
+  "size": [
+   3840,
+   540
+  ],
+  "name": "Cloud band: overcast underside",
+  "type": "Tileable layer",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/clouds/cld_02_cloud_band_overcast_underside.png"
+ },
+ "CLD-03": {
+  "path": "res://art/clouds/cld_03_cloud_band_low_scud.png",
+  "size": [
+   3840,
+   400
+  ],
+  "name": "Cloud band: low scud",
+  "type": "Tileable layer",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/clouds/cld_03_cloud_band_low_scud.png"
+ },
+ "CLD-04": {
+  "path": "res://art/clouds/cld_04_cloud_wall_storm.png",
+  "size": [
+   3840,
+   600
+  ],
+  "name": "Cloud wall: storm",
+  "type": "Tileable layer",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/clouds/cld_04_cloud_wall_storm.png"
+ },
+ "CLD-05": {
+  "path": "res://art/clouds/cld_05_fog_sheets.png",
+  "size": [
+   3840,
+   1080
+  ],
+  "name": "Fog sheets",
+  "type": "Tileable layer",
+  "frames": "3 layers",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/clouds/cld_05_fog_sheets.png"
+ },
+ "CLD-06": {
+  "path": "res://art/clouds/cld_06_cloud_gap_overlays_for_the_ring.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "name": "Cloud gap overlays for the ring",
+  "type": "Overlay",
+  "frames": "4 variants",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/clouds/cld_06_cloud_gap_overlays_for_the_ring.png"
+ },
+ "CLD-07": {
+  "path": "res://art/clouds/cld_07_false_horizon_glow.png",
+  "size": [
+   1920,
+   300
+  ],
+  "name": "False horizon glow",
+  "type": "Overlay",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/clouds/cld_07_false_horizon_glow.png"
+ },
+ "SEA-01": {
+  "path": "res://art/sea/sea_01_sea_band_far_calm.png",
+  "size": [
+   3840,
+   300
+  ],
+  "name": "Sea band far: calm",
+  "type": "Tileable layer",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sea/sea_01_sea_band_far_calm.png"
+ },
+ "SEA-02": {
+  "path": "res://art/sea/sea_02_sea_band_far_swell.png",
+  "size": [
+   3840,
+   300
+  ],
+  "name": "Sea band far: swell",
+  "type": "Tileable layer",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sea/sea_02_sea_band_far_swell.png"
+ },
+ "SEA-03": {
+  "path": "res://art/sea/sea_03_sea_band_far_beam_sea.png",
+  "size": [
+   3840,
+   300
+  ],
+  "name": "Sea band far: beam sea",
+  "type": "Tileable layer",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sea/sea_03_sea_band_far_beam_sea.png"
+ },
+ "SEA-04": {
+  "path": "res://art/sea/sea_04_sea_band_far_gale_and_storm.png",
+  "size": [
+   3840,
+   300
+  ],
+  "name": "Sea band far: gale and storm",
+  "type": "Tileable layer",
+  "frames": "2 variants",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sea/sea_04_sea_band_far_gale_and_storm.png"
+ },
+ "SEA-05": {
+  "path": "res://art/sea/sea_05_sea_band_near_with_foam.png",
+  "size": [
+   3840,
+   400
+  ],
+  "name": "Sea band near with foam",
+  "type": "Tileable layer",
+  "frames": "5 variants",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sea/sea_05_sea_band_near_with_foam.png"
+ },
+ "SEA-06": {
+  "path": "res://art/sea/sea_06_bow_wake_and_hull_foam_strip.png",
+  "size": [
+   512,
+   256
+  ],
+  "name": "Bow wake and hull foam",
+  "type": "Sprite sheet",
+  "frames": "8 frames",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sea/sea_06_bow_wake_and_hull_foam_strip.png"
+ },
+ "SEA-07": {
+  "path": "res://art/sea/sea_07_drift_ice_floes.png",
+  "size": [
+   512,
+   200
+  ],
+  "name": "Drift ice floes",
+  "type": "Sprite set",
+  "frames": "6 variants",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/sea/sea_07_drift_ice_floes.png"
+ },
+ "SEA-08": {
+  "path": "res://art/sea/sea_08_icebergs.png",
+  "size": [
+   900,
+   500
+  ],
+  "name": "Icebergs",
+  "type": "Sprite set",
+  "frames": "3 variants",
+  "phase": "Production",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/sea/sea_08_icebergs.png"
+ },
+ "SEA-09": {
+  "path": "res://art/sea/sea_09_whale_back_and_spout_strip.png",
+  "size": [
+   512,
+   256
+  ],
+  "name": "Whale back and spout",
+  "type": "Sprite sheet",
+  "frames": "12 frames",
+  "phase": "Production",
+  "priority": "Could",
+  "placeholder": "res://art_placeholder/sea/sea_09_whale_back_and_spout_strip.png"
+ },
+ "SEA-10": {
+  "path": "res://art/sea/sea_10_seabird_flock_strip.png",
+  "size": [
+   256,
+   128
+  ],
+  "name": "Seabird flock",
+  "type": "Sprite sheet",
+  "frames": "8 frames",
+  "phase": "Production",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/sea/sea_10_seabird_flock_strip.png"
+ },
+ "CST-01": {
+  "path": "res://art/coast/cst_01_coast_strip_far_eriksfjord.png",
+  "size": [
+   5760,
+   400
+  ],
+  "name": "Coast strip far: Eriksfjord",
+  "type": "Scrolling strip",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/coast/cst_01_coast_strip_far_eriksfjord.png"
+ },
+ "CST-02": {
+  "path": "res://art/coast/cst_02_coast_strip_near_eriksfjord.png",
+  "size": [
+   5760,
+   600
+  ],
+  "name": "Coast strip near: Eriksfjord",
+  "type": "Scrolling strip",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/coast/cst_02_coast_strip_near_eriksfjord.png"
+ },
+ "CST-03": {
+  "path": "res://art/coast/cst_03_coast_strip_far_helluland.png",
+  "size": [
+   5760,
+   400
+  ],
+  "name": "Coast strip far: Helluland",
+  "type": "Scrolling strip",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/coast/cst_03_coast_strip_far_helluland.png"
+ },
+ "CST-04": {
+  "path": "res://art/coast/cst_04_coast_strip_near_helluland.png",
+  "size": [
+   5760,
+   600
+  ],
+  "name": "Coast strip near: Helluland",
+  "type": "Scrolling strip",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/coast/cst_04_coast_strip_near_helluland.png"
+ },
+ "CST-05": {
+  "path": "res://art/coast/cst_05_coast_strip_far_markland.png",
+  "size": [
+   5760,
+   400
+  ],
+  "name": "Coast strip far: Markland",
+  "type": "Scrolling strip",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/coast/cst_05_coast_strip_far_markland.png"
+ },
+ "CST-06": {
+  "path": "res://art/coast/cst_06_coast_strip_near_markland.png",
+  "size": [
+   5760,
+   600
+  ],
+  "name": "Coast strip near: Markland",
+  "type": "Scrolling strip",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/coast/cst_06_coast_strip_near_markland.png"
+ },
+ "CST-07": {
+  "path": "res://art/coast/cst_07_coast_strip_far_furdustrandir.png",
+  "size": [
+   5760,
+   400
+  ],
+  "name": "Coast strip far: Furðustrandir",
+  "type": "Scrolling strip",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/coast/cst_07_coast_strip_far_furdustrandir.png"
+ },
+ "CST-08": {
+  "path": "res://art/coast/cst_08_coast_strip_near_furdustrandir.png",
+  "size": [
+   5760,
+   600
+  ],
+  "name": "Coast strip near: Furðustrandir",
+  "type": "Scrolling strip",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/coast/cst_08_coast_strip_near_furdustrandir.png"
+ },
+ "CST-09": {
+  "path": "res://art/coast/cst_09_coast_strip_far_the_strait.png",
+  "size": [
+   5760,
+   400
+  ],
+  "name": "Coast strip far: The Strait (camp site)",
+  "type": "Scrolling strip",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/coast/cst_09_coast_strip_far_the_strait.png"
+ },
+ "CST-10": {
+  "path": "res://art/coast/cst_10_coast_strip_near_the_strait.png",
+  "size": [
+   5760,
+   600
+  ],
+  "name": "Coast strip near: The Strait (camp site)",
+  "type": "Scrolling strip",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/coast/cst_10_coast_strip_near_the_strait.png"
+ },
+ "CST-11": {
+  "path": "res://art/coast/cst_11_coast_strip_far_hop.png",
+  "size": [
+   5760,
+   400
+  ],
+  "name": "Coast strip far: Hóp",
+  "type": "Scrolling strip",
+  "frames": "1",
+  "phase": "Alpha",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/coast/cst_11_coast_strip_far_hop.png"
+ },
+ "CST-12": {
+  "path": "res://art/coast/cst_12_coast_strip_near_hop.png",
+  "size": [
+   5760,
+   600
+  ],
+  "name": "Coast strip near: Hóp",
+  "type": "Scrolling strip",
+  "frames": "1",
+  "phase": "Alpha",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/coast/cst_12_coast_strip_near_hop.png"
+ },
+ "CST-13": {
+  "path": "res://art/coast/cst_13_landfall_beach_foreground.png",
+  "size": [
+   3840,
+   400
+  ],
+  "name": "Landfall beach foreground",
+  "type": "Foreground layer",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/coast/cst_13_landfall_beach_foreground.png"
+ },
+ "SHP-01": {
+  "path": "res://art/ship/shp_01_knarr_hull.png",
+  "size": [
+   1400,
+   560
+  ],
+  "name": "Knarr hull (side view)",
+  "type": "Sprite (cutout part)",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ship/shp_01_knarr_hull.png"
+ },
+ "SHP-02": {
+  "path": "res://art/ship/shp_02_mast_and_yard.png",
+  "size": [
+   400,
+   900
+  ],
+  "name": "Mast and yard",
+  "type": "Sprite (cutout part)",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ship/shp_02_mast_and_yard.png"
+ },
+ "SHP-03": {
+  "path": "res://art/ship/shp_03_sail_states.png",
+  "size": [
+   900,
+   800
+  ],
+  "name": "Sail states",
+  "type": "Sprite set",
+  "frames": "3 states",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ship/shp_03_sail_states.png"
+ },
+ "SHP-04": {
+  "path": "res://art/ship/shp_04_torn_sail_overlay.png",
+  "size": [
+   900,
+   800
+  ],
+  "name": "Torn sail overlay",
+  "type": "Overlay",
+  "frames": "2 levels",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ship/shp_04_torn_sail_overlay.png"
+ },
+ "SHP-05": {
+  "path": "res://art/ship/shp_05_steering_oar.png",
+  "size": [
+   160,
+   520
+  ],
+  "name": "Steering oar",
+  "type": "Sprite (cutout part)",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ship/shp_05_steering_oar.png"
+ },
+ "SHP-06": {
+  "path": "res://art/ship/shp_06_oars_out.png",
+  "size": [
+   1200,
+   300
+  ],
+  "name": "Oars out",
+  "type": "Sprite set",
+  "frames": "2 frames",
+  "phase": "Production",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/ship/shp_06_oars_out.png"
+ },
+ "SHP-07": {
+  "path": "res://art/ship/shp_07_hull_damage_overlays.png",
+  "size": [
+   1400,
+   560
+  ],
+  "name": "Hull damage overlays",
+  "type": "Overlay",
+  "frames": "4 states",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ship/shp_07_hull_damage_overlays.png"
+ },
+ "SHP-08": {
+  "path": "res://art/ship/shp_08_deck_cargo_stack_states.png",
+  "size": [
+   700,
+   260
+  ],
+  "name": "Deck cargo stack states",
+  "type": "Sprite set",
+  "frames": "5 states",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ship/shp_08_deck_cargo_stack_states.png"
+ },
+ "SHP-09": {
+  "path": "res://art/ship/shp_09_livestock_on_deck.png",
+  "size": [
+   500,
+   240
+  ],
+  "name": "Livestock on deck",
+  "type": "Sprite set",
+  "frames": "2 states",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ship/shp_09_livestock_on_deck.png"
+ },
+ "SHP-10": {
+  "path": "res://art/ship/shp_10_crew_on_deck.png",
+  "size": [
+   80,
+   140
+  ],
+  "name": "Crew on deck",
+  "type": "Sprite set",
+  "frames": "6 posts × 2 poses",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ship/shp_10_crew_on_deck.png"
+ },
+ "SHP-11": {
+  "path": "res://art/ship/shp_11_second_knarr.png",
+  "size": [
+   400,
+   300
+  ],
+  "name": "Second knarr (distant)",
+  "type": "Sprite",
+  "frames": "1",
+  "phase": "Alpha",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ship/shp_11_second_knarr.png"
+ },
+ "SHP-12": {
+  "path": "res://art/ship/shp_12_knarr_on_the_slipway.png",
+  "size": [
+   1400,
+   700
+  ],
+  "name": "Knarr on the slipway",
+  "type": "Sprite set",
+  "frames": "2 states",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ship/shp_12_knarr_on_the_slipway.png"
+ },
+ "SHP-13": {
+  "path": "res://art/ship/shp_13_ship_token_for_the_map.png",
+  "size": [
+   128,
+   128
+  ],
+  "name": "Ship token for the map",
+  "type": "Icon",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ship/shp_13_ship_token_for_the_map.png"
+ },
+ "WFX-01": {
+  "path": "res://art/weather_fx/wfx_01_rain_streak_textures.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "name": "Rain streak textures",
+  "type": "Tileable texture",
+  "frames": "3 variants",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/weather_fx/wfx_01_rain_streak_textures.png"
+ },
+ "WFX-02": {
+  "path": "res://art/weather_fx/wfx_02_snow_and_sleet_textures.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "name": "Snow and sleet textures",
+  "type": "Tileable texture",
+  "frames": "2 variants",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/weather_fx/wfx_02_snow_and_sleet_textures.png"
+ },
+ "WFX-03": {
+  "path": "res://art/weather_fx/wfx_03_spray_burst_strip.png",
+  "size": [
+   512,
+   512
+  ],
+  "name": "Spray burst",
+  "type": "Sprite sheet",
+  "frames": "10 frames",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/weather_fx/wfx_03_spray_burst_strip.png"
+ },
+ "WFX-04": {
+  "path": "res://art/weather_fx/wfx_04_green_water_over_the_gunwale_strip.png",
+  "size": [
+   768,
+   384
+  ],
+  "name": "Green water over the gunwale",
+  "type": "Sprite sheet",
+  "frames": "10 frames",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/weather_fx/wfx_04_green_water_over_the_gunwale_strip.png"
+ },
+ "WFX-05": {
+  "path": "res://art/weather_fx/wfx_05_lightning_bolts.png",
+  "size": [
+   600,
+   1080
+  ],
+  "name": "Lightning bolts",
+  "type": "Sprite set",
+  "frames": "2 bolts + 1 flash",
+  "phase": "Production",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/weather_fx/wfx_05_lightning_bolts.png"
+ },
+ "WFX-06": {
+  "path": "res://art/weather_fx/wfx_06_wind_streaks.png",
+  "size": [
+   512,
+   64
+  ],
+  "name": "Wind streaks",
+  "type": "Sprite set",
+  "frames": "4 variants",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/weather_fx/wfx_06_wind_streaks.png"
+ },
+ "WFX-07": {
+  "path": "res://art/weather_fx/wfx_07_water_and_wind_noise_textures.png",
+  "size": [
+   512,
+   512
+  ],
+  "name": "Water and wind noise textures",
+  "type": "Shader texture",
+  "frames": "3 maps",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/weather_fx/wfx_07_water_and_wind_noise_textures.png"
+ },
+ "NAV-01": {
+  "path": "res://art/navigate/nav_01_star_ring_instrument.png",
+  "size": [
+   900,
+   900
+  ],
+  "name": "Star ring instrument",
+  "type": "Sprite (cutout part)",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/navigate/nav_01_star_ring_instrument.png"
+ },
+ "NAV-02": {
+  "path": "res://art/navigate/nav_02_ring_notch_highlight_and_seat_glow.png",
+  "size": [
+   900,
+   900
+  ],
+  "name": "Ring notch highlight and seat glow",
+  "type": "Overlay",
+  "frames": "3 strengths",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/navigate/nav_02_ring_notch_highlight_and_seat_glow.png"
+ },
+ "NAV-03": {
+  "path": "res://art/navigate/nav_03_hands_holding_the_ring.png",
+  "size": [
+   600,
+   700
+  ],
+  "name": "Hands holding the ring",
+  "type": "Sprite (cutout part)",
+  "frames": "2 parts",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/navigate/nav_03_hands_holding_the_ring.png"
+ },
+ "NAV-04": {
+  "path": "res://art/navigate/nav_04_pole_star_and_star_marks.png",
+  "size": [
+   64,
+   64
+  ],
+  "name": "Pole Star and star marks",
+  "type": "Sprite set",
+  "frames": "13 sprites",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/navigate/nav_04_pole_star_and_star_marks.png"
+ },
+ "NAV-05": {
+  "path": "res://art/navigate/nav_05_ring_horizon_line.png",
+  "size": [
+   1920,
+   200
+  ],
+  "name": "Ring horizon line",
+  "type": "Overlay",
+  "frames": "2 variants (clear, hazy)",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/navigate/nav_05_ring_horizon_line.png"
+ },
+ "NAV-06": {
+  "path": "res://art/navigate/nav_06_fix_result_marks.png",
+  "size": [
+   256,
+   256
+  ],
+  "name": "Fix result marks",
+  "type": "Icon set",
+  "frames": "3 icons",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/navigate/nav_06_fix_result_marks.png"
+ },
+ "NAV-07": {
+  "path": "res://art/navigate/nav_07_sun_board_dial.png",
+  "size": [
+   900,
+   900
+  ],
+  "name": "Sun board dial",
+  "type": "Sprite (cutout part)",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/navigate/nav_07_sun_board_dial.png"
+ },
+ "NAV-08": {
+  "path": "res://art/navigate/nav_08_gnomon_curve_inlays.png",
+  "size": [
+   900,
+   900
+  ],
+  "name": "Gnomon curve inlays",
+  "type": "Overlay",
+  "frames": "3 overlays",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/navigate/nav_08_gnomon_curve_inlays.png"
+ },
+ "NAV-09": {
+  "path": "res://art/navigate/nav_09_gnomon_shadow_and_tip_glint.png",
+  "size": [
+   64,
+   512
+  ],
+  "name": "Gnomon shadow and tip glint",
+  "type": "Sprite set",
+  "frames": "2 parts",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/navigate/nav_09_gnomon_shadow_and_tip_glint.png"
+ },
+ "NAV-10": {
+  "path": "res://art/navigate/nav_10_sun_board_peg_and_water_bowl.png",
+  "size": [
+   1400,
+   1000
+  ],
+  "name": "Sun board peg and water bowl",
+  "type": "Sprite set",
+  "frames": "2 parts",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/navigate/nav_10_sun_board_peg_and_water_bowl.png"
+ },
+ "FSH-01": {
+  "path": "res://art/fish/fsh_01_underwater_cross_section.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Underwater cross-section",
+  "type": "Background plate",
+  "frames": "2 variants (clear, fog-dimmed)",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/fish/fsh_01_underwater_cross_section.png"
+ },
+ "FSH-02": {
+  "path": "res://art/fish/fsh_02_current_streak_particles.png",
+  "size": [
+   128,
+   32
+  ],
+  "name": "Current streak particles",
+  "type": "Sprite set",
+  "frames": "4 variants",
+  "phase": "Vertical slice",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/fish/fsh_02_current_streak_particles.png"
+ },
+ "FSH-03": {
+  "path": "res://art/fish/fsh_03_gunwale_and_hands_with_hand_line.png",
+  "size": [
+   1100,
+   500
+  ],
+  "name": "Gunwale and hands with hand line",
+  "type": "Sprite (cutout part)",
+  "frames": "3 poses (hold, pay out, set)",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/fish/fsh_03_gunwale_and_hands_with_hand_line.png"
+ },
+ "FSH-04": {
+  "path": "res://art/fish/fsh_04_hook_bait_and_sinker.png",
+  "size": [
+   96,
+   96
+  ],
+  "name": "Hook, bait, and sinker",
+  "type": "Sprite set",
+  "frames": "3 sprites",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/fish/fsh_04_hook_bait_and_sinker.png"
+ },
+ "FSH-05": {
+  "path": "res://art/fish/fsh_05_cod_strip.png",
+  "size": [
+   320,
+   160
+  ],
+  "name": "Cod",
+  "type": "Sprite sheet",
+  "frames": "swim 8, bite 4, struggle 6, landed 2",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/fish/fsh_05_cod_strip.png"
+ },
+ "FSH-06": {
+  "path": "res://art/fish/fsh_06_salmon_and_arctic_char_strip.png",
+  "size": [
+   320,
+   140
+  ],
+  "name": "Salmon and Arctic char",
+  "type": "Sprite sheet",
+  "frames": "swim 8, struggle 6 each",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/fish/fsh_06_salmon_and_arctic_char_strip.png"
+ },
+ "FSH-07": {
+  "path": "res://art/fish/fsh_07_halibut_strip.png",
+  "size": [
+   400,
+   240
+  ],
+  "name": "Halibut",
+  "type": "Sprite sheet",
+  "frames": "swim 6, struggle 6",
+  "phase": "Production",
+  "priority": "Could",
+  "placeholder": "res://art_placeholder/fish/fsh_07_halibut_strip.png"
+ },
+ "FSH-08": {
+  "path": "res://art/fish/fsh_08_fish_school_strip.png",
+  "size": [
+   512,
+   512
+  ],
+  "name": "Fish school",
+  "type": "Sprite sheet",
+  "frames": "12 frames",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/fish/fsh_08_fish_school_strip.png"
+ },
+ "FSH-09": {
+  "path": "res://art/fish/fsh_09_shallow_water_from_above.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Shallow water from above",
+  "type": "Background plate",
+  "frames": "2 variants (clear, rain)",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/fish/fsh_09_shallow_water_from_above.png"
+ },
+ "FSH-10": {
+  "path": "res://art/fish/fsh_10_net_throw_arc_strip.png",
+  "size": [
+   640,
+   640
+  ],
+  "name": "Net throw arc",
+  "type": "Sprite sheet",
+  "frames": "12 frames",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/fish/fsh_10_net_throw_arc_strip.png"
+ },
+ "FSH-11": {
+  "path": "res://art/fish/fsh_11_net_hauled_empty_and_full.png",
+  "size": [
+   600,
+   500
+  ],
+  "name": "Net hauled: empty and full",
+  "type": "Sprite set",
+  "frames": "2 states",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/fish/fsh_11_net_hauled_empty_and_full.png"
+ },
+ "HNT-01": {
+  "path": "res://art/hunt/hnt_01_stalk_scene_far_layer.png",
+  "size": [
+   3840,
+   700
+  ],
+  "name": "Stalk scene: far layer",
+  "type": "Parallax layer",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/hunt/hnt_01_stalk_scene_far_layer.png"
+ },
+ "HNT-02": {
+  "path": "res://art/hunt/hnt_02_stalk_scene_mid_layer.png",
+  "size": [
+   3840,
+   800
+  ],
+  "name": "Stalk scene: mid layer",
+  "type": "Parallax layer",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/hunt/hnt_02_stalk_scene_mid_layer.png"
+ },
+ "HNT-03": {
+  "path": "res://art/hunt/hnt_03_stalk_scene_near_grass_strips.png",
+  "size": [
+   3840,
+   400
+  ],
+  "name": "Stalk scene: near grass strips",
+  "type": "Parallax layer",
+  "frames": "3 strips",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/hunt/hnt_03_stalk_scene_near_grass_strips.png"
+ },
+ "HNT-04": {
+  "path": "res://art/hunt/hnt_04_caribou_strip.png",
+  "size": [
+   420,
+   320
+  ],
+  "name": "Caribou",
+  "type": "Sprite sheet",
+  "frames": "graze 8, alert 4, ear flick 3, flee 8, fall 6",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/hunt/hnt_04_caribou_strip.png"
+ },
+ "HNT-05": {
+  "path": "res://art/hunt/hnt_05_ground_birds_and_waterfowl_strip.png",
+  "size": [
+   160,
+   120
+  ],
+  "name": "Ground birds and waterfowl",
+  "type": "Sprite sheet",
+  "frames": "idle 4, walk 6, take-off 8, fall 3",
+  "phase": "Production",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/hunt/hnt_05_ground_birds_and_waterfowl_strip.png"
+ },
+ "HNT-06": {
+  "path": "res://art/hunt/hnt_06_hunter_character/",
+  "size": [
+   360,
+   420
+  ],
+  "name": "Hunter character (side view)",
+  "type": "Cutout rig parts + animations",
+  "frames": "walk, crouch-walk, draw, hold, loose, lower",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder_only_file": true,
+  "placeholder": "res://art_placeholder/hunt/hnt_06_hunter_character.png"
+ },
+ "HNT-07": {
+  "path": "res://art/hunt/hnt_07_arrow_and_bowstring.png",
+  "size": [
+   160,
+   24
+  ],
+  "name": "Arrow and bowstring",
+  "type": "Sprite set",
+  "frames": "3 sprites",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/hunt/hnt_07_arrow_and_bowstring.png"
+ },
+ "HNT-08": {
+  "path": "res://art/hunt/hnt_08_wound_and_miss_marks_strip.png",
+  "size": [
+   128,
+   128
+  ],
+  "name": "Wound and miss marks",
+  "type": "Sprite sheet",
+  "frames": "hit 5, miss 5",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/hunt/hnt_08_wound_and_miss_marks_strip.png"
+ },
+ "FOR-01": {
+  "path": "res://art/forage/for_01_berry_patch.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Berry patch (top-down)",
+  "type": "Background plate",
+  "frames": "3 states (healthy, thinned, stripped)",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/forage/for_01_berry_patch.png"
+ },
+ "FOR-02": {
+  "path": "res://art/forage/for_02_wild_grain_patch.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Wild grain patch (top-down)",
+  "type": "Background plate",
+  "frames": "3 states",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/forage/for_02_wild_grain_patch.png"
+ },
+ "FOR-03": {
+  "path": "res://art/forage/for_03_shore_patch_mussels_and_kelp.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Shore patch: mussels and kelp",
+  "type": "Background plate",
+  "frames": "3 states",
+  "phase": "Production",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/forage/for_03_shore_patch_mussels_and_kelp.png"
+ },
+ "FOR-04": {
+  "path": "res://art/forage/for_04_bird_cliff_egg_ledges.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Bird cliff egg ledges",
+  "type": "Background plate",
+  "frames": "2 states",
+  "phase": "Production",
+  "priority": "Could",
+  "placeholder": "res://art_placeholder/forage/for_04_bird_cliff_egg_ledges.png"
+ },
+ "FOR-05": {
+  "path": "res://art/forage/for_05_vine_and_grape_clusters.png",
+  "size": [
+   256,
+   256
+  ],
+  "name": "Vine and grape clusters (Hóp)",
+  "type": "Sprite set",
+  "frames": "4 variants",
+  "phase": "Alpha",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/forage/for_05_vine_and_grape_clusters.png"
+ },
+ "FOR-06": {
+  "path": "res://art/forage/for_06_forage_pickups.png",
+  "size": [
+   96,
+   96
+  ],
+  "name": "Forage pickups",
+  "type": "Sprite set",
+  "frames": "6 items × 2 sizes",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/forage/for_06_forage_pickups.png"
+ },
+ "FOR-07": {
+  "path": "res://art/forage/for_07_reaching_hand_strip.png",
+  "size": [
+   256,
+   256
+  ],
+  "name": "Reaching hand",
+  "type": "Sprite sheet",
+  "frames": "reach 4, grab 3",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/forage/for_07_reaching_hand_strip.png"
+ },
+ "FOR-08": {
+  "path": "res://art/forage/for_08_basket.png",
+  "size": [
+   360,
+   360
+  ],
+  "name": "Basket (top-down)",
+  "type": "Sprite set",
+  "frames": "5 states",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/forage/for_08_basket.png"
+ },
+ "BLD-01": {
+  "path": "res://art/build/bld_01_joint_workbench_close_up.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Joint workbench close-up",
+  "type": "Background plate",
+  "frames": "2 variants (dry, rain-darkened)",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/build/bld_01_joint_workbench_close_up.png"
+ },
+ "BLD-02": {
+  "path": "res://art/build/bld_02_timber_pieces_with_grain.png",
+  "size": [
+   1400,
+   400
+  ],
+  "name": "Timber pieces with grain",
+  "type": "Sprite set",
+  "frames": "3 woods",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/build/bld_02_timber_pieces_with_grain.png"
+ },
+ "BLD-03": {
+  "path": "res://art/build/bld_03_treenail_peg.png",
+  "size": [
+   120,
+   360
+  ],
+  "name": "Treenail peg",
+  "type": "Sprite set",
+  "frames": "3 states",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/build/bld_03_treenail_peg.png"
+ },
+ "BLD-04": {
+  "path": "res://art/build/bld_04_mallet_and_hands.png",
+  "size": [
+   700,
+   600
+  ],
+  "name": "Mallet and hands",
+  "type": "Sprite set",
+  "frames": "raise 3, strike 3",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/build/bld_04_mallet_and_hands.png"
+ },
+ "BLD-05": {
+  "path": "res://art/build/bld_05_split_log_state.png",
+  "size": [
+   1400,
+   400
+  ],
+  "name": "Split log state",
+  "type": "Sprite set",
+  "frames": "1 per wood",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/build/bld_05_split_log_state.png"
+ },
+ "BLD-06": {
+  "path": "res://art/build/bld_06_wood_chips_and_dust_strip.png",
+  "size": [
+   128,
+   128
+  ],
+  "name": "Wood chips and dust",
+  "type": "Sprite sheet",
+  "frames": "6 frames",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/build/bld_06_wood_chips_and_dust_strip.png"
+ },
+ "BLD-07": {
+  "path": "res://art/build/bld_07_lift_scene_frame_and_hauling_crew.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "name": "Lift scene: frame and hauling crew",
+  "type": "Background plate + rig",
+  "frames": "background + 4 hauler poses (lean, heave, slip, rest)",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/build/bld_07_lift_scene_frame_and_hauling_crew.png"
+ },
+ "BLD-08": {
+  "path": "res://art/build/bld_08_lifted_timbers.png",
+  "size": [
+   1200,
+   200
+  ],
+  "name": "Lifted timbers",
+  "type": "Sprite set",
+  "frames": "3 pieces",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/build/bld_08_lifted_timbers.png"
+ },
+ "BLD-09": {
+  "path": "res://art/build/bld_09_slipway_surf_and_log_rollers.png",
+  "size": [
+   1920,
+   400
+  ],
+  "name": "Slipway surf and log rollers",
+  "type": "Foreground layer",
+  "frames": "8-frame surf loop",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/build/bld_09_slipway_surf_and_log_rollers.png"
+ },
+ "BLD-10": {
+  "path": "res://art/build/bld_10_cracked_timber_state.png",
+  "size": [
+   1200,
+   200
+  ],
+  "name": "Cracked timber state",
+  "type": "Sprite set",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/build/bld_10_cracked_timber_state.png"
+ },
+ "BLD-11": {
+  "path": "res://art/build/bld_11_smoke_rack_close_up.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Smoke rack close-up",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/build/bld_11_smoke_rack_close_up.png"
+ },
+ "BLD-12": {
+  "path": "res://art/build/bld_12_fire_pit_flames_strip.png",
+  "size": [
+   256,
+   320
+  ],
+  "name": "Fire pit flames",
+  "type": "Sprite sheet",
+  "frames": "8 frames × 3 heats",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/build/bld_12_fire_pit_flames_strip.png"
+ },
+ "BLD-13": {
+  "path": "res://art/build/bld_13_smoke_column_strip.png",
+  "size": [
+   256,
+   768
+  ],
+  "name": "Smoke column",
+  "type": "Sprite sheet",
+  "frames": "8 frames × 3 colours",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/build/bld_13_smoke_column_strip.png"
+ },
+ "BLD-14": {
+  "path": "res://art/build/bld_14_fish_on_the_rack.png",
+  "size": [
+   160,
+   320
+  ],
+  "name": "Fish on the rack",
+  "type": "Sprite set",
+  "frames": "4 states",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/build/bld_14_fish_on_the_rack.png"
+ },
+ "BAL-01": {
+  "path": "res://art/storm_bail/bal_01_hull_interior_in_a_storm.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Hull interior in a storm",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/storm_bail/bal_01_hull_interior_in_a_storm.png"
+ },
+ "BAL-02": {
+  "path": "res://art/storm_bail/bal_02_bilge_water_level.png",
+  "size": [
+   3840,
+   300
+  ],
+  "name": "Bilge water level",
+  "type": "Tileable layer",
+  "frames": "8-frame loop",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/storm_bail/bal_02_bilge_water_level.png"
+ },
+ "BAL-03": {
+  "path": "res://art/storm_bail/bal_03_bailer_and_bailing_crew_strip.png",
+  "size": [
+   600,
+   600
+  ],
+  "name": "Bailer and bailing crew",
+  "type": "Sprite sheet",
+  "frames": "scoop 3, lift 3, throw 3",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/storm_bail/bal_03_bailer_and_bailing_crew_strip.png"
+ },
+ "BAL-04": {
+  "path": "res://art/storm_bail/bal_04_wave_over_the_side_strip.png",
+  "size": [
+   1920,
+   700
+  ],
+  "name": "Wave over the side (interior)",
+  "type": "Sprite sheet",
+  "frames": "10 frames",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/storm_bail/bal_04_wave_over_the_side_strip.png"
+ },
+ "BAL-05": {
+  "path": "res://art/storm_bail/bal_05_leak_jet_and_lost_cask_strip.png",
+  "size": [
+   400,
+   300
+  ],
+  "name": "Leak jet and lost cask",
+  "type": "Sprite sheet",
+  "frames": "jet 6, cask 8",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/storm_bail/bal_05_leak_jet_and_lost_cask_strip.png"
+ },
+ "BAL-06": {
+  "path": "res://art/storm_bail/bal_06_bailing_metronome_and_water_line.png",
+  "size": [
+   128,
+   128
+  ],
+  "name": "Bailing metronome and water line",
+  "type": "UI sprite",
+  "frames": "2 sprites",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/storm_bail/bal_06_bailing_metronome_and_water_line.png"
+ },
+ "CMP-01": {
+  "path": "res://art/camp/cmp_01_camp_ground_summer.png",
+  "size": [
+   3840,
+   1080
+  ],
+  "name": "Camp ground: summer",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/camp/cmp_01_camp_ground_summer.png"
+ },
+ "CMP-02": {
+  "path": "res://art/camp/cmp_02_camp_ground_late_summer.png",
+  "size": [
+   3840,
+   1080
+  ],
+  "name": "Camp ground: late summer (hay)",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/camp/cmp_02_camp_ground_late_summer.png"
+ },
+ "CMP-03": {
+  "path": "res://art/camp/cmp_03_camp_ground_autumn.png",
+  "size": [
+   3840,
+   1080
+  ],
+  "name": "Camp ground: autumn",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/camp/cmp_03_camp_ground_autumn.png"
+ },
+ "CMP-04": {
+  "path": "res://art/camp/cmp_04_camp_ground_winter.png",
+  "size": [
+   3840,
+   1080
+  ],
+  "name": "Camp ground: winter",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/camp/cmp_04_camp_ground_winter.png"
+ },
+ "CMP-05": {
+  "path": "res://art/camp/cmp_05_camp_ground_spring_thaw.png",
+  "size": [
+   3840,
+   1080
+  ],
+  "name": "Camp ground: spring thaw",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/camp/cmp_05_camp_ground_spring_thaw.png"
+ },
+ "CMP-06": {
+  "path": "res://art/camp/cmp_06_camp_far_hills_layer.png",
+  "size": [
+   3840,
+   500
+  ],
+  "name": "Camp far hills layer",
+  "type": "Parallax layer",
+  "frames": "2 seasons",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/camp/cmp_06_camp_far_hills_layer.png"
+ },
+ "CMP-07": {
+  "path": "res://art/camp/cmp_07_booth.png",
+  "size": [
+   420,
+   300
+  ],
+  "name": "Booth (búð)",
+  "type": "Building sprite",
+  "frames": "4 stages",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/camp/cmp_07_booth.png"
+ },
+ "CMP-08": {
+  "path": "res://art/camp/cmp_08_longhouse.png",
+  "size": [
+   1100,
+   420
+  ],
+  "name": "Longhouse",
+  "type": "Building sprite",
+  "frames": "5 stages",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/camp/cmp_08_longhouse.png"
+ },
+ "CMP-09": {
+  "path": "res://art/camp/cmp_09_byre.png",
+  "size": [
+   700,
+   360
+  ],
+  "name": "Byre",
+  "type": "Building sprite",
+  "frames": "4 stages",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/camp/cmp_09_byre.png"
+ },
+ "CMP-10": {
+  "path": "res://art/camp/cmp_10_boat_shed_and_slipway.png",
+  "size": [
+   1500,
+   450
+  ],
+  "name": "Boat shed and slipway",
+  "type": "Building sprite",
+  "frames": "3 stages",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/camp/cmp_10_boat_shed_and_slipway.png"
+ },
+ "CMP-11": {
+  "path": "res://art/camp/cmp_11_palisade.png",
+  "size": [
+   300,
+   260
+  ],
+  "name": "Palisade",
+  "type": "Building sprite",
+  "frames": "3 pieces × 2 stages",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/camp/cmp_11_palisade.png"
+ },
+ "CMP-12": {
+  "path": "res://art/camp/cmp_12_smoke_rack.png",
+  "size": [
+   360,
+   300
+  ],
+  "name": "Smoke rack (camp scale)",
+  "type": "Building sprite",
+  "frames": "3 states",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/camp/cmp_12_smoke_rack.png"
+ },
+ "CMP-13": {
+  "path": "res://art/camp/cmp_13_smithy_hut.png",
+  "size": [
+   420,
+   300
+  ],
+  "name": "Smithy hut",
+  "type": "Building sprite",
+  "frames": "3 stages",
+  "phase": "Production",
+  "priority": "Could",
+  "placeholder": "res://art_placeholder/camp/cmp_13_smithy_hut.png"
+ },
+ "CMP-14": {
+  "path": "res://art/camp/cmp_14_haystacks.png",
+  "size": [
+   300,
+   260
+  ],
+  "name": "Haystacks",
+  "type": "Sprite set",
+  "frames": "4 sizes",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/camp/cmp_14_haystacks.png"
+ },
+ "CMP-15": {
+  "path": "res://art/camp/cmp_15_timber_stack.png",
+  "size": [
+   500,
+   240
+  ],
+  "name": "Timber stack",
+  "type": "Sprite set",
+  "frames": "7 states",
+  "phase": "Alpha",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/camp/cmp_15_timber_stack.png"
+ },
+ "CMP-16": {
+  "path": "res://art/camp/cmp_16_camp_props.png",
+  "size": [
+   300,
+   300
+  ],
+  "name": "Camp props",
+  "type": "Sprite set",
+  "frames": "10 props",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/camp/cmp_16_camp_props.png"
+ },
+ "CMP-17": {
+  "path": "res://art/camp/cmp_17_cairn.png",
+  "size": [
+   160,
+   140
+  ],
+  "name": "Cairn",
+  "type": "Sprite",
+  "frames": "2 variants",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/camp/cmp_17_cairn.png"
+ },
+ "CMP-18": {
+  "path": "res://art/camp/cmp_18_snow_drift_and_frost_overlays.png",
+  "size": [
+   256,
+   256
+  ],
+  "name": "Snow drift and frost overlays",
+  "type": "Overlay",
+  "frames": "1 per building",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/camp/cmp_18_snow_drift_and_frost_overlays.png"
+ },
+ "CMP-19": {
+  "path": "res://art/camp/cmp_19_job_markers.png",
+  "size": [
+   96,
+   128
+  ],
+  "name": "Job markers",
+  "type": "UI sprite",
+  "frames": "2 states",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/camp/cmp_19_job_markers.png"
+ },
+ "ANI-01": {
+  "path": "res://art/animals/ani_01_bull_strip.png",
+  "size": [
+   420,
+   300
+  ],
+  "name": "Bull",
+  "type": "Sprite sheet",
+  "frames": "idle 4, walk 8, graze 6, agitated 6, charge 8",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/animals/ani_01_bull_strip.png"
+ },
+ "ANI-02": {
+  "path": "res://art/animals/ani_02_cow_strip.png",
+  "size": [
+   360,
+   260
+  ],
+  "name": "Cow",
+  "type": "Sprite sheet",
+  "frames": "idle 4, walk 8, graze 6, milked 4, lie 3",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/animals/ani_02_cow_strip.png"
+ },
+ "ANI-03": {
+  "path": "res://art/animals/ani_03_calf_strip.png",
+  "size": [
+   220,
+   180
+  ],
+  "name": "Calf",
+  "type": "Sprite sheet",
+  "frames": "idle 4, walk 8",
+  "phase": "Production",
+  "priority": "Could",
+  "placeholder": "res://art_placeholder/animals/ani_03_calf_strip.png"
+ },
+ "ANI-04": {
+  "path": "res://art/animals/ani_04_sheep_strip.png",
+  "size": [
+   200,
+   160
+  ],
+  "name": "Sheep",
+  "type": "Sprite sheet",
+  "frames": "idle 4, walk 8, graze 6, huddle 3",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/animals/ani_04_sheep_strip.png"
+ },
+ "ANI-05": {
+  "path": "res://art/animals/ani_05_goat_strip.png",
+  "size": [
+   200,
+   180
+  ],
+  "name": "Goat",
+  "type": "Sprite sheet",
+  "frames": "idle 4, walk 8, climb 4",
+  "phase": "Production",
+  "priority": "Could",
+  "placeholder": "res://art_placeholder/animals/ani_05_goat_strip.png"
+ },
+ "CHR-01": {
+  "path": "res://art/characters/chr_01_crew_body_rigs/",
+  "size": [
+   200,
+   360
+  ],
+  "name": "Crew body rigs",
+  "type": "Cutout rig parts",
+  "frames": "6 bodies",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder_only_file": true,
+  "placeholder": "res://art_placeholder/characters/chr_01_crew_body_rigs.png"
+ },
+ "CHR-02": {
+  "path": "res://art/characters/chr_02_crew_clothing_and_hair_sets/",
+  "size": [
+   256,
+   256
+  ],
+  "name": "Crew clothing and hair sets",
+  "type": "Cutout rig parts",
+  "frames": "12 outfits, 9 hair",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder_only_file": true,
+  "placeholder": "res://art_placeholder/characters/chr_02_crew_clothing_and_hair_sets.png"
+ },
+ "CHR-03": {
+  "path": "res://art/characters/chr_03_crew_animations.png",
+  "size": [
+   256,
+   256
+  ],
+  "name": "Crew animations",
+  "type": "Animation set",
+  "frames": "12 animations",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/characters/chr_03_crew_animations.png"
+ },
+ "CHR-04": {
+  "path": "res://art/characters/chr_04_role_props.png",
+  "size": [
+   200,
+   200
+  ],
+  "name": "Role props",
+  "type": "Sprite set",
+  "frames": "8 props",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/characters/chr_04_role_props.png"
+ },
+ "CHR-05": {
+  "path": "res://art/characters/chr_05_crew_role_portraits.png",
+  "size": [
+   256,
+   256
+  ],
+  "name": "Crew role portraits",
+  "type": "Portrait",
+  "frames": "8 roles × 4 expressions",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/characters/chr_05_crew_role_portraits.png"
+ },
+ "CHR-06": {
+  "path": "res://art/characters/chr_06_outfit_leader_portraits.png",
+  "size": [
+   512,
+   512
+  ],
+  "name": "Outfit leader portraits",
+  "type": "Portrait",
+  "frames": "5 people × 3 expressions",
+  "phase": "Production",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/characters/chr_06_outfit_leader_portraits.png"
+ },
+ "CHR-07": {
+  "path": "res://art/characters/chr_07_thorhall_the_hunter_portrait.png",
+  "size": [
+   256,
+   256
+  ],
+  "name": "Thorhall the Hunter portrait",
+  "type": "Portrait",
+  "frames": "2 expressions",
+  "phase": "Alpha",
+  "priority": "Could",
+  "placeholder": "res://art_placeholder/characters/chr_07_thorhall_the_hunter_portrait.png"
+ },
+ "CHR-08": {
+  "path": "res://art/characters/chr_08_newborn_bundle.png",
+  "size": [
+   160,
+   160
+  ],
+  "name": "Newborn bundle",
+  "type": "Sprite set",
+  "frames": "2 states",
+  "phase": "Production",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/characters/chr_08_newborn_bundle.png"
+ },
+ "MKT-01": {
+  "path": "res://art/market/mkt_01_visitors_skin_boats.png",
+  "size": [
+   700,
+   200
+  ],
+  "name": "Visitors' skin boats",
+  "type": "Sprite set",
+  "frames": "3 boats",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/market/mkt_01_visitors_skin_boats.png"
+ },
+ "MKT-02": {
+  "path": "res://art/market/mkt_02_visitor_characters/",
+  "size": [
+   200,
+   360
+  ],
+  "name": "Visitor characters",
+  "type": "Cutout rig parts + animations",
+  "frames": "6 people × 6 animations",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder_only_file": true,
+  "placeholder": "res://art_placeholder/market/mkt_02_visitor_characters.png"
+ },
+ "MKT-03": {
+  "path": "res://art/market/mkt_03_visitor_portraits.png",
+  "size": [
+   256,
+   256
+  ],
+  "name": "Visitor portraits",
+  "type": "Portrait",
+  "frames": "6 × 2 expressions",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/market/mkt_03_visitor_portraits.png"
+ },
+ "MKT-04": {
+  "path": "res://art/market/mkt_04_trade_blanket_and_goods.png",
+  "size": [
+   1200,
+   400
+  ],
+  "name": "Trade blanket and goods",
+  "type": "Sprite set",
+  "frames": "1 blanket + 12 goods",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/market/mkt_04_trade_blanket_and_goods.png"
+ },
+ "MKT-05": {
+  "path": "res://art/market/mkt_05_market_scene_dressing.png",
+  "size": [
+   300,
+   200
+  ],
+  "name": "Market scene dressing",
+  "type": "Sprite set",
+  "frames": "6 props",
+  "phase": "Production",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/market/mkt_05_market_scene_dressing.png"
+ },
+ "MAP-01": {
+  "path": "res://art/map/map_01_leg_map_board.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Leg map board",
+  "type": "Background plate",
+  "frames": "2 variants (outbound summer, return autumn)",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/map/map_01_leg_map_board.png"
+ },
+ "MAP-02": {
+  "path": "res://art/map/map_02_region_emblems.png",
+  "size": [
+   160,
+   160
+  ],
+  "name": "Region emblems",
+  "type": "Icon set",
+  "frames": "7 emblems × 3 states (locked, available, visited)",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/map/map_02_region_emblems.png"
+ },
+ "MAP-03": {
+  "path": "res://art/map/map_03_route_segments.png",
+  "size": [
+   512,
+   64
+  ],
+  "name": "Route segments",
+  "type": "Sprite set",
+  "frames": "4 styles",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/map/map_03_route_segments.png"
+ },
+ "MAP-04": {
+  "path": "res://art/map/map_04_weather_glyphs_for_the_map.png",
+  "size": [
+   96,
+   96
+  ],
+  "name": "Weather glyphs for the map",
+  "type": "Icon set",
+  "frames": "7 icons",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/map/map_04_weather_glyphs_for_the_map.png"
+ },
+ "LOD-01": {
+  "path": "res://art/loadout/lod_01_eriksfjord_quay.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Eriksfjord quay",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/loadout/lod_01_eriksfjord_quay.png"
+ },
+ "LOD-02": {
+  "path": "res://art/loadout/lod_02_hold_cross_section_grid.png",
+  "size": [
+   1600,
+   480
+  ],
+  "name": "Hold cross-section grid",
+  "type": "UI sprite",
+  "frames": "1 + slot highlight",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/loadout/lod_02_hold_cross_section_grid.png"
+ },
+ "LOD-03": {
+  "path": "res://art/loadout/lod_03_cargo_tokens.png",
+  "size": [
+   96,
+   96
+  ],
+  "name": "Cargo tokens",
+  "type": "Icon set",
+  "frames": "9 tokens × 2 states",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/loadout/lod_03_cargo_tokens.png"
+ },
+ "LOD-04": {
+  "path": "res://art/loadout/lod_04_outfit_cards.png",
+  "size": [
+   600,
+   800
+  ],
+  "name": "Outfit cards",
+  "type": "Illustration",
+  "frames": "4 cards",
+  "phase": "Production",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/loadout/lod_04_outfit_cards.png"
+ },
+ "UIK-01": {
+  "path": "res://art/ui/kit/uik_01_primary_panel_9_slice.png",
+  "size": [
+   256,
+   256
+  ],
+  "name": "Primary panel 9-slice",
+  "type": "9-slice",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/kit/uik_01_primary_panel_9_slice.png"
+ },
+ "UIK-02": {
+  "path": "res://art/ui/kit/uik_02_secondary_panel_and_tooltip_9_slices.png",
+  "size": [
+   128,
+   128
+  ],
+  "name": "Secondary panel and tooltip 9-slices",
+  "type": "9-slice",
+  "frames": "2",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/kit/uik_02_secondary_panel_and_tooltip_9_slices.png"
+ },
+ "UIK-03": {
+  "path": "res://art/ui/kit/uik_03_buttons.png",
+  "size": [
+   192,
+   64
+  ],
+  "name": "Buttons",
+  "type": "9-slice",
+  "frames": "4 states",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/kit/uik_03_buttons.png"
+ },
+ "UIK-04": {
+  "path": "res://art/ui/kit/uik_04_tabs_toggles_sliders_checkboxes.png",
+  "size": [
+   256,
+   256
+  ],
+  "name": "Tabs, toggles, sliders, checkboxes",
+  "type": "Sprite set",
+  "frames": "10 sprites",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/kit/uik_04_tabs_toggles_sliders_checkboxes.png"
+ },
+ "UIK-05": {
+  "path": "res://art/ui/kit/uik_05_meter_frames_and_fills.png",
+  "size": [
+   256,
+   48
+  ],
+  "name": "Meter frames and fills",
+  "type": "9-slice + fills",
+  "frames": "1 frame + 5 fills",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/kit/uik_05_meter_frames_and_fills.png"
+ },
+ "UIK-06": {
+  "path": "res://art/ui/kit/uik_06_scroll_bar_and_divider.png",
+  "size": [
+   24,
+   256
+  ],
+  "name": "Scroll bar and divider",
+  "type": "Sprite set",
+  "frames": "3 sprites",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/kit/uik_06_scroll_bar_and_divider.png"
+ },
+ "UIK-07": {
+  "path": "res://art/ui/kit/uik_07_dialogue_and_choice_panel.png",
+  "size": [
+   512,
+   256
+  ],
+  "name": "Dialogue and choice panel",
+  "type": "9-slice",
+  "frames": "1 + portrait frame",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/kit/uik_07_dialogue_and_choice_panel.png"
+ },
+ "UIK-08": {
+  "path": "res://art/ui/kit/uik_08_toast_and_notification_tag.png",
+  "size": [
+   256,
+   64
+  ],
+  "name": "Toast and notification tag",
+  "type": "9-slice",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/kit/uik_08_toast_and_notification_tag.png"
+ },
+ "UIK-09": {
+  "path": "res://art/ui/kit/uik_09_event_card_frame.png",
+  "size": [
+   880,
+   760
+  ],
+  "name": "Event card frame",
+  "type": "UI frame",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/kit/uik_09_event_card_frame.png"
+ },
+ "HUD-01": {
+  "path": "res://art/ui/hud/hud_01_hold_tally_stick.png",
+  "size": [
+   1200,
+   120
+  ],
+  "name": "Hold tally stick",
+  "type": "UI sprite",
+  "frames": "stick + notch states (empty, filled, over)",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/hud/hud_01_hold_tally_stick.png"
+ },
+ "HUD-02": {
+  "path": "res://art/ui/hud/hud_02_ration_selector.png",
+  "size": [
+   96,
+   96
+  ],
+  "name": "Ration selector",
+  "type": "Icon set",
+  "frames": "4 icons × 2 states",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/hud/hud_02_ration_selector.png"
+ },
+ "HUD-03": {
+  "path": "res://art/ui/hud/hud_03_pace_selector.png",
+  "size": [
+   96,
+   96
+  ],
+  "name": "Pace selector",
+  "type": "Icon set",
+  "frames": "3 icons × 2 states",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/hud/hud_03_pace_selector.png"
+ },
+ "HUD-04": {
+  "path": "res://art/ui/hud/hud_04_season_dial.png",
+  "size": [
+   320,
+   320
+  ],
+  "name": "Season dial",
+  "type": "UI sprite",
+  "frames": "wheel + pointer + danger arc",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/hud/hud_04_season_dial.png"
+ },
+ "HUD-05": {
+  "path": "res://art/ui/hud/hud_05_watch_and_day_counter.png",
+  "size": [
+   320,
+   80
+  ],
+  "name": "Watch and day counter",
+  "type": "UI sprite",
+  "frames": "base + 6 notch states",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/hud/hud_05_watch_and_day_counter.png"
+ },
+ "HUD-06": {
+  "path": "res://art/ui/hud/hud_06_goodwill_and_fear_cord.png",
+  "size": [
+   480,
+   96
+  ],
+  "name": "Goodwill and fear cord",
+  "type": "UI sprite",
+  "frames": "cord + 5 knot states + bead states",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/hud/hud_06_goodwill_and_fear_cord.png"
+ },
+ "HUD-07": {
+  "path": "res://art/ui/hud/hud_07_ship_condition_icons.png",
+  "size": [
+   96,
+   96
+  ],
+  "name": "Ship condition icons",
+  "type": "Icon set",
+  "frames": "7 icons",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/hud/hud_07_ship_condition_icons.png"
+ },
+ "HUD-08": {
+  "path": "res://art/ui/hud/hud_08_morale_and_sickness_icons.png",
+  "size": [
+   64,
+   64
+  ],
+  "name": "Morale and sickness icons",
+  "type": "Icon set",
+  "frames": "5 icons",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/hud/hud_08_morale_and_sickness_icons.png"
+ },
+ "HUD-09": {
+  "path": "res://art/ui/hud/hud_09_latitude_readout_and_drift_arrow.png",
+  "size": [
+   96,
+   320
+  ],
+  "name": "Latitude readout and drift arrow",
+  "type": "UI sprite",
+  "frames": "2 sprites",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/hud/hud_09_latitude_readout_and_drift_arrow.png"
+ },
+ "HUD-10": {
+  "path": "res://art/ui/hud/hud_10_crew_roster_card.png",
+  "size": [
+   320,
+   120
+  ],
+  "name": "Crew roster card",
+  "type": "UI frame",
+  "frames": "1 + states",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/hud/hud_10_crew_roster_card.png"
+ },
+ "HUD-11": {
+  "path": "res://art/ui/hud/hud_11_haptics_off_cue_marks.png",
+  "size": [
+   128,
+   128
+  ],
+  "name": "Haptics-off cue marks",
+  "type": "Icon set",
+  "frames": "4 icons",
+  "phase": "Beta",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/hud/hud_11_haptics_off_cue_marks.png"
+ },
+ "ICN-01": {
+  "path": "res://art/ui/icons/icn_01_resource_icons.png",
+  "size": [
+   128,
+   128
+  ],
+  "name": "Resource icons",
+  "type": "Icon set",
+  "frames": "16 icons",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/icons/icn_01_resource_icons.png"
+ },
+ "ICN-02": {
+  "path": "res://art/ui/icons/icn_02_verb_icons.png",
+  "size": [
+   128,
+   128
+  ],
+  "name": "Verb icons",
+  "type": "Icon set",
+  "frames": "5 icons",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/icons/icn_02_verb_icons.png"
+ },
+ "ICN-03": {
+  "path": "res://art/ui/icons/icn_03_status_and_event_icons.png",
+  "size": [
+   64,
+   64
+  ],
+  "name": "Status and event icons",
+  "type": "Icon set",
+  "frames": "8 icons",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/icons/icn_03_status_and_event_icons.png"
+ },
+ "ICN-04": {
+  "path": "res://art/ui/icons/icn_04_controller_button_glyphs.png",
+  "size": [
+   64,
+   64
+  ],
+  "name": "Controller button glyphs",
+  "type": "Icon set",
+  "frames": "about 90 glyphs",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/ui/icons/icn_04_controller_button_glyphs.png"
+ },
+ "ICN-05": {
+  "path": "res://art/ui/icons/icn_05_mouse_cursor.png",
+  "size": [
+   48,
+   48
+  ],
+  "name": "Mouse cursor",
+  "type": "Cursor",
+  "frames": "2 cursors",
+  "phase": "Alpha",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/ui/icons/icn_05_mouse_cursor.png"
+ },
+ "ICN-06": {
+  "path": "res://art/ui/icons/icn_06_achievement_icons.png",
+  "size": [
+   256,
+   256
+  ],
+  "name": "Achievement icons",
+  "type": "Icon set",
+  "frames": "12 × 2 states",
+  "phase": "Beta",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/ui/icons/icn_06_achievement_icons.png"
+ },
+ "EVT-01": {
+  "path": "res://art/events/evt_01_weather_card_fog.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Weather card: fog",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_01_weather_card_fog.png"
+ },
+ "EVT-02": {
+  "path": "res://art/events/evt_02_weather_card_low_cloud.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Weather card: low cloud",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_02_weather_card_low_cloud.png"
+ },
+ "EVT-03": {
+  "path": "res://art/events/evt_03_weather_card_following_gale.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Weather card: following gale",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_03_weather_card_following_gale.png"
+ },
+ "EVT-04": {
+  "path": "res://art/events/evt_04_weather_card_beam_sea.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Weather card: beam sea",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_04_weather_card_beam_sea.png"
+ },
+ "EVT-05": {
+  "path": "res://art/events/evt_05_weather_card_storm.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Weather card: storm",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_05_weather_card_storm.png"
+ },
+ "EVT-06": {
+  "path": "res://art/events/evt_06_weather_card_drift_ice.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Weather card: drift ice",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_06_weather_card_drift_ice.png"
+ },
+ "EVT-07": {
+  "path": "res://art/events/evt_07_weather_card_calm.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Weather card: calm",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_07_weather_card_calm.png"
+ },
+ "EVT-08": {
+  "path": "res://art/events/evt_08_event_landfall.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Event: landfall",
+  "type": "Illustration",
+  "frames": "1 (up to 6)",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_08_event_landfall.png"
+ },
+ "EVT-09": {
+  "path": "res://art/events/evt_09_event_sprung_strake.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Event: sprung strake",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_09_event_sprung_strake.png"
+ },
+ "EVT-10": {
+  "path": "res://art/events/evt_10_event_man_overboard.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Event: man overboard",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_10_event_man_overboard.png"
+ },
+ "EVT-11": {
+  "path": "res://art/events/evt_11_event_cask_breached.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Event: cask breached",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_11_event_cask_breached.png"
+ },
+ "EVT-12": {
+  "path": "res://art/events/evt_12_event_sickness.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Event: sickness",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_12_event_sickness.png"
+ },
+ "EVT-13": {
+  "path": "res://art/events/evt_13_event_a_death.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Event: a death",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_13_event_a_death.png"
+ },
+ "EVT-14": {
+  "path": "res://art/events/evt_14_event_a_birth.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Event: a birth",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/events/evt_14_event_a_birth.png"
+ },
+ "EVT-15": {
+  "path": "res://art/events/evt_15_event_the_bull_breaks_loose.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Event: the bull breaks loose",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_15_event_the_bull_breaks_loose.png"
+ },
+ "EVT-16": {
+  "path": "res://art/events/evt_16_event_the_weapon_request.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Event: the weapon request",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_16_event_the_weapon_request.png"
+ },
+ "EVT-17": {
+  "path": "res://art/events/evt_17_event_market_day_arrives.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Event: market day arrives",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_17_event_market_day_arrives.png"
+ },
+ "EVT-18": {
+  "path": "res://art/events/evt_18_event_hay_harvest.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Event: hay harvest",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_18_event_hay_harvest.png"
+ },
+ "EVT-19": {
+  "path": "res://art/events/evt_19_event_first_snow.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Event: first snow",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_19_event_first_snow.png"
+ },
+ "EVT-20": {
+  "path": "res://art/events/evt_20_event_relief_ship_sighted.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Event: relief ship sighted",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Alpha",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_20_event_relief_ship_sighted.png"
+ },
+ "EVT-21": {
+  "path": "res://art/events/evt_21_event_timber_cargo_departs.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Event: timber cargo departs",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Alpha",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_21_event_timber_cargo_departs.png"
+ },
+ "EVT-22": {
+  "path": "res://art/events/evt_22_event_recruitment_at_eriksfjord.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Event: recruitment at Eriksfjord",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Alpha",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/events/evt_22_event_recruitment_at_eriksfjord.png"
+ },
+ "EVT-23": {
+  "path": "res://art/events/evt_23_event_thorhall_leaves.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Event: Thorhall leaves",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Alpha",
+  "priority": "Could",
+  "placeholder": "res://art_placeholder/events/evt_23_event_thorhall_leaves.png"
+ },
+ "EVT-24": {
+  "path": "res://art/events/evt_24_event_grapes_found_at_hop.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Event: grapes found at Hóp",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Alpha",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/events/evt_24_event_grapes_found_at_hop.png"
+ },
+ "EVT-25": {
+  "path": "res://art/events/evt_25_event_sealing.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Event: sealing",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Alpha",
+  "priority": "Could",
+  "placeholder": "res://art_placeholder/events/evt_25_event_sealing.png"
+ },
+ "END-01": {
+  "path": "res://art/endings/end_01_ending_full_win.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Ending: full win",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Beta",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/endings/end_01_ending_full_win.png"
+ },
+ "END-02": {
+  "path": "res://art/endings/end_02_ending_saga_ending.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "name": "Ending: saga ending (leave rich)",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Beta",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/endings/end_02_ending_saga_ending.png"
+ },
+ "END-03": {
+  "path": "res://art/endings/end_03_ending_lost_at_sea.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "name": "Ending: lost at sea",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Beta",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/endings/end_03_ending_lost_at_sea.png"
+ },
+ "END-04": {
+  "path": "res://art/endings/end_04_ending_winter_starvation.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "name": "Ending: winter starvation",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Beta",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/endings/end_04_ending_winter_starvation.png"
+ },
+ "END-05": {
+  "path": "res://art/endings/end_05_ending_fear_capped.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "name": "Ending: fear capped",
+  "type": "Illustration",
+  "frames": "1",
+  "phase": "Beta",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/endings/end_05_ending_fear_capped.png"
+ },
+ "END-06": {
+  "path": "res://art/endings/end_06_score_screen_board.png",
+  "size": [
+   1600,
+   900
+  ],
+  "name": "Score screen board",
+  "type": "UI frame",
+  "frames": "1",
+  "phase": "Beta",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/endings/end_06_score_screen_board.png"
+ },
+ "MNU-01": {
+  "path": "res://art/menus/mnu_01_title_key_art.png",
+  "size": [
+   3840,
+   2160
+  ],
+  "name": "Title key art (layered)",
+  "type": "Layered illustration",
+  "frames": "5 layers",
+  "phase": "Beta",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/menus/mnu_01_title_key_art.png"
+ },
+ "MNU-02": {
+  "path": "res://art/menus/mnu_02_logo_wordmark.png",
+  "size": [
+   1600,
+   500
+  ],
+  "name": "Logo wordmark",
+  "type": "Logo",
+  "frames": "3 versions",
+  "phase": "Beta",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/menus/mnu_02_logo_wordmark.png"
+ },
+ "MNU-03": {
+  "path": "res://art/menus/mnu_03_main_menu_frame.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "name": "Main menu frame",
+  "type": "UI layout",
+  "frames": "1",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/menus/mnu_03_main_menu_frame.png"
+ },
+ "MNU-04": {
+  "path": "res://art/menus/mnu_04_options_and_pause_backgrounds.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Options and pause backgrounds",
+  "type": "Background plate",
+  "frames": "2",
+  "phase": "Production",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/menus/mnu_04_options_and_pause_backgrounds.png"
+ },
+ "MNU-05": {
+  "path": "res://art/menus/mnu_05_loading_screen.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Loading screen",
+  "type": "Background plate",
+  "frames": "1 + spinner 8 frames",
+  "phase": "Production",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/menus/mnu_05_loading_screen.png"
+ },
+ "MNU-06": {
+  "path": "res://art/menus/mnu_06_credits_background.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Credits background",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Polish and ship",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/menus/mnu_06_credits_background.png"
+ },
+ "MNU-07": {
+  "path": "res://art/menus/mnu_07_application_icon.png",
+  "size": [
+   256,
+   256
+  ],
+  "name": "Application icon",
+  "type": "Icon",
+  "frames": "1",
+  "phase": "Beta",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/menus/mnu_07_application_icon.png"
+ },
+ "MNU-08": {
+  "path": "res://art/menus/mnu_08_godot_boot_splash.png",
+  "size": [
+   1920,
+   1200
+  ],
+  "name": "Godot boot splash",
+  "type": "Background plate",
+  "frames": "1",
+  "phase": "Beta",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/menus/mnu_08_godot_boot_splash.png"
+ },
+ "VFX-01": {
+  "path": "res://art/vfx/vfx_01_soft_particle_set.png",
+  "size": [
+   64,
+   64
+  ],
+  "name": "Soft particle set",
+  "type": "Texture set",
+  "frames": "8 textures",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/vfx/vfx_01_soft_particle_set.png"
+ },
+ "VFX-02": {
+  "path": "res://art/vfx/vfx_02_smoke_puff_sheet_strip.png",
+  "size": [
+   256,
+   256
+  ],
+  "name": "Smoke puff sheet",
+  "type": "Sprite sheet",
+  "frames": "8 frames",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/vfx/vfx_02_smoke_puff_sheet_strip.png"
+ },
+ "VFX-03": {
+  "path": "res://art/vfx/vfx_03_splash_sheet_strip.png",
+  "size": [
+   256,
+   256
+  ],
+  "name": "Splash sheet",
+  "type": "Sprite sheet",
+  "frames": "8 frames",
+  "phase": "Vertical slice",
+  "priority": "Must",
+  "placeholder": "res://art_placeholder/vfx/vfx_03_splash_sheet_strip.png"
+ },
+ "MKG-01": {
+  "path": "marketing/mkg_01_steam_header_capsule.png",
+  "size": [
+   920,
+   430
+  ],
+  "name": "Steam header capsule",
+  "type": "Store art",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must"
+ },
+ "MKG-02": {
+  "path": "marketing/mkg_02_steam_small_capsule.png",
+  "size": [
+   462,
+   174
+  ],
+  "name": "Steam small capsule",
+  "type": "Store art",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must"
+ },
+ "MKG-03": {
+  "path": "marketing/mkg_03_steam_main_capsule.png",
+  "size": [
+   1232,
+   706
+  ],
+  "name": "Steam main capsule",
+  "type": "Store art",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must"
+ },
+ "MKG-04": {
+  "path": "marketing/mkg_04_steam_vertical_capsule.png",
+  "size": [
+   748,
+   896
+  ],
+  "name": "Steam vertical capsule",
+  "type": "Store art",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must"
+ },
+ "MKG-05": {
+  "path": "marketing/mkg_05_steam_page_background.png",
+  "size": [
+   1438,
+   810
+  ],
+  "name": "Steam page background",
+  "type": "Store art",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Should"
+ },
+ "MKG-06": {
+  "path": "marketing/mkg_06_steam_library_capsule.png",
+  "size": [
+   600,
+   900
+  ],
+  "name": "Steam library capsule",
+  "type": "Store art",
+  "frames": "1",
+  "phase": "Beta",
+  "priority": "Must"
+ },
+ "MKG-07": {
+  "path": "marketing/mkg_07_steam_library_hero.png",
+  "size": [
+   3840,
+   1240
+  ],
+  "name": "Steam library hero",
+  "type": "Store art",
+  "frames": "1",
+  "phase": "Beta",
+  "priority": "Must"
+ },
+ "MKG-08": {
+  "path": "marketing/mkg_08_steam_library_logo.png",
+  "size": [
+   1280,
+   720
+  ],
+  "name": "Steam library logo",
+  "type": "Store art",
+  "frames": "1",
+  "phase": "Beta",
+  "priority": "Must"
+ },
+ "MKG-09": {
+  "path": "marketing/mkg_09_steam_library_header.png",
+  "size": [
+   920,
+   430
+  ],
+  "name": "Steam library header",
+  "type": "Store art",
+  "frames": "1",
+  "phase": "Beta",
+  "priority": "Must"
+ },
+ "MKG-10": {
+  "path": "marketing/mkg_10_steam_client_and_community_icons.png",
+  "size": [
+   256,
+   256
+  ],
+  "name": "Steam client and community icons",
+  "type": "Store art",
+  "frames": "2",
+  "phase": "Beta",
+  "priority": "Must"
+ },
+ "MKG-11": {
+  "path": "marketing/mkg_11_steam_event_cover_and_header.png",
+  "size": [
+   800,
+   450
+  ],
+  "name": "Steam event cover and header",
+  "type": "Store art",
+  "frames": "2 templates",
+  "phase": "Alpha",
+  "priority": "Should"
+ },
+ "MKG-12": {
+  "path": "marketing/mkg_12_screenshots.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "name": "Screenshots",
+  "type": "Screenshot",
+  "frames": "5–10",
+  "phase": "Beta",
+  "priority": "Must"
+ },
+ "MKG-13": {
+  "path": "marketing/mkg_13_itch_io_cover_image.png",
+  "size": [
+   630,
+   500
+  ],
+  "name": "itch.io cover image",
+  "type": "Store art",
+  "frames": "1",
+  "phase": "Vertical slice",
+  "priority": "Must"
+ },
+ "MKG-14": {
+  "path": "marketing/mkg_14_itch_io_banner_and_page_background.png",
+  "size": [
+   960,
+   300
+  ],
+  "name": "itch.io banner and page background",
+  "type": "Store art",
+  "frames": "2",
+  "phase": "Vertical slice",
+  "priority": "Should"
+ },
+ "MKG-15": {
+  "path": "marketing/mkg_15_trailer_end_card_and_title_cards.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "name": "Trailer end card and title cards",
+  "type": "Video still",
+  "frames": "4 cards",
+  "phase": "Polish and ship",
+  "priority": "Must"
+ },
+ "MKG-16": {
+  "path": "res://art/marketing/mkg_16_press_kit_logo_set.png",
+  "size": [
+   3840,
+   2160
+  ],
+  "name": "Press kit logo set",
+  "type": "Logo",
+  "frames": "4 files",
+  "phase": "Polish and ship",
+  "priority": "Should",
+  "placeholder": "res://art_placeholder/marketing/mkg_16_press_kit_logo_set.png"
+ }
+}
