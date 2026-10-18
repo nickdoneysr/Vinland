@@ -126,6 +126,15 @@ static func run(t) -> void:
 	t.check("score: everyone home and rich is allowed, and scored below a living camp", not rich.full and rich.title == "Home and rich" and rich.total < full.total and "never" not in str(rich.line),
 		"%d vs %d" % [rich.total, full.total])
 	t.check("score: a camp that never sent a ship scores lowest of the three", stranded.total < rich.total and stranded.title == "A camp without a ship", str(stranded.total))
+	var dear := Score.compute(Knobs._v, {"timber": 34, "cargoes": 2, "relief": true, "camp_alive": 30, "home_alive": 10, "goodwill": 2, "dead": 9})
+	t.check("score: the whole arc with many dead is a dear-bought saga, not the full one", not dear.full and dear.title == "A dear-bought saga" and dear.total < full.total, str(dear.total))
+	# the balance sweep (F55): the three player models must stay apart
+	var bal: Dictionary = load("res://tests/balance.gd").sweep(4)
+	t.check("balance: a planner reaches the full saga most of the time (75%+)", bal.planner.full >= 0.75, "%d%%" % roundi(bal.planner.full * 100))
+	t.check("balance: an average player sometimes does (15-80%)", bal.average.full >= 0.15 and bal.average.full <= 0.8, "%d%%" % roundi(bal.average.full * 100))
+	t.check("balance: a careless player almost never does (10% or less)", bal.careless.full <= 0.1, "%d%%" % roundi(bal.careless.full * 100))
+	t.check("balance: scores and deaths are in the order of the play", bal.planner.score > bal.average.score and bal.average.score > bal.careless.score and bal.planner.dead < bal.average.dead and bal.average.dead < bal.careless.dead,
+		"%.0f / %.0f / %.0f" % [bal.planner.score, bal.average.score, bal.careless.score])
 	# the whole run, outfit to score
 	for outfit in Game.outfit_table().order:
 		var fulls := 0; var homes := 0; var total := 0; var ends := {}

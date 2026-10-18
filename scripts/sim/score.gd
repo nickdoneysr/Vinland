@@ -30,11 +30,15 @@ static func compute(k: Dictionary, d: Dictionary) -> Dictionary:
 	var dd: float = -int(d.get("dead", 0)) * n.call("score_per_death", 2)
 	if dd < 0.0:
 		add.call("%d dead" % int(d.get("dead", 0)), dd); total += dd
-	var full: bool = int(d.get("cargoes", 0)) >= int(n.call("cargoes_for_the_full_win", 2)) and d.get("relief", false) and living
+	var arc: bool = int(d.get("cargoes", 0)) >= int(n.call("cargoes_for_the_full_win", 2)) and d.get("relief", false) and living
+	var full: bool = arc and int(d.get("dead", 0)) <= int(n.call("most_deaths_for_the_full_saga", 3))
 	var title := "The full saga"
 	var line := "Two cargoes home, a relief across, and a living camp at the Strait. The timber built the next hull; the story built the next crew."
 	if not full:
-		if not living and int(d.get("cargoes", 0)) > 0:
+		if arc:
+			title = "A dear-bought saga"
+			line = "Two cargoes home, a relief across, a living camp: everything the saga asks. The cairns above the shore are the price, and the saga names them."
+		elif not living and int(d.get("cargoes", 0)) > 0:
 			title = "Home and rich"
 			line = "They loaded what they could and came home with it. The booths at the Strait stand empty; the saga tells it so, and it is still a saga."
 		elif living and int(d.get("cargoes", 0)) == 0:

@@ -1,0 +1,55 @@
+Vinland regression pass  ·  2026-10-18  ·  commit 7975193
+Godot: 4.3.stable.official.77dcf97d8
+
+Boot smoke             pass    0  fail   0  SMOKE knobs=62 art=258 hold=17/24 nav01=(900, 900) result=PASS
+Full suite             pass  233  fail   0  RESULT PASS (0 failures)
+    INFO  balance careful  arrived 100%  days 14.9  deaths 0.13  animals lost 0.00  starving days 0.0  hull 0.00  sail torn 0%  food days left 7.8  losses {  }
+    INFO  balance average  arrived 100%  days 13.9  deaths 0.08  animals lost 0.00  starving days 0.0  hull 0.00  sail torn 0%  food days left 6.8  losses {  }
+    INFO  balance average_nofix arrived 100%  days 16.7  deaths 0.20  animals lost 0.00  starving days 0.0  hull 0.00  sail torn 0%  food days left 5.5  losses {  }
+    INFO  balance reckless arrived 100%  days 13.0  deaths 0.38  animals lost 0.00  starving days 0.7  hull 0.00  sail torn 59%  food days left 1.7  losses {  }
+    INFO  hand line skilled  19.5 person-days per watch, 0.00 hooks lost
+    INFO  hand line brute    18.3 person-days per watch, 0.35 hooks lost
+    INFO  hand line eager    0.0 person-days per watch, 0.00 hooks lost
+    INFO  hand line shallow  13.6 person-days per watch, 0.00 hooks lost
+    INFO  joint steady   dry   seats 100%
+    INFO  joint steady   rain  seats 100%
+    INFO  joint hard     dry   seats   0%
+    INFO  joint hard     rain  seats   0%
+    INFO  joint timid    dry   seats   0%
+    INFO  joint timid    rain  seats   0%
+    INFO  joint no_brace dry   seats  22%
+    INFO  joint no_brace rain  seats  22%
+    INFO  camp year planner     reached spring 100%  deaths 0.0  animals lost 0.0  longhouse 100%
+    INFO  camp year summer_only reached spring 100%  deaths 6.5  animals lost 8.0  longhouse 100%
+    INFO  camp year no_hay      reached spring 100%  deaths 0.0  animals lost 8.0  longhouse 100%
+    INFO  loadout plan load: arrived 60/60, hunger 0.1   lean stores: arrived 60/60, hunger 2.5
+    INFO  outfit year Merchant         spring 100%  deaths 0.0  animals lost 0.0
+    INFO  outfit year Farm household   spring 100%  deaths 0.0  animals lost 0.0
+    INFO  outfit year Hunter-boat      spring 100%  deaths 0.0  animals lost 0.0
+    INFO  outfit year Shipwright's kin spring 100%  deaths 0.0  animals lost 0.0
+    INFO  return crossing: arrived 40 of 40, 17.0 timber units home
+    INFO  second summer: gate opened 12 of 12, home 12, 83.4 marks, 16.9 volunteers on average
+    INFO  balance planner   full saga 100%  score   351  deaths  0.1  { "The full saga": 16 }
+    INFO  balance average   full saga  56%  score   274  deaths  3.2  { "A dear-bought saga": 7, "The full saga": 9 }
+    INFO  balance careless  full saga   0%  score   127  deaths  9.9  { "A dear-bought saga": 12, "lost homeward": 4 }
+    INFO  full run Merchant         home 8 of 8, full saga 8, average score 349, ends { "home": 8 }
+    INFO  full run Farm household   home 8 of 8, full saga 8, average score 346, ends { "home": 8 }
+    INFO  full run Hunter-boat      home 8 of 8, full saga 8, average score 355, ends { "home": 8 }
+    INFO  full run Shipwright's kin home 8 of 8, full saga 8, average score 355, ends { "home": 8 }
+Novice sweep           pass   36  fail   0  RESULT PASS (0 failures)
+    INFO  novice ring    forg/key  92%  forg/pad  96%  stan/key  83%  stan/pad  83%  hard/key   4%  hard/pad  79%
+    INFO  novice line    forg/key  96%  forg/pad  96%  stan/key 100%  stan/pad  92%  hard/key  96%  hard/pad  88%
+    INFO  novice joint   forg/key 100%  forg/pad 100%  stan/key  88%  stan/pad 100%  hard/key   0%  hard/pad   0%
+    INFO  novice bail    forg/key 100%  forg/pad 100%  stan/key  92%  stan/pad  83%  hard/key  42%  hard/pad  50%
+    INFO  novice hunt    forg/key  75%  forg/pad  79%  stan/key  50%  stan/pad  63%  hard/key  25%  hard/pad  21%
+    INFO  novice forage  forg/key 100%  forg/pad 100%  stan/key 100%  stan/pad 100%  hard/key   4%  hard/pad   4%
+    INFO  novice sun     forg/key 100%  forg/pad 100%  stan/key 100%  stan/pad  96%  hard/key  42%  hard/pad  79%
+    INFO  novice net     forg/key  96%  forg/pad 100%  stan/key  71%  stan/pad  92%  hard/key  50%  hard/pad  71%
+    INFO  novice rack    forg/key 100%  forg/pad 100%  stan/key 100%  stan/pad 100%  hard/key 100%  hard/pad  13%
+Save and load          pass    6  fail   0  RESULT PASS (0 failures)
+Balance sweep (n=20)   pass    0  fail   0  RESULT PASS (balance targets: planner 75%+, average 15-80%, careless 10% or less)
+    INFO  balance planner   full saga 100%  score   349  deaths  0.4  { "The full saga": 80 }
+    INFO  balance average   full saga  44%  score   265  deaths  3.8  { "A dear-bought saga": 42, "The full saga": 35, "A camp at the Strait": 1, "stranded": 2 }
+    INFO  balance careless  full saga   0%  score   129  deaths  9.8  { "A dear-bought saga": 56, "lost homeward": 7, "stranded": 11, "A camp at the Strait": 6 }
+
+Manual items: see the plan's Regression sheet; tick them on this build and note the report file name there.

@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://dqf6nbr37jv5s"
+
+[deps]
+
+files=["res://docs/balance/fullrun_sweep.policy.translation", "res://docs/balance/fullrun_sweep.seed.translation", "res://docs/balance/fullrun_sweep.end.translation", "res://docs/balance/fullrun_sweep.title.translation", "res://docs/balance/fullrun_sweep.score.translation", "res://docs/balance/fullrun_sweep.cargoes.translation", "res://docs/balance/fullrun_sweep.timber.translation", "res://docs/balance/fullrun_sweep.dead.translation", "res://docs/balance/fullrun_sweep.animals.translation", "res://docs/balance/fullrun_sweep.home.translation", "res://docs/balance/fullrun_sweep.silver.translation"]
+
+source_file="res://docs/balance/fullrun_sweep.csv"
+dest_files=["res://docs/balance/fullrun_sweep.policy.translation", "res://docs/balance/fullrun_sweep.seed.translation", "res://docs/balance/fullrun_sweep.end.translation", "res://docs/balance/fullrun_sweep.title.translation", "res://docs/balance/fullrun_sweep.score.translation", "res://docs/balance/fullrun_sweep.cargoes.translation", "res://docs/balance/fullrun_sweep.timber.translation", "res://docs/balance/fullrun_sweep.dead.translation", "res://docs/balance/fullrun_sweep.animals.translation", "res://docs/balance/fullrun_sweep.home.translation", "res://docs/balance/fullrun_sweep.silver.translation"]
+
+[params]
+
+compress=true
+delimiter=0
